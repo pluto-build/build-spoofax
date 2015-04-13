@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Spoofax Cleardep Builder
-Bundle-SymbolicName: org.metaborg.spoofax.build.cleardep;singleton:=true
+Bundle-SymbolicName: build-spoofax;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.metaborg.spoofax.build.cleardep.Activator
+Bundle-Activator: build.pluto.buildspoofax.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -45,7 +45,7 @@ Import-Package: build.pluto,
  org.sugarj.common,
  org.sugarj.common.path,
  org.sugarj.common.util
-Export-Package: org.metaborg.spoofax.build.cleardep;
+Export-Package: build.pluto.buildspoofax;
   uses:="org.sugarj.cleardep.stamp,
    org.sugarj.common.path,
    org.eclipse.ui.plugin,
@@ -57,10 +57,10 @@ Export-Package: org.metaborg.spoofax.build.cleardep;
    org.sugarj.cleardep,
    org.eclipse.core.resources,
    org.spoofax.interpreter.library",
- org.metaborg.spoofax.build.cleardep.builders;
+ build.pluto.buildspoofax.builders;
   uses:="org.sugarj.cleardep,
    org.metaborg.spoofax.build.cleardep,
    org.sugarj.cleardep.stamp,
    org.sugarj.common.path,
    org.sugarj.cleardep.build",
- org.metaborg.spoofax.build.cleardep.util
+ build.pluto.buildspoofax.util

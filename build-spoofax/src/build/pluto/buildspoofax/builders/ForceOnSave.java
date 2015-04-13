@@ -1,0 +1,52 @@
+package build.pluto.buildspoofax.builders;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.sugarj.common.FileCommands;
+import org.sugarj.common.path.Path;
+import org.sugarj.common.path.RelativePath;
+
+import build.pluto.buildspoofax.SpoofaxBuilder;
+import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.util.FileExtensionFilter;
+import build.pluto.output.None;
+
+public class ForceOnSave extends SpoofaxBuilder<SpoofaxInput, None> {
+
+	public static SpoofaxBuilderFactory<SpoofaxInput, None, ForceOnSave> factory = new SpoofaxBuilderFactory<SpoofaxInput, None, ForceOnSave>() {
+		private static final long serialVersionUID = 4436143308769039647L;
+
+		@Override
+		public ForceOnSave makeBuilder(SpoofaxInput input) { return new ForceOnSave(input); }
+	};
+	
+	public ForceOnSave(SpoofaxInput input) {
+		super(input);
+	}
+
+	@Override
+	protected String description() {
+		return "Force on-save handlers for SDF3, NaBL, TS, etc.";
+	}
+	
+	@Override
+	protected Path persistentPath() {
+		return context.depPath("forceOnSave.dep");
+	}
+
+	@Override
+	public None build() throws IOException {
+		// XXX really need to delete old sdf3 files? Or is it sufficient to remove them from `paths` below?
+		List<RelativePath> oldSdf3Paths = FileCommands.listFilesRecursive(context.basePath("src-gen"), new FileExtensionFilter("sdf3"));
+		for (Path p : oldSdf3Paths)
+			FileCommands.delete(p);
+		
+		List<RelativePath> paths = FileCommands.listFilesRecursive(
+				context.baseDir, 
+				new FileExtensionFilter("tmpl", "sdf3", "nab", "ts"));
+		for (RelativePath p : paths)
+			requireBuild(ForceOnSaveFile.factory, new ForceOnSaveFile.Input(context, p));
+		return None.val;
+	}
+}

@@ -1,0 +1,58 @@
+package build.pluto.buildspoofax.stampers;
+
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.TermTransformer;
+import org.sugarj.common.FileCommands;
+import org.sugarj.common.path.Path;
+
+import build.pluto.builder.BuildManager;
+import build.pluto.builder.BuildRequest;
+import build.pluto.buildspoofax.StrategoExecutor;
+import build.pluto.stamp.LastModifiedStamper;
+import build.pluto.stamp.Stamp;
+import build.pluto.stamp.Stamper;
+import build.pluto.stamp.ValueStamp;
+
+public class Sdf2RtgStamper implements Stamper {
+	private static final long serialVersionUID = -8516817559822107040L;
+	
+	private BuildRequest<?, IStrategoTerm, ?, ?> parseSdfDefinition;
+	
+	public Sdf2RtgStamper(BuildRequest<?, IStrategoTerm, ?, ?> parseSdfDefinition) {
+		this.parseSdfDefinition = parseSdfDefinition;
+	}
+
+	@Override
+	public Stamp stampOf(Path p) {
+		if (!FileCommands.exists(p))
+			return new ValueStamp<>(this, null);
+
+		IStrategoTerm term = BuildManager.build(parseSdfDefinition);
+		
+		if (term == null)
+			return LastModifiedStamper.instance.stampOf(p);
+		
+		ITermFactory factory = StrategoExecutor.strategoSdfcontext().getFactory();
+		Deliteralize deliteralize = new Deliteralize(factory, false);
+		IStrategoTerm delit = deliteralize.transform(term);
+		return new ValueStamp<>(this, delit);
+	}
+
+	private static class Deliteralize extends TermTransformer {
+		private final ITermFactory factory;
+
+		public Deliteralize(ITermFactory factory, boolean keepAttachments) {
+			super(factory, keepAttachments);
+			this.factory = factory;
+		}
+
+		@Override
+		public IStrategoTerm preTransform(IStrategoTerm term) {
+			if (term instanceof IStrategoAppl && ((IStrategoAppl) term).getConstructor().getName().equals("lit"))
+				return factory.makeAppl(factory.makeConstructor("lit", 1), factory.makeString(""));
+			return term;
+		}
+	}
+}
