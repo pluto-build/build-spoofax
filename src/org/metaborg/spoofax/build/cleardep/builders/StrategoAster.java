@@ -10,12 +10,13 @@ import org.metaborg.spoofax.build.cleardep.SpoofaxContext;
 import org.metaborg.spoofax.build.cleardep.StrategoExecutor;
 import org.metaborg.spoofax.build.cleardep.StrategoExecutor.ExecutionResult;
 import org.metaborg.spoofax.build.cleardep.util.FileExtensionFilter;
-import org.sugarj.cleardep.BuildUnit.State;
-import org.sugarj.cleardep.output.None;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.StringCommands;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.BuildUnit.State;
+import build.pluto.output.None;
 
 public class StrategoAster extends SpoofaxBuilder<StrategoAster.Input, None> {
 

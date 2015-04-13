@@ -7,9 +7,10 @@ import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder.SpoofaxInput;
 import org.metaborg.spoofax.build.cleardep.SpoofaxContext;
 import org.metaborg.spoofax.build.cleardep.StrategoExecutor;
 import org.metaborg.spoofax.build.cleardep.StrategoExecutor.ExecutionResult;
-import org.sugarj.cleardep.BuildUnit.State;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.BuildUnit.State;
 
 public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Path> {
 

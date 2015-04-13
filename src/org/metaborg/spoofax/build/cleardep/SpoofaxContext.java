@@ -2,12 +2,13 @@ package org.metaborg.spoofax.build.cleardep;
 
 import java.io.Serializable;
 
-import org.sugarj.cleardep.build.Builder;
-import org.sugarj.cleardep.stamp.FileExistsStamper;
-import org.sugarj.cleardep.stamp.LastModifiedStamper;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.builder.Builder;
+import build.pluto.stamp.FileExistsStamper;
+import build.pluto.stamp.LastModifiedStamper;
 
 public class SpoofaxContext implements Serializable{
 	private static final long serialVersionUID = -1973461199459693455L;

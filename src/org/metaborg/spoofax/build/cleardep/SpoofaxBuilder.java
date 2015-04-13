@@ -3,11 +3,12 @@ package org.metaborg.spoofax.build.cleardep;
 import java.io.Serializable;
 
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder.SpoofaxInput;
-import org.sugarj.cleardep.build.Builder;
-import org.sugarj.cleardep.build.BuilderFactory;
-import org.sugarj.cleardep.stamp.FileHashStamper;
-import org.sugarj.cleardep.stamp.LastModifiedStamper;
-import org.sugarj.cleardep.stamp.Stamper;
+
+import build.pluto.builder.Builder;
+import build.pluto.builder.BuilderFactory;
+import build.pluto.stamp.FileHashStamper;
+import build.pluto.stamp.LastModifiedStamper;
+import build.pluto.stamp.Stamper;
 
 abstract public class SpoofaxBuilder<In extends SpoofaxInput, Out extends Serializable> extends Builder<In, Out> {
 

@@ -15,12 +15,13 @@ import org.metaborg.spoofax.build.cleardep.stampers.PPGenStamper;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.tools.main_pp_pp_table_0_0;
 import org.strategoxt.tools.main_ppgen_0_0;
-import org.sugarj.cleardep.BuildUnit.State;
-import org.sugarj.cleardep.build.BuildRequest;
-import org.sugarj.cleardep.output.None;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.BuildUnit.State;
+import build.pluto.builder.BuildRequest;
+import build.pluto.output.None;
 
 public class PPGen extends SpoofaxBuilder<SpoofaxInput, None> {
 

@@ -9,15 +9,16 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermTransformer;
-import org.sugarj.cleardep.build.BuildManager;
-import org.sugarj.cleardep.build.BuildRequest;
-import org.sugarj.cleardep.stamp.LastModifiedStamper;
-import org.sugarj.cleardep.stamp.Stamp;
-import org.sugarj.cleardep.stamp.Stamper;
-import org.sugarj.cleardep.stamp.ValueStamp;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.Path;
+
+import build.pluto.builder.BuildManager;
+import build.pluto.builder.BuildRequest;
+import build.pluto.stamp.LastModifiedStamper;
+import build.pluto.stamp.Stamp;
+import build.pluto.stamp.Stamper;
+import build.pluto.stamp.ValueStamp;
 
 public class PPGenStamper implements Stamper {
 	private static final long serialVersionUID = 3294157251470549994L;

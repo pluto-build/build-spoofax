@@ -6,13 +6,14 @@ import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder;
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder.SpoofaxInput;
 import org.strategoxt.imp.metatooling.building.AntForceRefreshScheduler;
 import org.strategoxt.imp.metatooling.loading.AntDescriptorLoader;
-import org.sugarj.cleardep.build.BuildRequest;
-import org.sugarj.cleardep.buildjava.JavaJar;
-import org.sugarj.cleardep.output.None;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.builder.BuildRequest;
+import build.pluto.buildjava.JavaJar;
+import build.pluto.output.None;
 
 public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 

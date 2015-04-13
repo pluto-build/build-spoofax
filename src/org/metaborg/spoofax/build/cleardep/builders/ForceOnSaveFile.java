@@ -19,11 +19,12 @@ import org.strategoxt.imp.runtime.services.OnSaveService;
 import org.strategoxt.imp.runtime.services.StrategoObserver;
 import org.strategoxt.imp.runtime.services.StrategoObserverUpdateJob;
 import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
-import org.sugarj.cleardep.output.None;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.output.None;
 
 public class ForceOnSaveFile extends SpoofaxBuilder<ForceOnSaveFile.Input, None> {
 

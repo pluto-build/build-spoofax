@@ -4,12 +4,13 @@ import java.io.IOException;
 
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder;
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder.SpoofaxInput;
-import org.sugarj.cleardep.output.None;
-import org.sugarj.cleardep.stamp.LastModifiedStamper;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.output.None;
+import build.pluto.stamp.LastModifiedStamper;
 
 public class CopyUtils extends SpoofaxBuilder<SpoofaxInput, None> {
 

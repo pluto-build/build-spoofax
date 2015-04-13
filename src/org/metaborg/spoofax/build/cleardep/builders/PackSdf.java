@@ -14,13 +14,14 @@ import org.metaborg.spoofax.build.cleardep.StrategoExecutor;
 import org.metaborg.spoofax.build.cleardep.StrategoExecutor.ExecutionResult;
 import org.metaborg.spoofax.build.cleardep.util.FileExtensionFilter;
 import org.strategoxt.tools.main_pack_sdf_0_0;
-import org.sugarj.cleardep.BuildUnit.State;
-import org.sugarj.cleardep.output.None;
-import org.sugarj.cleardep.stamp.LastModifiedStamper;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.BuildUnit.State;
+import build.pluto.output.None;
+import build.pluto.stamp.LastModifiedStamper;
 
 public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	

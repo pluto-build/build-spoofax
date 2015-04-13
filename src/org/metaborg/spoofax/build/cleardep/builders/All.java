@@ -4,9 +4,10 @@ import java.io.IOException;
 
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder;
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder.SpoofaxInput;
-import org.sugarj.cleardep.output.None;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.output.None;
 
 
 public class All extends SpoofaxBuilder<SpoofaxInput, None> {

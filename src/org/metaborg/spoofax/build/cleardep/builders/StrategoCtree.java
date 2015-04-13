@@ -5,12 +5,13 @@ import java.io.IOException;
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder;
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder.SpoofaxInput;
 import org.metaborg.spoofax.build.cleardep.SpoofaxContext;
-import org.sugarj.cleardep.build.BuildRequest;
-import org.sugarj.cleardep.stamp.LastModifiedStamper;
-import org.sugarj.cleardep.stamp.Stamper;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 import org.sugarj.common.util.ArrayUtils;
+
+import build.pluto.builder.BuildRequest;
+import build.pluto.stamp.LastModifiedStamper;
+import build.pluto.stamp.Stamper;
 
 public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, Path> {
 

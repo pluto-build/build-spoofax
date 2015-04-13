@@ -6,10 +6,11 @@ import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder;
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder.SpoofaxInput;
 import org.metaborg.spoofax.build.cleardep.util.FileExtensionFilter;
 import org.metaborg.spoofax.build.cleardep.util.FileNameFilter;
-import org.sugarj.cleardep.output.None;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
+
+import build.pluto.output.None;
 
 public class Clean extends SpoofaxBuilder<SpoofaxInput, None> {
 

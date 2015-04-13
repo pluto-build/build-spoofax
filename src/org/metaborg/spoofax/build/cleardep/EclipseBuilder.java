@@ -21,13 +21,6 @@ import org.strategoxt.imp.metatooling.NativePrefixAntPropertyProvider;
 import org.strategoxt.imp.metatooling.PluginClasspathProvider;
 import org.strategoxt.imp.metatooling.StrategoJarAntPropertyProvider;
 import org.strategoxt.imp.metatooling.StrategoMinJarAntPropertyProvider;
-import org.sugarj.cleardep.BuildUnit;
-import org.sugarj.cleardep.BuildUnit.ModuleVisitor;
-import org.sugarj.cleardep.build.BuildManager;
-import org.sugarj.cleardep.build.BuildRequest;
-import org.sugarj.cleardep.dependency.FileRequirement;
-import org.sugarj.cleardep.dependency.Requirement;
-import org.sugarj.cleardep.stamp.Stamper;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
@@ -35,6 +28,14 @@ import org.sugarj.common.path.RelativePath;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import build.pluto.BuildUnit;
+import build.pluto.BuildUnit.ModuleVisitor;
+import build.pluto.builder.BuildManager;
+import build.pluto.builder.BuildRequest;
+import build.pluto.dependency.FileRequirement;
+import build.pluto.dependency.Requirement;
+import build.pluto.stamp.Stamper;
 
 /**
  * updates editors to show newly built results

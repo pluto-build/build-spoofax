@@ -7,11 +7,12 @@ import java.nio.file.StandardCopyOption;
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder;
 import org.metaborg.spoofax.build.cleardep.SpoofaxBuilder.SpoofaxInput;
 import org.metaborg.spoofax.build.cleardep.SpoofaxContext;
-import org.sugarj.cleardep.output.None;
-import org.sugarj.cleardep.stamp.LastModifiedStamper;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.output.None;
+import build.pluto.stamp.LastModifiedStamper;
 
 public class CopyJar extends SpoofaxBuilder<CopyJar.Input, None> {
 

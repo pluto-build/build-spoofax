@@ -13,11 +13,12 @@ import org.metaborg.spoofax.build.cleardep.builders.aux.ParseSdfDefinition;
 import org.metaborg.spoofax.build.cleardep.stampers.Sdf2RtgStamper;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.tools.main_sdf2rtg_0_0;
-import org.sugarj.cleardep.BuildUnit.State;
-import org.sugarj.cleardep.build.BuildRequest;
-import org.sugarj.cleardep.output.None;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+
+import build.pluto.BuildUnit.State;
+import build.pluto.builder.BuildRequest;
+import build.pluto.output.None;
 
 public class Sdf2Rtg extends SpoofaxBuilder<Sdf2Rtg.Input, None> {
 
