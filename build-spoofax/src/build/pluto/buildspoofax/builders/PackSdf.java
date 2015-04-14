@@ -13,13 +13,13 @@ import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 
 import build.pluto.BuildUnit.State;
-import build.pluto.buildspoofax.LoggingFilteringIOAgent;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.util.FileExtensionFilter;
+import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
 import build.pluto.stamp.LastModifiedStamper;
 

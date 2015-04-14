@@ -4,18 +4,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.model.ModelFactory.ModelException;
+//import org.eclipse.core.resources.IProject;
+//import org.eclipse.core.runtime.CoreException;
+//import org.eclipse.core.runtime.NullProgressMonitor;
+//import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.imp.runtime.FileState;
-import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
-import org.strategoxt.imp.runtime.services.OnSaveService;
-import org.strategoxt.imp.runtime.services.StrategoObserver;
-import org.strategoxt.imp.runtime.services.StrategoObserverUpdateJob;
-import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
+//import org.strategoxt.imp.runtime.FileState;
+//import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
+//import org.strategoxt.imp.runtime.services.OnSaveService;
+//import org.strategoxt.imp.runtime.services.StrategoObserver;
+//import org.strategoxt.imp.runtime.services.StrategoObserverUpdateJob;
+//import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
@@ -62,7 +62,7 @@ public class ForceOnSaveFile extends SpoofaxBuilder<ForceOnSaveFile.Input, None>
 	}
 
 	@Override
-	public None build() throws IOException, BadDescriptorException, ModelException, CoreException {
+	public None build() throws IOException {
 		RelativePath p = FileCommands.getRelativePath(context.baseDir, input.inputPath);
 		
 		require(p);
@@ -102,7 +102,7 @@ public class ForceOnSaveFile extends SpoofaxBuilder<ForceOnSaveFile.Input, None>
 		return None.val;
 	}
 	
-	private void callOnSaveService(RelativePath p) throws FileNotFoundException, BadDescriptorException, ModelException, CoreException {
+	private void callOnSaveService(RelativePath p) throws FileNotFoundException {
 		FileState fileState = FileState.getFile(new org.eclipse.core.runtime.Path(p.getAbsolutePath()), null);
 		if (fileState == null) {
 			Log.log.logErr("Could not call on-save handler: File state could not be retrieved for file " + p, Log.CORE);

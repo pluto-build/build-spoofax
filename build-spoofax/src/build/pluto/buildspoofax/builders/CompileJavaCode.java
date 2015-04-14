@@ -80,11 +80,11 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 		requireBuild(JavaBuilder.factory, 
 				new JavaBuilder.Input(
-						sourceFiles,
+						sourceFiles.toArray(new Path[0]),
 						targetDir,
-						sourcePath, 
-						classPath,
-						additionalArgs,
+						sourcePath.toArray(new Path[0]), 
+						classPath.toArray(new Path[0]),
+						additionalArgs.toArray(new String[0]),
 						null,
 						false));
 		

@@ -16,6 +16,8 @@ import org.strategoxt.stratego_sdf.stratego_sdf;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Log;
 
+import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
+
 public class StrategoExecutor {
 
 	public static class ExecutionResult {
