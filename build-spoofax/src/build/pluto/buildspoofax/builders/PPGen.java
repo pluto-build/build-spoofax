@@ -52,7 +52,7 @@ public class PPGen extends SpoofaxBuilder<SpoofaxInput, None> {
 		if (!context.isBuildStrategoEnabled(this))
 			return None.val;
 		
-		BuildRequest<?,?,?,?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context));
+		BuildRequest<PackSdf.Input,None,PackSdf,?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context));
 		requireBuild(packSdf);
 
 		RelativePath inputPath = context.basePath("${include}/${sdfmodule}.def");
@@ -60,7 +60,7 @@ public class PPGen extends SpoofaxBuilder<SpoofaxInput, None> {
 		RelativePath afOutputPath = context.basePath("${include}/${sdfmodule}.generated.pp.af");
 		
 		if (SpoofaxContext.BETTER_STAMPERS) {
-			BuildRequest<?, IStrategoTerm, ?, ?> parseSdfDefinition = new BuildRequest<>(ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?,?,?,?>[]{packSdf}));
+			BuildRequest<ParseSdfDefinition.Input, IStrategoTerm, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?,?,?,?>[]{packSdf}));
 			require(inputPath, new PPGenStamper(parseSdfDefinition));
 		}
 		else

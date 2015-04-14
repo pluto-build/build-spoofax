@@ -60,7 +60,7 @@ public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, Non
 	@Override
 	public None build() throws IOException {
 		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfmodule, input.externaldef));
-		BuildRequest<?, ?, ?, ?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context, input.sdfmodule, input.buildSdfImports));
+		BuildRequest<PackSdf.Input, None, PackSdf, ?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context, input.sdfmodule, input.buildSdfImports));
 		requireBuild(packSdf);
 		
 		RelativePath inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
@@ -68,7 +68,7 @@ public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, Non
 		String outputmodule = "include/" + input.sdfmodule + "-parenthesize";
 
 		if (SpoofaxContext.BETTER_STAMPERS) {
-			BuildRequest<?, IStrategoTerm, ?, ?> parseSdfDefinition = new BuildRequest<>(ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?,?,?,?>[]{packSdf}));
+			BuildRequest<ParseSdfDefinition.Input, IStrategoTerm, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?,?,?,?>[]{packSdf}));
 			require(inputPath, new Sdf2ParenthesizeStamper(parseSdfDefinition));
 		}
 		else

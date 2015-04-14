@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.metaborg.spoofax.core.SpoofaxModule;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.imp.metatooling.stratego.SDFBundleCommand;
 import org.strategoxt.lang.Context;
@@ -15,6 +16,9 @@ import org.strategoxt.stratego_lib.dr_scope_all_start_0_0;
 import org.strategoxt.stratego_sdf.stratego_sdf;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Log;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 
@@ -127,6 +131,8 @@ public class StrategoExecutor {
 	private static Context toolsContext;
 	private static Context xtcContext;
 	
+	private static Injector guiceInjector;
+	
 	public static Context generatorContext() {
 		synchronized (StrategoExecutor.class) {
 			if (generatorContext != null)
@@ -168,6 +174,11 @@ public class StrategoExecutor {
 		return xtcContext;
 	}
 	
-	
+	public static synchronized Injector guiceInjector() {
+		if (guiceInjector != null)
+			return guiceInjector;
+		guiceInjector = Guice.createInjector(new SpoofaxModule());
+		return guiceInjector;
+	}
 
 }

@@ -10,6 +10,7 @@ import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.output.None;
 import build.pluto.stamp.LastModifiedStamper;
 import build.pluto.stamp.Stamper;
 
@@ -64,7 +65,7 @@ public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, Path> {
 
 	@Override
 	public Path build() throws IOException {
-		BuildRequest<?,?,?,?> rtg2Sig = new BuildRequest<>(Rtg2Sig.factory, new Rtg2Sig.Input(context, input.sdfmodule, input.buildSdfImports));
+		BuildRequest<Rtg2Sig.Input,None,Rtg2Sig,?> rtg2Sig = new BuildRequest<>(Rtg2Sig.factory, new Rtg2Sig.Input(context, input.sdfmodule, input.buildSdfImports));
 		
 		if (!context.isBuildStrategoEnabled(this))
 			throw new IllegalArgumentException(context.props.substitute("Main stratego file '${strmodule}.str' not found."));
