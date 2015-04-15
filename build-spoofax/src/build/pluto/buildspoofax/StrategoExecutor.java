@@ -14,6 +14,7 @@ import org.strategoxt.stratego_lib.dr_scope_all_end_0_0;
 import org.strategoxt.stratego_lib.dr_scope_all_start_0_0;
 import org.strategoxt.stratego_sdf.stratego_sdf;
 import org.sugarj.common.Exec;
+import org.sugarj.common.FileCommands;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
 
@@ -59,21 +60,25 @@ public class StrategoExecutor {
 					sargs.add(s);
 		}
 
+		boolean success = false;
 		try {
 			if (!silent)
 				Log.log.beginTask("Execute " + desc, Log.CORE);
 			strategoContext.setIOAgent(agent);
 			dr_scope_all_start_0_0.instance.invoke(strategoContext, strategoContext.getFactory().makeTuple());
 			strategoContext.invokeStrategyCLI(strat, desc, sargs.toArray(new String[sargs.size()]));
+			success = true;
 			return new ExecutionResult(true, agent.getOutLog(), agent.getErrLog());
 		} catch (StrategoExit e) {
-			if (e.getValue() == 0)
+			if (e.getValue() == 0) {
+				success = true;
 				return new ExecutionResult(true, agent.getOutLog(), agent.getErrLog());
+			}
 			return new ExecutionResult(false, agent.getOutLog(), agent.getErrLog());
 		} finally {
 			dr_scope_all_end_0_0.instance.invoke(strategoContext, strategoContext.getFactory().makeTuple());
 			if (!silent)
-				Log.log.endTask();
+				Log.log.endTask(success);
 		}
 	}
 	
@@ -81,31 +86,40 @@ public class StrategoExecutor {
 		return runStratego(false, strategoContext, strat, desc, agent, current);
 	}
 	public static ExecutionResult runStratego(boolean silent, Context strategoContext, Strategy strat, String desc, LoggingFilteringIOAgent agent, IStrategoTerm current) {
+		boolean success = false;
 		try {
 			if (!silent)
 				Log.log.beginTask("Execute " + desc, Log.CORE);
 			strategoContext.setIOAgent(agent);
 			dr_scope_all_start_0_0.instance.invoke(strategoContext, current);
 			IStrategoTerm result  = strat.invoke(strategoContext, current);
+			success = true;
 			return new ExecutionResult(result, agent.getOutLog(), agent.getErrLog());
 		} catch (StrategoExit e) {
 			return new ExecutionResult(false, agent.getOutLog(), agent.getErrLog());
 		} finally {
 			dr_scope_all_end_0_0.instance.invoke(strategoContext, current);
 			if (!silent)
-				Log.log.endTask();
+				Log.log.endTask(success);
 		}
 	}
 	
 	public static ExecutionResult runSdf2TableCLI(Path sdf2tableExecutable, Object... args) throws IOException {
+		Path sdf2tableDir = FileCommands.dropFilename(sdf2tableExecutable);
+		String sdf2tableFile = FileCommands.dropDirectory(sdf2tableExecutable);
+		String[] sargs = new String[args.length + 1];
+		sargs[0] = sdf2tableFile;
+		for (int i = 0; i < args.length; i++)
+			sargs[i+1] = args[i].toString();
+		
+		boolean success = false;
 		try {
 			Log.log.beginTask("Execute sdf2table", Log.CORE);
-			Exec.ExecutionResult result = Exec.run(sdf2tableExecutable.getAbsolutePath(), args);
+			Exec.ExecutionResult result = Exec.run(sdf2tableDir, sargs);
+			success = true;
 			return new ExecutionResult(true, StringUtils.join(result.outMsgs, '\n'), StringUtils.join(result.errMsgs, '\n'));
-		} catch (Exec.ExecutionError e) {
-			return new ExecutionResult(false, StringUtils.join(e.outMsgs, '\n'), StringUtils.join(e.errMsgs, '\n'));
 		} finally {
-			Log.log.endTask();
+			Log.log.endTask(success);
 		}
 	}
 	

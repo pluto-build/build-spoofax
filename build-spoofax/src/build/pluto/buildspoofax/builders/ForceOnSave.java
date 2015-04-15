@@ -69,8 +69,9 @@ public class ForceOnSave extends SpoofaxBuilder<SpoofaxInput, None> {
 		Path p = context.basePath("${include}");
 		FileObject dir = resourceSerivce.resolve(p.getAbsolutePath());
 		
-		for (ILanguage lang : discoverySerivce.discover(dir))
-			System.out.println("Found: " + lang);
+		Iterable<ILanguage> langs = discoverySerivce.discover(dir);
+		ILanguage lang = langs.iterator().next();
+		System.out.println(lang);
 	}
 
 }

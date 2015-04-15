@@ -1,18 +1,12 @@
 package build.pluto.buildspoofax;
 
 import java.io.Serializable;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.strategoxt.imp.metatooling.JarsAntPropertyProvider;
-import org.strategoxt.imp.metatooling.NativePrefixAntPropertyProvider;
-import org.strategoxt.imp.metatooling.PluginClasspathProvider;
-import org.strategoxt.imp.metatooling.StrategoJarAntPropertyProvider;
-import org.strategoxt.imp.metatooling.StrategoMinJarAntPropertyProvider;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.AbsolutePath;
