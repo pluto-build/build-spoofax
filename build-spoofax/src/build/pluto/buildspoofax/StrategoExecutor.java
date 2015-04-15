@@ -3,24 +3,24 @@ package build.pluto.buildspoofax;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.imp.metatooling.stratego.SDFBundleCommand;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.StrategoExit;
 import org.strategoxt.lang.Strategy;
 import org.strategoxt.stratego_lib.dr_scope_all_end_0_0;
 import org.strategoxt.stratego_lib.dr_scope_all_start_0_0;
 import org.strategoxt.stratego_sdf.stratego_sdf;
-import org.sugarj.common.ATermCommands;
+import org.sugarj.common.Exec;
 import org.sugarj.common.Log;
+import org.sugarj.common.path.Path;
+
+import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 
 public class StrategoExecutor {
 
@@ -97,32 +97,18 @@ public class StrategoExecutor {
 		}
 	}
 	
-	public static ExecutionResult runSdf2TableCLI(Context xtcContext, Object... args) throws IOException {
-		List<IStrategoTerm> tArgs = new ArrayList<>(args.length);
-		for (int i = 0; i < args.length; i++) {
-			String str = args[i].toString();
-			for (String s : str.split("[ \t\r\n]"))
-				if (!s.isEmpty())
-					tArgs.add(ATermCommands.makeString(s));
-		}
-
-		LoggingFilteringIOAgent agent = new LoggingFilteringIOAgent(Pattern.quote("Invoking native tool") + ".*");
+	public static ExecutionResult runSdf2TableCLI(Path sdf2tableExecutable, Object... args) throws IOException {
 		try {
 			Log.log.beginTask("Execute sdf2table", Log.CORE);
-			xtcContext.setIOAgent(agent);
-			SDFBundleCommand.getInstance().init();
-			SDFBundleCommand.getInstance().invoke(xtcContext, "sdf2table", tArgs.toArray(new IStrategoTerm[tArgs.size()]));
-			return new ExecutionResult(true, agent.getOutLog(), agent.getErrLog());
-		} catch (StrategoExit e) {
-			if (e.getValue() == 0)
-				return new ExecutionResult(true, agent.getOutLog(), agent.getErrLog());
-			return new ExecutionResult(false, agent.getOutLog(), agent.getErrLog());
+			Exec.ExecutionResult result = Exec.run(sdf2tableExecutable.getAbsolutePath(), args);
+			return new ExecutionResult(true, StringUtils.join(result.outMsgs, '\n'), StringUtils.join(result.errMsgs, '\n'));
+		} catch (Exec.ExecutionError e) {
+			return new ExecutionResult(false, StringUtils.join(e.outMsgs, '\n'), StringUtils.join(e.errMsgs, '\n'));
 		} finally {
 			Log.log.endTask();
 		}
 	}
 	
-
 
 
 	private static Context strategoSdfContext;
