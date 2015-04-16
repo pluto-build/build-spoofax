@@ -69,7 +69,7 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		
 		
 		List<Path> classPath = new ArrayList<>();
-		classPath.add(new AbsolutePath(context.props.getOrFail("eclipse.spoofaximp.strategominjar")));
+		classPath.add(context.basePath("utils/strategoxt.jar"));
 		classPath.add(context.basePath("${src-gen}"));
 		if (context.props.isDefined("externaljar"))
 			classPath.add(new AbsolutePath(context.props.get("externaljar")));

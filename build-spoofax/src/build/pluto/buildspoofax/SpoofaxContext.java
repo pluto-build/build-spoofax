@@ -77,10 +77,6 @@ public class SpoofaxContext implements Serializable{
 		props.put("sdf-src-gen", "src-gen");
 		props.put("lib-gen", "include");
 
-//		props.put("eclipse.spoofaximp.nativeprefix", new NativePrefixAntPropertyProvider().getAntPropertyValue(null));
-//		props.put("eclipse.spoofaximp.strategojar", new StrategoJarAntPropertyProvider().getAntPropertyValue(null));
-//		props.put("eclipse.spoofaximp.strategominjar", new StrategoMinJarAntPropertyProvider().getAntPropertyValue(null));
-//		props.put("eclipse.spoofaximp.jars", new JarsAntPropertyProvider().getAntPropertyValue(null));
 //		props.put("externaljarx", new PluginClasspathProvider().getAntPropertyValue(null));
 		
 		String lang;
