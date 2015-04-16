@@ -17,13 +17,13 @@ import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
 
-public class Sdf2ImpEclipse extends SpoofaxBuilder<Sdf2ImpEclipse.Input, None> {
+public class Sdf2Imp extends SpoofaxBuilder<Sdf2Imp.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Sdf2ImpEclipse> factory = new SpoofaxBuilderFactory<Input, None, Sdf2ImpEclipse>() {
+	public static SpoofaxBuilderFactory<Input, None, Sdf2Imp> factory = new SpoofaxBuilderFactory<Input, None, Sdf2Imp>() {
 		private static final long serialVersionUID = 8374273854477950798L;
 
 		@Override
-		public Sdf2ImpEclipse makeBuilder(Input input) { return new Sdf2ImpEclipse(input); }
+		public Sdf2Imp makeBuilder(Input input) { return new Sdf2Imp(input); }
 	};
 
 	public static class Input extends SpoofaxInput {
@@ -39,18 +39,18 @@ public class Sdf2ImpEclipse extends SpoofaxBuilder<Sdf2ImpEclipse.Input, None> {
 		}
 	}
 	
-	public Sdf2ImpEclipse(Input input) {
+	public Sdf2Imp(Input input) {
 		super(input);
 	}
 
 	@Override
 	protected String description() {
-		return "Generate Eclipse IMP plug-in";
+		return "Generate language plug-in";
 	}
 	
 	@Override
 	protected Path persistentPath() {
-		return context.depPath("sdf2ImpEclipse." + input.esvmodule + ".dep");
+		return context.depPath("sdf2Imp." + input.esvmodule + ".dep");
 	}
 
 	@Override

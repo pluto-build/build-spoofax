@@ -60,7 +60,7 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		requireBuild(StrategoAster.factory, new StrategoAster.Input(context, strmodule));
 
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/lib/editor-common.generated.str'.
-		BuildRequest<Sdf2ImpEclipse.Input,None,Sdf2ImpEclipse,?> sdf2imp = new BuildRequest<>(Sdf2ImpEclipse.factory, new Sdf2ImpEclipse.Input(context, esvmodule, sdfmodule, buildSdfImports));
+		BuildRequest<Sdf2Imp.Input,None,Sdf2Imp,?> sdf2imp = new BuildRequest<>(Sdf2Imp.factory, new Sdf2Imp.Input(context, esvmodule, sdfmodule, buildSdfImports));
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang-parenthesize.str'.
 		BuildRequest<Sdf2Parenthesize.Input,None,Sdf2Parenthesize,?> sdf2Parenthesize = new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfmodule, buildSdfImports, externaldef));
 
