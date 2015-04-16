@@ -3,6 +3,7 @@ package build.pluto.buildspoofax.builders.aux;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -13,12 +14,12 @@ import org.sugarj.common.path.Path;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.util.ExecutableCommandStrategy;
 import build.pluto.stamp.LastModifiedStamper;
 
-public class Sdf2TablePrepareExecutable extends
-		SpoofaxBuilder<SpoofaxInput, Path> {
+public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf2TablePrepareExecutable.Output> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, Path, Sdf2TablePrepareExecutable> factory = new SpoofaxBuilderFactory<SpoofaxInput, Path, Sdf2TablePrepareExecutable>() {
+	public static SpoofaxBuilderFactory<SpoofaxInput, Output, Sdf2TablePrepareExecutable> factory = new SpoofaxBuilderFactory<SpoofaxInput, Output, Sdf2TablePrepareExecutable>() {
 		private static final long serialVersionUID = -5551917492018980172L;
 
 		@Override
@@ -27,6 +28,18 @@ public class Sdf2TablePrepareExecutable extends
 		}
 	};
 
+	public static class Output implements Serializable {
+		private static final long serialVersionUID = -6018464107000421068L;
+		
+		public final ExecutableCommandStrategy sdf2table;
+		public final ExecutableCommandStrategy implodePT;
+		public Output(ExecutableCommandStrategy sdf2table, ExecutableCommandStrategy implodePT) {
+			super();
+			this.sdf2table = sdf2table;
+			this.implodePT = implodePT;
+		}
+	}
+	
 	public Sdf2TablePrepareExecutable(SpoofaxInput input) {
 		super(input);
 	}
@@ -42,7 +55,7 @@ public class Sdf2TablePrepareExecutable extends
 	}
 
 	@Override
-	public Path build() throws IOException {
+	public Output build() throws IOException {
 		String subdir;
 		if(SystemUtils.IS_OS_LINUX)
 			subdir = "linux";
@@ -72,6 +85,11 @@ public class Sdf2TablePrepareExecutable extends
 		
 		provide(sdf2table, LastModifiedStamper.instance);
 		provide(implodePT, LastModifiedStamper.instance);
-		return sdf2table;
+
+		return new Output(
+				ExecutableCommandStrategy.getInstance("sdf2table", sdf2table),
+				ExecutableCommandStrategy.getInstance("implodePT", implodePT));
 	}
+	
+	
 }

@@ -7,9 +7,8 @@ import org.sugarj.common.path.RelativePath;
 
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxContext;
-import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.builders.aux.Sdf2TablePrepareExecutable;
 
@@ -54,17 +53,17 @@ public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Path> {
 	@Override
 	public Path build() throws IOException {
 		requireBuild(MakePermissive.factory, new MakePermissive.Input(context, input.sdfmodule, input.buildSdfImports, input.externaldef));
-		Path sdf2table = requireBuild(Sdf2TablePrepareExecutable.factory, input);
+		Sdf2TablePrepareExecutable.Output commands = requireBuild(Sdf2TablePrepareExecutable.factory, input);
 		
 		RelativePath inputPath = context.basePath("${include}/" + input.sdfmodule + "-Permissive.def");
 		RelativePath outputPath = context.basePath("${include}/" + input.sdfmodule + ".tbl");
 
 		require(inputPath);
-		ExecutionResult er = StrategoExecutor.runSdf2TableCLI(sdf2table, 
+		ExecutionResult er = commands.sdf2table.run( 
 				"-t",
-				"-i", inputPath,
+				"-i", inputPath.getAbsolutePath(),
 				"-m", input.sdfmodule,
-				"-o", outputPath);
+				"-o", outputPath.getAbsolutePath());
 		
 		provide(outputPath);
 		setState(State.finished(er.success));
