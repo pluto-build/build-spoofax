@@ -65,12 +65,6 @@ public class MetaSdf2Table extends SpoofaxBuilder<MetaSdf2Table.Input, None> {
 		}
 		
 		return None.val;
-
-		// TODO need to refresh here?
-//	<target name="meta-sdf2table.helper" if="eclipse.running">
-//		<eclipse.convertPath fileSystemPath="${include}" property="includeresource" />
-//		<eclipse.refreshLocal resource="${includeresource}/${metasdfmodule}.tbl" depth="infinite" />
-//	</target>
 	}
 
 }

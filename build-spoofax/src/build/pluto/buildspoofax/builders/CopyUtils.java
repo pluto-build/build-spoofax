@@ -1,9 +1,13 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
+import org.strategoxt.imp.generator.sdf2imp;
+import org.strategoxt.lang.Context;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 
@@ -40,20 +44,23 @@ public class CopyUtils extends SpoofaxBuilder<SpoofaxInput, None> {
 		Path utils = context.basePath("utils");
 		FileCommands.createDir(utils);
 		
-		String base = context.props.getOrFail("eclipse.spoofaximp.jars");
-		for (String p : new String[]{"make_permissive.jar", "sdf2imp.jar", "aster.jar", "StrategoMix.def"}) {
-			Path from = new AbsolutePath(base + "/" + p);
-			Path to = new RelativePath(utils, p);
-			require(from, LastModifiedStamper.instance);
-			FileCommands.copyFile(from, to);
-			provide(to);
-		}
+		require(FileCommands.getRessourcePath(sdf2imp.class), LastModifiedStamper.instance);
+		ClassLoader loader = sdf2imp.class.getClassLoader();
 		
-		Path strategojar = new AbsolutePath(context.props.getOrFail("eclipse.spoofaximp.strategojar"));
-		Path strategojarTo = new RelativePath(utils, FileCommands.dropDirectory(strategojar));
-		require(strategojar, LastModifiedStamper.instance);
-		FileCommands.copyFile(strategojar, strategojarTo);
-		provide(strategojarTo);
+		for (String p : new String[]{"make_permissive.jar", "sdf2imp.jar", "aster.jar", "StrategoMix.def"}) {
+			InputStream from = loader.getResourceAsStream("dist/" + p);
+			Path to = new RelativePath(utils, p);
+			FileCommands.createFile(to);
+			IOUtils.copy(from, new FileOutputStream(to.getFile()));
+			provide(to, LastModifiedStamper.instance);
+		}
+
+		require(FileCommands.getRessourcePath(Context.class), LastModifiedStamper.instance);
+		InputStream strategoJarStream = Context.class.getClassLoader().getResourceAsStream("java/strategoxt.jar");
+		Path strategojarTo = new RelativePath(utils, "strategoxt.jar");
+		FileCommands.createFile(strategojarTo);
+		IOUtils.copy(strategoJarStream, new FileOutputStream(strategojarTo.getFile()));
+		provide(strategojarTo, LastModifiedStamper.instance);
 		
 		return None.val;
 	}

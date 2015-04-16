@@ -65,10 +65,10 @@ public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf
 			subdir = "macosx";
 		else
 			throw new RuntimeException("Unsupported operating system");
-			
+
+		require(FileCommands.getRessourcePath(Dummy.class), LastModifiedStamper.instance);
 		InputStream sdf2tableInput = Dummy.class.getClassLoader().getResourceAsStream("native/"+subdir+"/sdf2table");
 		InputStream implodePTInput = Dummy.class.getClassLoader().getResourceAsStream("native/"+subdir+"/implodePT");
-		// TODO require jar file containing "Dummy"
 		
 		Path sdf2table = context.basePath("include/build/native/sdf2table");
 		FileCommands.createFile(sdf2table);
