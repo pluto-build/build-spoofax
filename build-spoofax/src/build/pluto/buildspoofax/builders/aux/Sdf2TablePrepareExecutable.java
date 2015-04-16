@@ -1,4 +1,4 @@
-package build.pluto.buildspoofax.builders;
+package build.pluto.buildspoofax.builders.aux;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

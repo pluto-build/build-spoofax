@@ -11,6 +11,7 @@ import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
+import build.pluto.buildspoofax.builders.aux.Sdf2TablePrepareExecutable;
 
 public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Path> {
 
