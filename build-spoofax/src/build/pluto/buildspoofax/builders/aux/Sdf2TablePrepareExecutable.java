@@ -12,6 +12,8 @@ import org.sugarj.common.Exec;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.Path;
 
+import com.google.common.base.Objects;
+
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.util.ExecutableCommandStrategy;
@@ -37,6 +39,20 @@ public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf
 			super();
 			this.sdf2table = sdf2table;
 			this.implodePT = implodePT;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof Output))
+				return false;
+			
+			Output other = (Output) obj;
+			return Objects.equal(implodePT, other.implodePT) && Objects.equal(sdf2table, other.sdf2table);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hashCode(implodePT, sdf2table);
 		}
 	}
 	

@@ -47,8 +47,8 @@ public class Sdf2ParenthesizeStamper implements Stamper {
 	}
 
 	private static class ParenExtractor extends TermVisitor {
-		private final Set<IStrategoTerm> relevantProds;
-		private final Set<IStrategoTerm> priorities;
+		private final Set<String> relevantProds;
+		private final Set<String> priorities;
 
 		private final ITermFactory factory;
 		private final IStrategoTerm noAttrs;
@@ -70,13 +70,13 @@ public class Sdf2ParenthesizeStamper implements Stamper {
 				switch (((IStrategoAppl) term).getConstructor().getName()) {
 				case "context-free-priorities":
 				case "priorities":
-					priorities.add(term);
+					priorities.add(term.toString());
 					inPriorities = true;
 					break;
 				case "prod":
 					if (inPriorities) {
-						relevantProds.add(term);
-						relevantProds.add(noProdAttrs(term));
+						relevantProds.add(term.toString());
+						relevantProds.add(noProdAttrs(term).toString());
 					}
 					else {
 						prods.add(term);
@@ -106,15 +106,15 @@ public class Sdf2ParenthesizeStamper implements Stamper {
 				}
 		}
 		
-		public Set<IStrategoTerm> getPriorities() {
+		public Set<String> getPriorities() {
 			return priorities;
 		}
 
-		public Set<IStrategoTerm> getRelevantProds() {
+		public Set<String> getRelevantProds() {
 			if (prods != null) 
 				for (IStrategoTerm prod : prods)
 					if (relevantProds.contains(noProdAttrs(prod)))
-						relevantProds.add(prod);
+						relevantProds.add(prod.toString());
 			prods = null;
 			return relevantProds;
 		}

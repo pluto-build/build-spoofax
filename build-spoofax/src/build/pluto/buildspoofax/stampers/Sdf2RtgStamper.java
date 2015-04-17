@@ -37,7 +37,7 @@ public class Sdf2RtgStamper implements Stamper {
 		ITermFactory factory = StrategoExecutor.strategoSdfcontext().getFactory();
 		Deliteralize deliteralize = new Deliteralize(factory, false);
 		IStrategoTerm delit = deliteralize.transform(term);
-		return new ValueStamp<>(this, delit);
+		return new ValueStamp<>(this, delit.toString());
 	}
 
 	private static class Deliteralize extends TermTransformer {

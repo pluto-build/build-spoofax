@@ -20,6 +20,8 @@ import org.sugarj.common.Exec;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
 
+import com.google.common.base.Objects;
+
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 
 public class ExecutableCommandStrategy extends xtc_command_1_0 implements Externalizable {
@@ -118,5 +120,14 @@ public class ExecutableCommandStrategy extends xtc_command_1_0 implements Extern
 				this.exe = exe;
 				this.proceed = other.proceed;
 			}
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof ExecutableCommandStrategy))
+				return false;
+			
+			ExecutableCommandStrategy other = (ExecutableCommandStrategy) obj;
+			return Objects.equal(command, other.command) && Objects.equal(exe, other.exe);
 		}
 	}

@@ -46,7 +46,7 @@ public class PPGenStamper implements Stamper {
 	}
 
 	private static class CFProdExtractor extends TermTransformer {
-		private final Set<IStrategoTerm> relevantProds;
+		private final Set<String> relevantProds;
 
 		private final ITermFactory factory;
 
@@ -88,7 +88,7 @@ public class PPGenStamper implements Stamper {
 						if (ATermCommands.isApplication(attrTerm, "attrs")) {
 							for (IStrategoTerm attr : (IStrategoList) attrTerm.getSubterm(0))
 								if (ATermCommands.isApplication(attr, "term") && ATermCommands.isApplication(attr.getSubterm(0), "cons")) {
-									relevantProds.add(term);
+									relevantProds.add(term.toString());
 									break;
 								}
 						}
@@ -100,7 +100,7 @@ public class PPGenStamper implements Stamper {
 			return term;
 		}
 		
-		public Set<IStrategoTerm> getRelevantProds() {
+		public Set<String> getRelevantProds() {
 			return relevantProds;
 		}
 
