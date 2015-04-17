@@ -7,6 +7,7 @@ import java.util.List;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
+import org.sugarj.common.path.RelativePath;
 
 import build.pluto.buildjava.JavaBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder;
@@ -29,7 +30,7 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 	@Override
 	protected String description() {
-		return "Compile Java code";
+		return "Compile Java code for Spoofax";
 	}
 	
 	@Override
@@ -64,7 +65,16 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 				p = context.basePath(dir);
 			
 			sourcePath.add(p);
-			sourceFiles.addAll(FileCommands.listFilesRecursive(p, new FileExtensionFilter("java")));
+			
+			// TODO soundly select non-Eclipse files
+			for (RelativePath sourceFile : FileCommands.listFilesRecursive(p, new FileExtensionFilter("java"))) {
+				if (sourceFile.getRelativePath().contains("ParseController") || sourceFile.getRelativePath().contains("Validator"))
+					continue;
+				
+				String content = FileCommands.readFileAsString(sourceFile);
+				if (!content.contains("org.eclipse"))
+					sourceFiles.add(sourceFile);
+			}
 		}
 		
 		
@@ -80,11 +90,11 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 		requireBuild(JavaBuilder.factory, 
 				new JavaBuilder.Input(
-						sourceFiles.toArray(new Path[0]),
+						sourceFiles.toArray(new Path[sourceFiles.size()]),
 						targetDir,
-						sourcePath.toArray(new Path[0]), 
-						classPath.toArray(new Path[0]),
-						additionalArgs.toArray(new String[0]),
+						sourcePath.toArray(new Path[sourcePath.size()]), 
+						classPath.toArray(new Path[classPath.size()]),
+						additionalArgs.toArray(new String[additionalArgs.size()]),
 						null,
 						false));
 		
