@@ -7,6 +7,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageDiscoveryService;
 import org.metaborg.spoofax.core.resource.IResourceService;
+import org.strategoxt.imp.editors.template.Activator;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
@@ -49,7 +50,8 @@ public class ForceOnSave extends SpoofaxBuilder<SpoofaxInput, None> {
 		for (Path p : oldSdf3Paths)
 			FileCommands.delete(p);
 		
-		foo();
+		// SDF3
+		discoverMetalanguage(org.strategoxt.imp.editors.template.strategies.InteropRegisterer.class);
 		
 		List<RelativePath> paths = FileCommands.listFilesRecursive(
 				context.baseDir, 
@@ -61,13 +63,14 @@ public class ForceOnSave extends SpoofaxBuilder<SpoofaxInput, None> {
 		return None.val;
 	}
 
-	private void foo() throws Exception {
+	private void discoverMetalanguage(Class<?> cl) throws Exception {
 		Injector injector = StrategoExecutor.guiceInjector();
 		IResourceService resourceSerivce = injector.getInstance(IResourceService.class);
 		ILanguageDiscoveryService discoverySerivce = injector.getInstance(ILanguageDiscoveryService.class);
 		
-		Path p = context.basePath("${include}");
-		FileObject dir = resourceSerivce.resolve(p.getAbsolutePath());
+		Path jar = FileCommands.getRessourcePath(cl);
+//		Path p = new RelativePath(jar, "include");
+		FileObject dir = resourceSerivce.resolve(jar.getAbsolutePath());
 		
 		Iterable<ILanguage> langs = discoverySerivce.discover(dir);
 		ILanguage lang = langs.iterator().next();

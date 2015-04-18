@@ -52,12 +52,19 @@
 			<version>1.4.0</version>
 		</dependency>
 
-
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>3.0</version>
 		</dependency>
+		
+		<!-- SDF3 -->
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.strategoxt.imp.editors.template</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		
 	</dependencies>
 
 	<repositories>
