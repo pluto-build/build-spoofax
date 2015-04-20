@@ -33,10 +33,8 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	};
 
 	public static class Input extends SpoofaxInput {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 2058684747897720328L;
+		
 		public final String sdfmodule;
 		public final String buildSdfImports;
 		public Input(SpoofaxContext context) {
@@ -68,7 +66,7 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	@Override
 	public None build() throws IOException {
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/src-gen/syntax/TemplateLang.sdf'.
-		requireBuild(ForceOnSave.factory, input);
+		requireBuild(CompileMetalanguageFiles.factory, input);
 		
 		copySdf2();
 		
