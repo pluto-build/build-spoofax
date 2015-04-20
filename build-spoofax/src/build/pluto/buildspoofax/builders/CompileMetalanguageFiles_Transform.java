@@ -2,6 +2,7 @@ package build.pluto.buildspoofax.builders;
 
 import java.io.File;
 
+import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.spoofax.core.analysis.AnalysisFileResult;
 import org.metaborg.spoofax.core.context.IContext;
 import org.metaborg.spoofax.core.transform.CompileGoal;
@@ -55,7 +56,12 @@ public class CompileMetalanguageFiles_Transform extends SpoofaxBuilder<CompileMe
 	
 	@Override
 	protected Path persistentPath() {
-		RelativePath rel = FileCommands.getRelativePath(context.baseDir, new AbsolutePath(input.analysisResult.source.getURL().getPath()));
+		RelativePath rel;
+		try {
+			rel = FileCommands.getRelativePath(context.baseDir, new AbsolutePath(input.analysisResult.source.getURL().getPath()));
+		} catch (FileSystemException e) {
+			throw new RuntimeException(e);
+		}
 		String relname = rel.getRelativePath().replace(File.separatorChar, '_');
 		return context.depPath("meta/transform." + relname + ".dep");
 	}

@@ -76,7 +76,7 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 		List<ParseResult<IStrategoTerm>> parseResults = parseFiles(paths);
 		Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analysisResults = analyzeFiles(parseResults);
 		@SuppressWarnings("unused")
-		List<TransformResult<AnalysisResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> compilerResults = compileFiles(analysisResults);
+		List<TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> compilerResults = compileFiles(analysisResults);
 		
 		return None.val;
 	}
@@ -117,7 +117,7 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 		return parseResults;
 	}
 
-	private Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analyzeFiles(List<ParseResult<IStrategoTerm>> parseResults) throws ContextException {
+	private Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analyzeFiles(List<ParseResult<IStrategoTerm>> parseResults) throws ContextException, IOException {
 		IContextService contextService = StrategoExecutor.guiceInjector().getInstance(IContextService.class);
 
 		Multimap<IContext, ParseResult<IStrategoTerm>> parseResultsByContext = ArrayListMultimap.create();
@@ -137,15 +137,15 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
         return analysisResults;
 	}
 
-	private List<TransformResult<AnalysisResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> 
-		compileFiles(Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analysisResults) {
+	private List<TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> 
+		compileFiles(Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analysisResults) throws IOException {
 
-		List<TransformResult<AnalysisResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> compileResults = new ArrayList<>();
+		List<TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> compileResults = new ArrayList<>();
 		
 		for (Entry<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> e : analysisResults.entrySet()) {
 			IContext context = e.getKey();
 			for (AnalysisFileResult<IStrategoTerm, IStrategoTerm> fileRes : e.getValue().fileResults) {
-				TransformResult<AnalysisResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm> result = 
+				TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm> result = 
 						requireBuild(CompileMetalanguageFiles_Transform.factory, new CompileMetalanguageFiles_Transform.Input(this.context, context, fileRes));
 				compileResults.add(result);
 			}
