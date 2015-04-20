@@ -1,5 +1,6 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.metaborg.spoofax.core.analysis.AnalysisResult;
@@ -15,6 +16,7 @@ import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.StrategoExecutor;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -37,7 +39,7 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 		public Input(SpoofaxContext context, IContext langContext, Collection<ParseResult<IStrategoTerm>> parseResults) {
 			super(context);
 			this.langContext = langContext;
-			this.parseResults = parseResults;
+			this.parseResults = parseResults instanceof Serializable ? parseResults : Lists.newArrayList(parseResults);
 		}
 	}
 	
@@ -47,7 +49,7 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 
 	@Override
 	protected String description() {
-		return "Analyze " + input.parseResults.size() + " metalanguage files";
+		return "Analyze " + input.parseResults.size() + " metalanguage file" + (input.parseResults.size() > 1 ? "s" : "");
 	}
 	
 	@Override
@@ -62,7 +64,7 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 		IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService = injector.getInstance(Key.get(ANALYSIS_LITERAL));
 		
 		for (ParseResult<IStrategoTerm> pres : input.parseResults)
-			require(new AbsolutePath(pres.source.getURL().getPath()));
+			require(new AbsolutePath(pres.source().getName().getPath()));
 		
 		AnalysisResult<IStrategoTerm, IStrategoTerm> result = analysisService.analyze(input.parseResults, input.langContext);
 		return result;

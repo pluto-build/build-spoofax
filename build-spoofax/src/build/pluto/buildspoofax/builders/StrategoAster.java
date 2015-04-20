@@ -3,19 +3,15 @@ package build.pluto.buildspoofax.builders;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.StringCommands;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 
-import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxContext;
-import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
-import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
-import build.pluto.buildspoofax.util.FileExtensionFilter;
-import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
+import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.output.None;
 
 public class StrategoAster extends SpoofaxBuilder<StrategoAster.Input, None> {
@@ -53,7 +49,7 @@ public class StrategoAster extends SpoofaxBuilder<StrategoAster.Input, None> {
 
 	@Override
 	public None build() throws IOException {
-		List<RelativePath> asterInputList = FileCommands.listFilesRecursive(context.baseDir, new FileExtensionFilter("astr"));
+		List<RelativePath> asterInputList = FileCommands.listFilesRecursive(context.baseDir, new SuffixFileFilter("astr"));
 		for (RelativePath p : asterInputList)
 			require(p);
 		

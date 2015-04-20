@@ -7,17 +7,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
+import org.apache.commons.io.filefilter.AndFileFilter;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.NotFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.metaborg.spoofax.core.analysis.AnalysisFileResult;
 import org.metaborg.spoofax.core.analysis.AnalysisResult;
-import org.metaborg.spoofax.core.analysis.stratego.StrategoFacet;
 import org.metaborg.spoofax.core.context.ContextException;
 import org.metaborg.spoofax.core.context.IContext;
 import org.metaborg.spoofax.core.context.IContextService;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ResourceExtensionFacet;
 import org.metaborg.spoofax.core.syntax.ParseResult;
-import org.metaborg.spoofax.core.transform.ITransformer;
 import org.metaborg.spoofax.core.transform.TransformResult;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.FileCommands;
@@ -28,7 +31,7 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.builders.aux.DiscoverSpoofaxLanguage;
-import build.pluto.buildspoofax.util.FileExtensionFilter;
+import build.pluto.buildspoofax.util.PatternFileFilter;
 import build.pluto.output.None;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -62,18 +65,22 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 	@Override
 	public None build() throws Exception {
 		// XXX really need to delete old sdf3 files? Or is it sufficient to remove them from `paths` below?
-		List<RelativePath> oldSdf3Paths = FileCommands.listFilesRecursive(context.basePath("src-gen"), new FileExtensionFilter("sdf3"));
+		List<RelativePath> oldSdf3Paths = FileCommands.listFilesRecursive(context.basePath("src-gen"), new SuffixFileFilter("sdf3"));
 		for (Path p : oldSdf3Paths)
 			FileCommands.delete(p);
 		
 		List<ILanguage> metalangs = loadMetalanguages();
 		Map<String, ILanguage> metalangsByExtension = getMetalanguageExtensions(metalangs);
 		
+		Path include = context.basePath("${include}");
 		List<RelativePath> paths = FileCommands.listFilesRecursive(
-				context.baseDir, 
-				new FileExtensionFilter(metalangsByExtension.keySet().toArray(new String[0])));
+				context.baseDir,
+				new AndFileFilter(Lists.newArrayList(
+						new NotFileFilter(DirectoryFileFilter.INSTANCE),
+						new NotFileFilter(new PatternFileFilter(true, Pattern.quote(include.getAbsolutePath()) + ".*")),
+						new SuffixFileFilter(metalangsByExtension.keySet().toArray(new String[0])))));
 		
-		List<ParseResult<IStrategoTerm>> parseResults = parseFiles(paths);
+		List<ParseResult<IStrategoTerm>> parseResults = parseFiles(metalangsByExtension, paths);
 		Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analysisResults = analyzeFiles(parseResults);
 		@SuppressWarnings("unused")
 		List<TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> compilerResults = compileFiles(analysisResults);
@@ -83,13 +90,13 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 
 	private List<ILanguage> loadMetalanguages() throws IOException {
 		Class<?> sdf3Class = org.strategoxt.imp.editors.template.strategies.InteropRegisterer.class;
-		ILanguage sdf3 = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class)).output;
+		ILanguage sdf3 = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class));
 		
 		Class<?> nablClass = org.metaborg.meta.lang.nabl.strategies.InteropRegisterer.class;
-		ILanguage nabl = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass)).output;
+		ILanguage nabl = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass));
 		
 		Class<?> tsClass = org.metaborg.meta.lang.ts.strategies.InteropRegisterer.class;
-		ILanguage ts = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, tsClass)).output;
+		ILanguage ts = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, tsClass));
 		
 		return Lists.newArrayList(sdf3, nabl, ts);
 	}
@@ -107,11 +114,12 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 		return extensions;
 	}
 	
-	private List<ParseResult<IStrategoTerm>> parseFiles(List<RelativePath> paths) throws IOException {
+	private List<ParseResult<IStrategoTerm>> parseFiles(Map<String, ILanguage> metalangsByExtension, List<RelativePath> paths) throws IOException {
 		List<ParseResult<IStrategoTerm>> parseResults = new ArrayList<>();
 		for (RelativePath p : paths) {
+			ILanguage lang = metalangsByExtension.get(FileCommands.getExtension(p));
 			ParseResult<IStrategoTerm> parseResult = 
-					requireBuild(CompileMetalanguageFiles_Parse.factory, new CompileMetalanguageFiles_Parse.Input(context, p));
+					requireBuild(CompileMetalanguageFiles_Parse.factory, new CompileMetalanguageFiles_Parse.Input(context, p, lang));
 			parseResults.add(parseResult);
 		}
 		return parseResults;
@@ -122,7 +130,7 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 
 		Multimap<IContext, ParseResult<IStrategoTerm>> parseResultsByContext = ArrayListMultimap.create();
         for(ParseResult<IStrategoTerm> parseResult : parseResults) {
-            IContext context = contextService.get(parseResult.source, parseResult.language);
+            IContext context = contextService.get(parseResult.source(), parseResult.language);
             parseResultsByContext.put(context, parseResult);
         }
         

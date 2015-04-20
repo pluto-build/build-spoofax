@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.strategoxt.tools.main_pack_sdf_0_0;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.AbsolutePath;
@@ -14,11 +15,10 @@ import org.sugarj.common.path.RelativePath;
 
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
+import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.StrategoExecutor;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
-import build.pluto.buildspoofax.util.FileExtensionFilter;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
 import build.pluto.stamp.LastModifiedStamper;
@@ -117,7 +117,7 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	}
 
 	private void copySdf2() {
-		List<RelativePath> srcSdfFiles = FileCommands.listFilesRecursive(context.basePath("syntax"), new FileExtensionFilter("sdf"));
+		List<RelativePath> srcSdfFiles = FileCommands.listFilesRecursive(context.basePath("syntax"), new SuffixFileFilter("sdf"));
 		for (RelativePath p : srcSdfFiles) {
 			require(p, LastModifiedStamper.instance);
 			Path target = FileCommands.copyFile(context.basePath("syntax"), context.basePath("${syntax}"), p, StandardCopyOption.COPY_ATTRIBUTES);

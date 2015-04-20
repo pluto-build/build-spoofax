@@ -50,7 +50,7 @@ public class UnpackJarFile extends SpoofaxBuilder<UnpackJarFile.Input, Path> {
 		Path dir = input.outdir != null ? input.outdir : FileCommands.newTempDir();
 		FileCommands.unpackJarfile(dir, input.jarfile);
 		for (Path p : FileCommands.listFilesRecursive(dir))
-			require(p, LastModifiedStamper.instance);
+			provide(p, LastModifiedStamper.instance);
 		return dir;
 		
 	}

@@ -1,13 +1,9 @@
 package build.pluto.buildspoofax.builders;
 
 import java.io.File;
-import java.io.Serializable;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.language.ILanguage;
-import org.metaborg.spoofax.core.language.ILanguageDiscoveryService;
-import org.metaborg.spoofax.core.language.ILanguageIdentifierService;
-import org.metaborg.spoofax.core.messages.IMessage;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.metaborg.spoofax.core.syntax.ISyntaxService;
 import org.metaborg.spoofax.core.syntax.ParseResult;
@@ -39,9 +35,11 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 		private static final long serialVersionUID = 37855003667874400L;
 
 		public final Path file;
-		public Input(SpoofaxContext context, Path file) {
+		public final ILanguage lang;
+		public Input(SpoofaxContext context, Path file, ILanguage lang) {
 			super(context);
 			this.file = file;
+			this.lang = lang;
 		}
 	}
 	
@@ -67,12 +65,10 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 		Injector injector = StrategoExecutor.guiceInjector();
 		ISyntaxService<IStrategoTerm> syntaxService = injector.getInstance(Key.get(SYNTAX_LITERAL));
 		IResourceService resourceSerivce = injector.getInstance(IResourceService.class);
-		ILanguageIdentifierService identifierService  = injector.getInstance(ILanguageIdentifierService.class);
 		
 		require(input.file);
 		String source = FileCommands.readFileAsString(input.file);
 		FileObject fo = resourceSerivce.resolve(input.file.getFile());
-		ILanguage lang = identifierService.identify(fo);
-		return syntaxService.parse(source, fo, lang);
+		return syntaxService.parse(source, fo, input.lang);
 	}
 }

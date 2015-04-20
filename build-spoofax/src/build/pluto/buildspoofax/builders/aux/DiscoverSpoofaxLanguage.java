@@ -8,20 +8,18 @@ import org.metaborg.spoofax.core.language.ILanguageDiscoveryService;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.StrategoExecutor;
-import build.pluto.output.MemoryOutput;
 import build.pluto.stamp.LastModifiedStamper;
 
 import com.google.inject.Injector;
 
-public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, MemoryOutput<ILanguage>> {
+public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, ILanguage> {
 
-	public static SpoofaxBuilderFactory<Input, MemoryOutput<ILanguage>, DiscoverSpoofaxLanguage> factory = new SpoofaxBuilderFactory<Input, MemoryOutput<ILanguage>, DiscoverSpoofaxLanguage>() {
+	public static SpoofaxBuilderFactory<Input, ILanguage, DiscoverSpoofaxLanguage> factory = new SpoofaxBuilderFactory<Input, ILanguage, DiscoverSpoofaxLanguage>() {
 		private static final long serialVersionUID = -8387363389037442076L;
 
 		@Override
@@ -54,7 +52,7 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 	}
 
 	@Override
-	public MemoryOutput<ILanguage> build() throws Exception {
+	public ILanguage build() throws Exception {
 		Injector injector = StrategoExecutor.guiceInjector();
 		IResourceService resourceSerivce = injector.getInstance(IResourceService.class);
 		ILanguageDiscoveryService discoverySerivce = injector.getInstance(ILanguageDiscoveryService.class);
@@ -68,11 +66,10 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 			requireBuild(UnpackJarFile.factory, new UnpackJarFile.Input(context, jar, dir));
 		}
 		
-		Path includeDir = new RelativePath(dir, "include");
-		for (Path p : FileCommands.listFilesRecursive(includeDir))
+		for (Path p : FileCommands.listFilesRecursive(dir))
 			require(p, LastModifiedStamper.instance);
 
-		FileObject fo = resourceSerivce.resolve(includeDir.getAbsolutePath());
+		FileObject fo = resourceSerivce.resolve(dir.getAbsolutePath());
 		Iterable<ILanguage> langs = discoverySerivce.discover(fo);
 		if (langs == null || !langs.iterator().hasNext())
 			throw new IllegalStateException("Failed to discover language for " + input.someClassFromLanguage);
@@ -81,6 +78,6 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 		if (it.hasNext())
 			throw new IllegalStateException("Discovered multiple languages for " + input.someClassFromLanguage);
 		
-		return new MemoryOutput<ILanguage>(lang);
+		return lang;
 	}
 }

@@ -2,14 +2,14 @@ package build.pluto.buildspoofax.builders;
 
 import java.io.IOException;
 
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
-import build.pluto.buildspoofax.util.FileExtensionFilter;
-import build.pluto.buildspoofax.util.FileNameFilter;
+import build.pluto.buildspoofax.util.PatternFileFilter;
 import build.pluto.output.None;
 
 public class Clean extends SpoofaxBuilder<SpoofaxInput, None> {
@@ -82,14 +82,14 @@ public class Clean extends SpoofaxBuilder<SpoofaxInput, None> {
 			provide(p);
 		}
 		
-		for (Path p : FileCommands.listFiles(context.basePath("${lib}"), new FileNameFilter(".*\\.generated\\.str"))) {
+		for (Path p : FileCommands.listFiles(context.basePath("${lib}"), new PatternFileFilter(".*\\.generated\\.str"))) {
 			Log.log.log("Delete " + p, Log.DETAIL); 
 			FileCommands.delete(p); 
 			provide(p);
 		}
 		
 		Path cleanPath = persistentPath();
-		for (Path p : FileCommands.listFilesRecursive(context.depDir(), new FileExtensionFilter("dep"))) {
+		for (Path p : FileCommands.listFilesRecursive(context.depDir(), new SuffixFileFilter("dep"))) {
 			if (!p.equals(cleanPath)) {
 				Log.log.log("Delete " + p, Log.DETAIL); 
 				FileCommands.delete(p); 

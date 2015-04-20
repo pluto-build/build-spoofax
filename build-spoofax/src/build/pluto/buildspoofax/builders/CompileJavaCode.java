@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
@@ -12,7 +13,6 @@ import org.sugarj.common.path.RelativePath;
 import build.pluto.buildjava.JavaBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
-import build.pluto.buildspoofax.util.FileExtensionFilter;
 import build.pluto.output.None;
 
 public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
@@ -67,7 +67,7 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 			sourcePath.add(p);
 			
 			// TODO soundly select non-Eclipse files
-			for (RelativePath sourceFile : FileCommands.listFilesRecursive(p, new FileExtensionFilter("java"))) {
+			for (RelativePath sourceFile : FileCommands.listFilesRecursive(p, new SuffixFileFilter("java"))) {
 				if (sourceFile.getRelativePath().contains("ParseController") || sourceFile.getRelativePath().contains("Validator"))
 					continue;
 				
