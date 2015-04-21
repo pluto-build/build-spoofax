@@ -54,7 +54,7 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 	@Override
 	public ILanguage build() throws Exception {
 		Injector injector = StrategoExecutor.guiceInjector();
-		IResourceService resourceSerivce = injector.getInstance(IResourceService.class);
+		IResourceService resourceSerivce = StrategoExecutor.getResourceService();
 		ILanguageDiscoveryService discoverySerivce = injector.getInstance(ILanguageDiscoveryService.class);
 		
 		Path jar = FileCommands.getRessourcePath(input.someClassFromLanguage);

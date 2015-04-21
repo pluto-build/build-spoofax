@@ -6,7 +6,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.metaborg.spoofax.core.syntax.ISyntaxService;
-import org.metaborg.spoofax.core.syntax.ParseResult;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.Path;
@@ -21,10 +20,10 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
-public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetalanguageFiles_Parse.Input, ParseResult<IStrategoTerm>> {
+public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetalanguageFiles_Parse.Input, IStrategoTerm> {
 	private static final TypeLiteral<ISyntaxService<IStrategoTerm>> SYNTAX_LITERAL = new TypeLiteral<ISyntaxService<IStrategoTerm>>(){};
 
-	public static SpoofaxBuilderFactory<Input, ParseResult<IStrategoTerm>, CompileMetalanguageFiles_Parse> factory = new SpoofaxBuilderFactory<Input, ParseResult<IStrategoTerm>, CompileMetalanguageFiles_Parse>() {
+	public static SpoofaxBuilderFactory<Input, IStrategoTerm, CompileMetalanguageFiles_Parse> factory = new SpoofaxBuilderFactory<Input, IStrategoTerm, CompileMetalanguageFiles_Parse>() {
 		private static final long serialVersionUID = 4436143308769039647L;
 
 		@Override
@@ -49,26 +48,26 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 
 	@Override
 	protected String description() {
-		return "Parse metalanguage file " + input.file;
+		return "Parse " + input.lang.name() + " file " + FileCommands.getRelativePath(context.baseDir, input.file);
 	}
 	
 	@Override
 	protected Path persistentPath() {
 		RelativePath rel = FileCommands.getRelativePath(context.baseDir, input.file);
 		String relname = rel.getRelativePath().replace(File.separatorChar, '_');
-		return context.depPath("meta/parse." + relname + ".dep");
+		return context.depPath("meta/parse." + input.lang.name() + "." + relname + ".dep");
 	}
 
 	
 	@Override
-	public ParseResult<IStrategoTerm> build() throws Exception {
+	public IStrategoTerm build() throws Exception {
 		Injector injector = StrategoExecutor.guiceInjector();
 		ISyntaxService<IStrategoTerm> syntaxService = injector.getInstance(Key.get(SYNTAX_LITERAL));
-		IResourceService resourceSerivce = injector.getInstance(IResourceService.class);
+		IResourceService resourceSerivce = StrategoExecutor.getResourceService();
 		
 		require(input.file);
 		String source = FileCommands.readFileAsString(input.file);
 		FileObject fo = resourceSerivce.resolve(input.file.getFile());
-		return syntaxService.parse(source, fo, input.lang);
+		return syntaxService.parse(source, fo, input.lang).result;
 	}
 }
