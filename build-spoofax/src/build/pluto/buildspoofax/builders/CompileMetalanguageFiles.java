@@ -27,7 +27,6 @@ import org.sugarj.common.util.Pair;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
-import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.builders.aux.DiscoverSpoofaxLanguage;
 import build.pluto.buildspoofax.util.PatternFileFilter;
 import build.pluto.output.None;
@@ -123,8 +122,8 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 	}
 
 	private Map<IContext, Map<Path, IStrategoTerm>> analyzeFiles(Map<Path, Pair<ILanguage, IStrategoTerm>> parseResults) throws ContextException, IOException {
-		IResourceService resourceService = StrategoExecutor.getResourceService();
-		IContextService contextService = StrategoExecutor.guiceInjector().getInstance(IContextService.class);
+		IResourceService resourceService = context.getResourceService();
+		IContextService contextService = context.guiceInjector().getInstance(IContextService.class);
 
 		Multimap<IContext, Pair<Path, IStrategoTerm>> parseResultsByContext = ArrayListMultimap.create();
         for(Entry<Path, Pair<ILanguage, IStrategoTerm>> e : parseResults.entrySet()) {

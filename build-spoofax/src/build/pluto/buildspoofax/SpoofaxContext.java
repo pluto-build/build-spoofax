@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.metaborg.spoofax.core.resource.IResourceService;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.Log;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
@@ -19,6 +19,9 @@ import org.w3c.dom.Node;
 import build.pluto.builder.Builder;
 import build.pluto.stamp.FileExistsStamper;
 import build.pluto.stamp.LastModifiedStamper;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class SpoofaxContext implements Serializable{
 	private static final long serialVersionUID = -1973461199459693455L;
@@ -140,5 +143,20 @@ public class SpoofaxContext implements Serializable{
 		Properties props = makeSpoofaxProperties(projectPath);
 		return new SpoofaxContext(projectPath, props);
 	}
-	
+
+	private static Injector guiceInjector;
+	private static IResourceService resourceService;
+	public synchronized Injector guiceInjector() {
+		if (guiceInjector != null)
+			return guiceInjector;
+		guiceInjector = Guice.createInjector(new SpoofaxPlutoModule(baseDir));
+		return guiceInjector;
+	}
+	public synchronized IResourceService getResourceService() {
+		if (resourceService != null)
+			return resourceService;
+		resourceService = guiceInjector().getInstance(IResourceService.class);
+		return resourceService;
+	}
+
 }

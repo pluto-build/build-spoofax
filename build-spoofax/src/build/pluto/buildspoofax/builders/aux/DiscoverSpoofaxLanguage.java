@@ -12,7 +12,6 @@ import org.sugarj.common.path.Path;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.SpoofaxContext;
-import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.stamp.LastModifiedStamper;
 
 import com.google.inject.Injector;
@@ -53,8 +52,8 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 
 	@Override
 	public ILanguage build() throws Exception {
-		Injector injector = StrategoExecutor.guiceInjector();
-		IResourceService resourceSerivce = StrategoExecutor.getResourceService();
+		Injector injector = context.guiceInjector();
+		IResourceService resourceSerivce = context.getResourceService();
 		ILanguageDiscoveryService discoverySerivce = injector.getInstance(ILanguageDiscoveryService.class);
 		
 		Path jar = FileCommands.getRessourcePath(input.someClassFromLanguage);

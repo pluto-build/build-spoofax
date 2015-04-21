@@ -23,7 +23,6 @@ import org.sugarj.common.path.RelativePath;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.SpoofaxContext;
-import build.pluto.buildspoofax.StrategoExecutor;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -81,9 +80,9 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 	
 	@Override
 	public HashMap<Path, IStrategoTerm> build() throws Exception {
-		Injector injector = StrategoExecutor.guiceInjector();
+		Injector injector = context.guiceInjector();
 		IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService = injector.getInstance(Key.get(ANALYSIS_LITERAL));
-		IResourceService resourceService = StrategoExecutor.getResourceService();
+		IResourceService resourceService = context.getResourceService();
 		
 		Map<FileObject, Path> fileMap = new HashMap<>();
 		List<ParseResult<IStrategoTerm>> analysisInput = new ArrayList<>();

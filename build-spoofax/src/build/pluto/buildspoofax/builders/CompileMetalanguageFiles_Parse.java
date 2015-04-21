@@ -14,7 +14,6 @@ import org.sugarj.common.path.RelativePath;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.SpoofaxContext;
-import build.pluto.buildspoofax.StrategoExecutor;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -61,9 +60,9 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 	
 	@Override
 	public IStrategoTerm build() throws Exception {
-		Injector injector = StrategoExecutor.guiceInjector();
+		Injector injector = context.guiceInjector();
 		ISyntaxService<IStrategoTerm> syntaxService = injector.getInstance(Key.get(SYNTAX_LITERAL));
-		IResourceService resourceSerivce = StrategoExecutor.getResourceService();
+		IResourceService resourceSerivce = context.getResourceService();
 		
 		require(input.file);
 		String source = FileCommands.readFileAsString(input.file);
