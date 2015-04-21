@@ -137,8 +137,6 @@ public class SpoofaxContext implements Serializable{
 	}
 	
 	public static SpoofaxContext makeContext(Path projectPath) {
-	    Log.log.setLoggingLevel(Log.ALWAYS);
-
 		Properties props = makeSpoofaxProperties(projectPath);
 		return new SpoofaxContext(projectPath, props);
 	}

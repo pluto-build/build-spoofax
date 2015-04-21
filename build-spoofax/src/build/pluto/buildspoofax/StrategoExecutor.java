@@ -186,7 +186,7 @@ public class StrategoExecutor {
 	public static synchronized IResourceService getResourceService() {
 		if (resourceService != null)
 			return resourceService;
-		resourceService = guiceInjector.getInstance(IResourceService.class);
+		resourceService = guiceInjector().getInstance(IResourceService.class);
 		return resourceService;
 	}
 

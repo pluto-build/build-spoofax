@@ -62,7 +62,7 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 	@Override
 	protected String description() {
 	  if (input.parseResults.size() == 1)
-	    return "Analyze " + input.langName() + " file " + FileCommands.getRelativePath(context.baseDir, input.parseResults.keySet().iterator().next());
+	    return "Analyze " + input.langName() + " file " + FileCommands.getRelativePath(context.baseDir, input.parseResults.keySet().iterator().next()).getRelativePath();
 		
 	  return "Analyze " + input.parseResults.size() + " " + input.langName() + " files";
 	}

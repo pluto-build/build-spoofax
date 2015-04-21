@@ -48,7 +48,7 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 
 	@Override
 	protected String description() {
-		return "Parse " + input.lang.name() + " file " + FileCommands.getRelativePath(context.baseDir, input.file);
+		return "Parse " + input.lang.name() + " file " + FileCommands.getRelativePath(context.baseDir, input.file).getRelativePath();
 	}
 	
 	@Override

@@ -61,7 +61,7 @@ public class CompileMetalanguageFiles_Transform extends SpoofaxBuilder<CompileMe
 
 	@Override
 	protected String description() {
-		return "Transform " + input.langName() + " file " + FileCommands.getRelativePath(context.baseDir, input.file);
+		return "Transform " + input.langName() + " file " + FileCommands.getRelativePath(context.baseDir, input.file).getRelativePath();
 	}
 	
 	@Override
