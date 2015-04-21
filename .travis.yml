@@ -1,5 +1,5 @@
 sudo: false
-script: mvn deploy -U
+script: mvn deploy -U --batch-mode
 
 cache:
   directories:
