@@ -54,12 +54,12 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 
 	@Override
 	protected String description() {
-		return "Force on-save handlers for SDF3, NaBL, TS, etc.";
+		return "Compile metalanguage files";
 	}
 	
 	@Override
 	protected Path persistentPath() {
-		return context.depPath("forceOnSave.dep");
+		return context.depPath("metalang.compile.dep");
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 		List<ParseResult<IStrategoTerm>> parseResults = parseFiles(metalangsByExtension, paths);
 		Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analysisResults = analyzeFiles(parseResults);
 		@SuppressWarnings("unused")
-		List<TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> compilerResults = compileFiles(analysisResults);
+		List<TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> compilerResults = transformFiles(analysisResults);
 		
 		return None.val;
 	}
@@ -146,7 +146,7 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 	}
 
 	private List<TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> 
-		compileFiles(Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analysisResults) throws IOException {
+		transformFiles(Map<IContext, AnalysisResult<IStrategoTerm, IStrategoTerm>> analysisResults) throws IOException {
 
 		List<TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm>> compileResults = new ArrayList<>();
 		

@@ -1,15 +1,19 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.analysis.AnalysisResult;
 import org.metaborg.spoofax.core.analysis.IAnalysisService;
 import org.metaborg.spoofax.core.context.IContext;
 import org.metaborg.spoofax.core.syntax.ParseResult;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.sugarj.common.FileCommands;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
+import org.sugarj.common.path.RelativePath;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
@@ -49,12 +53,24 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 
 	@Override
 	protected String description() {
-		return "Analyze " + input.parseResults.size() + " metalanguage file" + (input.parseResults.size() > 1 ? "s" : "");
+		if (input.parseResults.size() == 1) {
+			return "Analyze metalanguage file " + input.parseResults.iterator().next().source().getName().getPath();
+		}
+		else
+			return "Analyze " + input.parseResults.size() + " metalanguage files";
 	}
 	
 	@Override
 	protected Path persistentPath() {
-		return context.depPath("meta/analyze." + input.parseResults.hashCode() + ".dep");
+		if (input.parseResults.size() == 1) {
+			FileObject fo = input.parseResults.iterator().next().source();
+			Path file = new AbsolutePath(fo.getName().getPath());
+			RelativePath rel = FileCommands.getRelativePath(context.baseDir, file);
+			String relname = rel.getRelativePath().replace(File.separatorChar, '_');
+			return context.depPath("meta/analyze." + relname + ".dep");
+		}
+		else
+			return context.depPath("meta/analyze." + input.parseResults.hashCode() + ".dep");
 	}
 
 	

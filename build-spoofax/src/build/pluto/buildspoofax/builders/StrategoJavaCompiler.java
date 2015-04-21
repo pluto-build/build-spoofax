@@ -130,7 +130,8 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 		provide(rtree);
 		provide(strdep);
 		
-		registerUsedPaths(strdep);
+		if (FileCommands.exists(strdep))
+			registerUsedPaths(strdep);
 		
 		setState(State.finished(er.success));
 		
