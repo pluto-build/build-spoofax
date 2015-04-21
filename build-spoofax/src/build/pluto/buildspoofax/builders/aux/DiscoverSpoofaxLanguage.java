@@ -62,7 +62,7 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 		if (jar.getFile().isDirectory())
 			dir = jar;
 		else {
-			dir = context.depPath("discover." + input.someClassFromLanguage.getName());
+			dir = context.depPath("discover." + FileCommands.fileName(jar));
 			requireBuild(UnpackJarFile.factory, new UnpackJarFile.Input(context, jar, dir));
 		}
 		
