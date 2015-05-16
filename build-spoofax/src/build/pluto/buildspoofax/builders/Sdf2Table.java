@@ -1,34 +1,30 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
-
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.builders.aux.Sdf2TablePrepareExecutable;
+import build.pluto.output.Out;
 
-public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Path> {
+public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Out<File>> {
 
 
-	public static SpoofaxBuilderFactory<Input, Path, Sdf2Table> factory = new SpoofaxBuilderFactory<Input, Path, Sdf2Table>() {
-		private static final long serialVersionUID = -5551917492018980172L;
-
-		@Override
-		public Sdf2Table makeBuilder(Input input) { return new Sdf2Table(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, Out<File>, Sdf2Table> factory = Sdf2Table::new;
 	
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -2379365089609792204L;
 		public final String sdfmodule;
 		public final String buildSdfImports;
-		public final Path externaldef;
-		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, Path externaldef) {
+		public final File externaldef;
+
+		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, File externaldef) {
 			super(context);
 			this.sdfmodule = sdfmodule;
 			this.buildSdfImports = buildSdfImports;
@@ -41,22 +37,22 @@ public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Path> {
 	}
 
 	@Override
-	protected String description() {
+	protected String description(Input input) {
 		return "Compile grammar to parse table";
 	}
 	
 	@Override
-	protected Path persistentPath() {
+	protected File persistentPath(Input input) {
 		return context.depPath("sdf2Table." + input.sdfmodule + ".dep");
 	}
 
 	@Override
-	public Path build() throws IOException {
+	public Out<File> build(Input input) throws IOException {
 		requireBuild(MakePermissive.factory, new MakePermissive.Input(context, input.sdfmodule, input.buildSdfImports, input.externaldef));
 		Sdf2TablePrepareExecutable.Output commands = requireBuild(Sdf2TablePrepareExecutable.factory, input);
 		
-		RelativePath inputPath = context.basePath("${include}/" + input.sdfmodule + "-Permissive.def");
-		RelativePath outputPath = context.basePath("${include}/" + input.sdfmodule + ".tbl");
+		File inputPath = context.basePath("${include}/" + input.sdfmodule + "-Permissive.def");
+		File outputPath = context.basePath("${include}/" + input.sdfmodule + ".tbl");
 
 		require(inputPath);
 		ExecutionResult er = commands.sdf2table.run( 
@@ -67,7 +63,7 @@ public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Path> {
 		
 		provide(outputPath);
 		setState(State.finished(er.success));
-		return outputPath;
+		return Out.of(outputPath);
 	}
 
 }

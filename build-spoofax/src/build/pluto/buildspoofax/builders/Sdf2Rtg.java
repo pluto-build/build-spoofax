@@ -1,24 +1,25 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.tools.main_sdf2rtg_0_0;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 
 import build.pluto.BuildUnit.State;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.builders.aux.ParseSdfDefinition;
 import build.pluto.buildspoofax.stampers.Sdf2RtgStamper;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
+import build.pluto.output.Out;
 
 public class Sdf2Rtg extends SpoofaxBuilder<Sdf2Rtg.Input, None> {
 
@@ -46,26 +47,27 @@ public class Sdf2Rtg extends SpoofaxBuilder<Sdf2Rtg.Input, None> {
 	}
 
 	@Override
-	protected String description() {
+	protected String description(Input input) {
 		return "Extract constructor signatures from grammar";
 	}
 	
 	@Override
-	protected Path persistentPath() {
+	protected File persistentPath(Input input) {
 		return context.depPath("sdf2Rtg." + input.sdfmodule + ".dep");
 	}
 
 	@Override
-	public None build() throws IOException {
+	public None build(Input input) throws IOException {
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang.def'.
 		BuildRequest<PackSdf.Input, None, PackSdf, ?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context, input.sdfmodule, input.buildSdfImports));
 		requireBuild(packSdf);
 		
-		RelativePath inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
-		RelativePath outputPath = context.basePath("${include}/" + input.sdfmodule + ".rtg");
+		File inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
+		File outputPath = context.basePath("${include}/" + input.sdfmodule + ".rtg");
 
 		if (SpoofaxContext.BETTER_STAMPERS) {
-			BuildRequest<ParseSdfDefinition.Input, IStrategoTerm, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?,?,?,?>[]{packSdf}));
+			BuildRequest<ParseSdfDefinition.Input, Out<IStrategoTerm>, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(
+					ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?, ?, ?, ?>[] { packSdf }));
 			require(inputPath, new Sdf2RtgStamper(parseSdfDefinition));
 		}
 		else

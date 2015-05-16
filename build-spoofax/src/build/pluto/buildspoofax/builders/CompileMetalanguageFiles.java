@@ -1,6 +1,8 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -21,15 +23,15 @@ import org.metaborg.spoofax.core.language.ResourceExtensionFacet;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 import org.sugarj.common.util.Pair;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.builders.aux.DiscoverSpoofaxLanguage;
 import build.pluto.buildspoofax.util.PatternFileFilter;
 import build.pluto.output.None;
+import build.pluto.output.Out;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -50,52 +52,52 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 	}
 
 	@Override
-	protected String description() {
+	protected String description(SpoofaxInput input) {
 		return "Compile metalanguage files";
 	}
 	
 	@Override
-	protected Path persistentPath() {
+	protected File persistentPath(SpoofaxInput input) {
 		return context.depPath("metalang.compile.dep");
 	}
 
 	@Override
-	public None build() throws Exception {
+	public None build(SpoofaxInput input) throws Exception {
 		// XXX really need to delete old sdf3 files? Or is it sufficient to remove them from `paths` below?
-		List<RelativePath> oldSdf3Paths = FileCommands.listFilesRecursive(context.basePath("src-gen"), new SuffixFileFilter("sdf3"));
+		List<Path> oldSdf3Paths = FileCommands.listFilesRecursive(context.basePath("src-gen").toPath(), new SuffixFileFilter("sdf3"));
 		for (Path p : oldSdf3Paths)
 			FileCommands.delete(p);
 		
 		List<ILanguage> metalangs = loadMetalanguages();
 		Map<String, ILanguage> metalangsByExtension = getMetalanguageExtensions(metalangs);
 		
-		Path include = context.basePath("${include}");
-		List<RelativePath> paths = FileCommands.listFilesRecursive(
-				context.baseDir,
+		File include = context.basePath("${include}");
+		List<Path> paths = FileCommands.listFilesRecursive(
+				context.baseDir.toPath(),
 				new AndFileFilter(Lists.newArrayList(
 						new NotFileFilter(DirectoryFileFilter.INSTANCE),
 						new NotFileFilter(new PatternFileFilter(true, Pattern.quote(include.getAbsolutePath()) + ".*")),
 						new SuffixFileFilter(metalangsByExtension.keySet().toArray(new String[0])))));
 		
-		Map<Path, Pair<ILanguage, IStrategoTerm>> parseResults = parseFiles(metalangsByExtension, paths);
-		Map<IContext, Map<Path, IStrategoTerm>> analysisResults = analyzeFiles(parseResults);
+		Map<File, Pair<ILanguage, IStrategoTerm>> parseResults = parseFiles(metalangsByExtension, paths);
+		Map<IContext, Map<File, IStrategoTerm>> analysisResults = analyzeFiles(parseResults);
 		@SuppressWarnings("unused")
-		Map<Path, IStrategoTerm> compilerResults = transformFiles(parseResults, analysisResults);
+		Map<File, IStrategoTerm> compilerResults = transformFiles(parseResults, analysisResults);
 		
 		return None.val;
 	}
 
 	private List<ILanguage> loadMetalanguages() throws IOException {
 		Class<?> sdf3Class = org.strategoxt.imp.editors.template.strategies.InteropRegisterer.class;
-		ILanguage sdf3 = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class));
+		Out<ILanguage> sdf3 = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class));
 		
 		Class<?> nablClass = org.metaborg.meta.lang.nabl.strategies.InteropRegisterer.class;
-		ILanguage nabl = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass));
+		Out<ILanguage> nabl = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass));
 		
 		Class<?> tsClass = org.metaborg.meta.lang.ts.strategies.InteropRegisterer.class;
-		ILanguage ts = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, tsClass));
+		Out<ILanguage> ts = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, tsClass));
 		
-		return Lists.newArrayList(sdf3, nabl, ts);
+		return Lists.newArrayList(sdf3.val, nabl.val, ts.val);
 	}
 	
 	private Map<String, ILanguage> getMetalanguageExtensions(List<ILanguage> metalangs) {
@@ -111,52 +113,53 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 		return extensions;
 	}
 	
-	private Map<Path, Pair<ILanguage, IStrategoTerm>> parseFiles(Map<String, ILanguage> metalangsByExtension, List<RelativePath> paths) throws IOException {
-		Map<Path, Pair<ILanguage, IStrategoTerm>> parseResults = new HashMap<>();
-		for (RelativePath p : paths) {
-			ILanguage lang = metalangsByExtension.get(FileCommands.getExtension(p));
-			IStrategoTerm parseResult = requireBuild(CompileMetalanguageFiles_Parse.factory, new CompileMetalanguageFiles_Parse.Input(context, p, lang));
-			parseResults.put(p, new Pair<>(lang, parseResult));
+	private Map<File, Pair<ILanguage, IStrategoTerm>> parseFiles(Map<String, ILanguage> metalangsByExtension, List<Path> paths) throws IOException {
+		Map<File, Pair<ILanguage, IStrategoTerm>> parseResults = new HashMap<>();
+		for (Path p : paths) {
+			ILanguage lang = metalangsByExtension.get(FileCommands.getExtension(p.toFile()));
+			Out<IStrategoTerm> parseResult = requireBuild(CompileMetalanguageFiles_Parse.factory,
+					new CompileMetalanguageFiles_Parse.Input(context, p.toFile(), lang));
+			parseResults.put(p.toFile(), new Pair<>(lang, parseResult.val));
 		}
 		return parseResults;
 	}
 
-	private Map<IContext, Map<Path, IStrategoTerm>> analyzeFiles(Map<Path, Pair<ILanguage, IStrategoTerm>> parseResults) throws ContextException, IOException {
+	private Map<IContext, Map<File, IStrategoTerm>> analyzeFiles(Map<File, Pair<ILanguage, IStrategoTerm>> parseResults) throws ContextException, IOException {
 		IResourceService resourceService = context.getResourceService();
 		IContextService contextService = context.guiceInjector().getInstance(IContextService.class);
 
-		Multimap<IContext, Pair<Path, IStrategoTerm>> parseResultsByContext = ArrayListMultimap.create();
-        for(Entry<Path, Pair<ILanguage, IStrategoTerm>> e : parseResults.entrySet()) {
-        	FileObject source = resourceService.resolve(e.getKey().getFile());
+		Multimap<IContext, Pair<File, IStrategoTerm>> parseResultsByContext = ArrayListMultimap.create();
+		for (Entry<File, Pair<ILanguage, IStrategoTerm>> e : parseResults.entrySet()) {
+			FileObject source = resourceService.resolve(e.getKey());
             IContext context = contextService.get(source, e.getValue().a);
-            parseResultsByContext.put(context, new Pair<>(e.getKey(), e.getValue().b));
+			parseResultsByContext.put(context, new Pair<>(e.getKey(), e.getValue().b));
         }
         
         // TODO better separation of analysis tasks possible? AnalysisMode:Single/Multi
-        Map<IContext, Map<Path, IStrategoTerm>> analysisResults = Maps.newHashMapWithExpectedSize(parseResultsByContext.keySet().size());
-        for(Entry<IContext, Collection<Pair<Path, IStrategoTerm>>> e : parseResultsByContext.asMap().entrySet()) {
-            Map<Path, IStrategoTerm> analysisResult =
+		Map<IContext, Map<File, IStrategoTerm>> analysisResults = Maps.newHashMapWithExpectedSize(parseResultsByContext.keySet().size());
+		for (Entry<IContext, Collection<Pair<File, IStrategoTerm>>> e : parseResultsByContext.asMap().entrySet()) {
+			Out<HashMap<File, IStrategoTerm>> analysisResult =
             		requireBuild(CompileMetalanguageFiles_Analyze.factory, new CompileMetalanguageFiles_Analyze.Input(context, e.getKey(), Pair.asMap(e.getValue())));
-            analysisResults.put(e.getKey(), analysisResult);
+			analysisResults.put(e.getKey(), analysisResult.val);
         }
         
         return analysisResults;
 	}
 
-	private Map<Path, IStrategoTerm> transformFiles(
-			Map<Path, Pair<ILanguage, IStrategoTerm>> parseResults, 
-			Map<IContext, Map<Path, IStrategoTerm>> analysisResults) throws IOException {
+	private Map<File, IStrategoTerm> transformFiles(Map<File, Pair<ILanguage, IStrategoTerm>> parseResults,
+			Map<IContext, Map<File, IStrategoTerm>> analysisResults) throws IOException {
 
-		Map<Path, IStrategoTerm> compileResults = new HashMap<>();
+		Map<File, IStrategoTerm> compileResults = new HashMap<>();
 		
-		for (Entry<IContext, Map<Path, IStrategoTerm>> e : analysisResults.entrySet()) {
+		for (Entry<IContext, Map<File, IStrategoTerm>> e : analysisResults.entrySet()) {
 			IContext context = e.getKey();
-			for (Entry<Path, IStrategoTerm> fileRes : e.getValue().entrySet()) {
-				Path p = fileRes.getKey();
+			for (Entry<File, IStrategoTerm> fileRes : e.getValue().entrySet()) {
+				File p = fileRes.getKey();
 				IStrategoTerm parseResult = parseResults.get(p).b;
 				IStrategoTerm analysisResult = fileRes.getValue();
-				IStrategoTerm result = requireBuild(CompileMetalanguageFiles_Transform.factory, new CompileMetalanguageFiles_Transform.Input(this.context, p, context, parseResult, analysisResult));
-				compileResults.put(p, result);
+				Out<IStrategoTerm> result = requireBuild(CompileMetalanguageFiles_Transform.factory, new CompileMetalanguageFiles_Transform.Input(this.context,
+						p, context, parseResult, analysisResult));
+				compileResults.put(p, result.val);
 			}
 		}
 		

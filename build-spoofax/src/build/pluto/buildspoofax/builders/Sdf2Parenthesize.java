@@ -1,41 +1,38 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.tools.main_sdf2parenthesize_0_0;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.builders.aux.ParseSdfDefinition;
 import build.pluto.buildspoofax.stampers.Sdf2ParenthesizeStamper;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
+import build.pluto.output.Out;
 
 public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Sdf2Parenthesize> factory = new SpoofaxBuilderFactory<Input, None, Sdf2Parenthesize>() {
-		private static final long serialVersionUID = -7165488913542364367L;
-
-		@Override
-		public Sdf2Parenthesize makeBuilder(Input input) { return new Sdf2Parenthesize(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, None, Sdf2Parenthesize> factory = Sdf2Parenthesize::new;
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6177130857266733408L;
 		
 		public final String sdfmodule;
 		public final String buildSdfImports;
-		public final Path externaldef; 
-		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, Path externaldef) {
+		public final File externaldef;
+
+		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, File externaldef) {
 			super(context);
 			this.sdfmodule = sdfmodule;
 			this.buildSdfImports = buildSdfImports;
@@ -48,27 +45,28 @@ public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, Non
 	}
 
 	@Override
-	protected String description() {
+	protected String description(Input input) {
 		return "Extract parenthesis structure from grammar";
 	}
 	
 	@Override
-	protected Path persistentPath() {
+	protected File persistentPath(Input input) {
 		return context.depPath("sdf2Parenthesize." + input.sdfmodule + ".dep");
 	}
 
 	@Override
-	public None build() throws IOException {
+	public None build(Input input) throws IOException {
 		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfmodule, input.externaldef));
 		BuildRequest<PackSdf.Input, None, PackSdf, ?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context, input.sdfmodule, input.buildSdfImports));
 		requireBuild(packSdf);
 		
-		RelativePath inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
-		RelativePath outputPath = context.basePath("${include}/" + input.sdfmodule + "-parenthesize.str");
+		File inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
+		File outputPath = context.basePath("${include}/" + input.sdfmodule + "-parenthesize.str");
 		String outputmodule = "include/" + input.sdfmodule + "-parenthesize";
 
 		if (SpoofaxContext.BETTER_STAMPERS) {
-			BuildRequest<ParseSdfDefinition.Input, IStrategoTerm, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?,?,?,?>[]{packSdf}));
+			BuildRequest<ParseSdfDefinition.Input, Out<IStrategoTerm>, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(
+					ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?, ?, ?, ?>[] { packSdf }));
 			require(inputPath, new Sdf2ParenthesizeStamper(parseSdfDefinition));
 		}
 		else

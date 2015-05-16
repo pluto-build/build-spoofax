@@ -1,5 +1,6 @@
 package build.pluto.buildspoofax;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +10,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.AbsolutePath;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,35 +26,35 @@ public class SpoofaxContext implements Serializable{
 	
 	public final static boolean BETTER_STAMPERS = true;
 	
-	public final Path baseDir;
+	public final File baseDir;
 	public final Properties props;
 	
-	public SpoofaxContext(Path baseDir, Properties props) {
+	public SpoofaxContext(File baseDir, Properties props) {
 		this.baseDir = baseDir;
 		this.props = props;
 	}
 	
-	public RelativePath basePath(String relative) { 
-		return new RelativePath(baseDir, props.substitute(relative));
+	public File basePath(String relative) {
+		return new File(baseDir, props.substitute(relative));
 	}
 	
-	public RelativePath depDir() { 
-		return new RelativePath(baseDir, props.substitute("${include}/build"));
+	public File depDir() {
+		return new File(baseDir, props.substitute("${include}/build"));
 	}
 	
-	public RelativePath depPath(String relative) { 
-		return new RelativePath(baseDir, props.substitute("${include}/build/" + relative));
+	public File depPath(String relative) {
+		return new File(baseDir, props.substitute("${include}/build/" + relative));
 	}
 	
 	public boolean isBuildStrategoEnabled(Builder<?, ?> result) {
-		RelativePath strategoPath = basePath("${trans}/${strmodule}.str");
+		File strategoPath = basePath("${trans}/${strmodule}.str");
 		result.require(strategoPath, SpoofaxContext.BETTER_STAMPERS ? FileExistsStamper.instance : LastModifiedStamper.instance);
 		boolean buildStrategoEnabled = FileCommands.exists(strategoPath);
 		return buildStrategoEnabled;
 	}
 	
 	public boolean isJavaJarEnabled(Builder<?, ?> result) {
-		RelativePath mainPath = basePath("${src-gen}/org/strategoxt/imp/editors/template/strategies/Main.java");
+		File mainPath = basePath("${src-gen}/org/strategoxt/imp/editors/template/strategies/Main.java");
 		result.require(mainPath, SpoofaxContext.BETTER_STAMPERS ? FileExistsStamper.instance : LastModifiedStamper.instance);
 		return FileCommands.exists(mainPath);
 	}
@@ -65,7 +63,7 @@ public class SpoofaxContext implements Serializable{
 	
 	
 	
-	public static Properties makeSpoofaxProperties(Path baseDir) {
+	public static Properties makeSpoofaxProperties(File baseDir) {
 		Properties props = new Properties();
 		props.put("trans", "trans");
 		props.put("src-gen", "editor/java");
@@ -83,11 +81,11 @@ public class SpoofaxContext implements Serializable{
 //		props.put("externaljarx", new PluginClasspathProvider().getAntPropertyValue(null));
 		
 		String lang;
-		Path[] sdfImports;
-		RelativePath antBuildXML = new RelativePath(baseDir, "build.main.xml");
+		File[] sdfImports;
+		File antBuildXML = new File(baseDir, "build.main.xml");
 		try {
 			
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(antBuildXML.getFile());
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(antBuildXML);
 			Element project = doc.getDocumentElement();
 			lang = project.getAttribute("name");
 			
@@ -100,16 +98,16 @@ public class SpoofaxContext implements Serializable{
 						Node value = kid.getAttributes().getNamedItem("value");
 						if (value != null) {
 							String[] imports = value.getNodeValue().split("[\\s]*" + Pattern.quote("-Idef") + "[\\s]+");
-							List<Path> paths = new ArrayList<>();
+							List<File> paths = new ArrayList<>();
 							for (String imp : imports)
 								if (!imp.isEmpty()) {
 									String subst = props.substitute(imp);
-									if (AbsolutePath.acceptable(subst))
-										paths.add(new AbsolutePath(subst));
+									if (FileCommands.acceptableAsAbsolute(subst))
+										paths.add(new File(subst));
 									else
-										paths.add(new RelativePath(baseDir, subst));
+										paths.add(new File(baseDir, subst));
 								}
-							sdfImports = paths.toArray(new Path[paths.size()]);
+							sdfImports = paths.toArray(new File[paths.size()]);
 							break;
 						}
 					}
@@ -131,7 +129,7 @@ public class SpoofaxContext implements Serializable{
 		
 		if (sdfImports != null) {
 			StringBuilder importString = new StringBuilder();
-			for (Path imp : sdfImports)
+			for (File imp : sdfImports)
 				importString.append("-Idef " + props.substitute(imp.getAbsolutePath()));
 			props.put("build.sdf.imports", importString.toString());
 		}
@@ -139,7 +137,7 @@ public class SpoofaxContext implements Serializable{
 		return props;
 	}
 	
-	public static SpoofaxContext makeContext(Path projectPath) {
+	public static SpoofaxContext makeContext(File projectPath) {
 		Properties props = makeSpoofaxProperties(projectPath);
 		return new SpoofaxContext(projectPath, props);
 	}

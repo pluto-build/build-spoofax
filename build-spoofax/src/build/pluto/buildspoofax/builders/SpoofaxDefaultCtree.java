@@ -1,16 +1,21 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import org.sugarj.common.path.AbsolutePath;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
+import org.sugarj.common.FileCommands;
 
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildjava.JavaJar;
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
+import build.pluto.output.Out;
 
 public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 
@@ -27,24 +32,24 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 	}
 	
 	@Override
-	protected String description() {
+	protected String description(SpoofaxInput input) {
 		return "Build Spoofax project";
 	}
 
 	@Override
-	protected Path persistentPath() {
+	protected File persistentPath(SpoofaxInput input) {
 		return context.depPath("spoofaxDefault.dep");
 	}
 	
 	@Override
-	public None build() throws IOException {
+	public None build(SpoofaxInput input) throws IOException {
 		String sdfmodule = context.props.getOrFail("sdfmodule");
 		String strmodule = context.props.getOrFail("strmodule");
 		String esvmodule = context.props.getOrFail("esvmodule");
 		String metasdfmodule = context.props.getOrFail("metasdfmodule");
 		String buildSdfImports = context.props.getOrElse("build.sdf.imports", "");
-		Path externaldef = context.props.isDefined("externaldef") ? new AbsolutePath(context.props.get("externaldef")) : null;
-		Path externaljar = context.props.isDefined("externaljar") ? new AbsolutePath(context.props.get("externaljar")) : null;
+		File externaldef = context.props.isDefined("externaldef") ? new File(context.props.get("externaldef")) : null;
+		File externaljar = context.props.isDefined("externaljar") ? new File(context.props.get("externaljar")) : null;
 		String externaljarflags = context.props.getOrElse("externaljarflags", "");
 
 		checkClassPath();
@@ -53,8 +58,8 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		requireBuild(MetaSdf2Table.factory, new MetaSdf2Table.Input(context, metasdfmodule, buildSdfImports, externaldef));
 		requireBuild(PPGen.factory, input);
 		
-		RelativePath ppPackInputPath = context.basePath("${syntax}/${sdfmodule}.pp");
-		RelativePath ppPackOutputPath = context.basePath("${include}/${sdfmodule}.pp.af");
+		File ppPackInputPath = context.basePath("${syntax}/${sdfmodule}.pp");
+		File ppPackOutputPath = context.basePath("${include}/${sdfmodule}.pp.af");
 		requireBuild(PPPack.factory, new PPPack.Input(context, ppPackInputPath, ppPackOutputPath, true));
 		
 		requireBuild(StrategoAster.factory, new StrategoAster.Input(context, strmodule));
@@ -64,7 +69,7 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang-parenthesize.str'.
 		BuildRequest<Sdf2Parenthesize.Input,None,Sdf2Parenthesize,?> sdf2Parenthesize = new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfmodule, buildSdfImports, externaldef));
 
-		Path ctree = requireBuild(StrategoCtree.factory,
+		Out<File> ctree = requireBuild(StrategoCtree.factory,
 				new StrategoCtree.Input(
 						context,
 						sdfmodule, 
@@ -94,16 +99,21 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		if (!context.isJavaJarEnabled(this))
 			return;
 		
-		Path baseDir = context.basePath("${build}");
+		File baseDir = context.basePath("${build}");
 		String[] sfiles = context.props.getOrElse("javajar-includes", "org/strategoxt/imp/editors/template/strategies/").split("[\\s]+");
-		Path[] files = new Path[sfiles.length];
-		for (int i = 0; i < sfiles.length; i++)
-			if (AbsolutePath.acceptable(sfiles[i]))
-				files[i] = new AbsolutePath(sfiles[i]);
+		Map<File, Set<File>> files = new HashMap<>();
+		Set<File> relativeFiles = new HashSet<>();
+		Set<File> absoluteFiles = new HashSet<>();
+		for (int i = 0; i < sfiles.length; i++) {
+			if (FileCommands.acceptableAsAbsolute(sfiles[i]))
+				absoluteFiles.add(new File(sfiles[i]));
 			else
-				files[i] = new RelativePath(baseDir, sfiles[i]);
+				relativeFiles.add(new File(baseDir, sfiles[i]));
+		}
+		files.put(baseDir, relativeFiles);
+		files.put(new File(""), absoluteFiles);
 		
-		Path jarPath = context.basePath("${include}/" + strmodule + "-java.jar");
+		File jarPath = context.basePath("${include}/" + strmodule + "-java.jar");
 		requireBuild(JavaJar.factory, 
 				new JavaJar.Input(
 						JavaJar.Mode.CreateOrUpdate,

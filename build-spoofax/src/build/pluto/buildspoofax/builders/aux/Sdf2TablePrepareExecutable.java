@@ -1,36 +1,29 @@
 package build.pluto.buildspoofax.builders.aux;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.strategoxt.imp.nativebundle.Dummy;
 import org.sugarj.common.Exec;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.Path;
-
-import com.google.common.base.Objects;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.util.ExecutableCommandStrategy;
 import build.pluto.stamp.LastModifiedStamper;
 
+import com.google.common.base.Objects;
+
 public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf2TablePrepareExecutable.Output> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, Output, Sdf2TablePrepareExecutable> factory = new SpoofaxBuilderFactory<SpoofaxInput, Output, Sdf2TablePrepareExecutable>() {
-		private static final long serialVersionUID = -5551917492018980172L;
+	public static SpoofaxBuilderFactory<SpoofaxInput, Output, Sdf2TablePrepareExecutable> factory = Sdf2TablePrepareExecutable::new;
 
-		@Override
-		public Sdf2TablePrepareExecutable makeBuilder(SpoofaxInput input) {
-			return new Sdf2TablePrepareExecutable(input);
-		}
-	};
-
-	public static class Output implements Serializable {
+	public static class Output implements build.pluto.output.Output {
 		private static final long serialVersionUID = -6018464107000421068L;
 		
 		public final ExecutableCommandStrategy sdf2table;
@@ -61,17 +54,17 @@ public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf
 	}
 
 	@Override
-	protected String description() {
+	protected String description(SpoofaxInput input) {
 		return "Prepare sdf2table exeuctable";
 	}
 
 	@Override
-	protected Path persistentPath() {
+	protected File persistentPath(SpoofaxInput input) {
 		return context.depPath("sdf2Table.executable.dep");
 	}
 
 	@Override
-	public Output build() throws IOException {
+	public Output build(SpoofaxInput input) throws IOException {
 		String subdir;
 		if(SystemUtils.IS_OS_LINUX)
 			subdir = "linux";
@@ -82,15 +75,15 @@ public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf
 		else
 			throw new RuntimeException("Unsupported operating system");
 
-		require(FileCommands.getRessourcePath(Dummy.class), LastModifiedStamper.instance);
+		require(FileCommands.getRessourcePath(Dummy.class).toFile(), LastModifiedStamper.instance);
 		InputStream sdf2tableInput = Dummy.class.getClassLoader().getResourceAsStream("native/"+subdir+"/sdf2table");
 		InputStream implodePTInput = Dummy.class.getClassLoader().getResourceAsStream("native/"+subdir+"/implodePT");
 		
-		Path sdf2table = context.basePath("include/build/native/sdf2table");
+		File sdf2table = context.basePath("include/build/native/sdf2table");
 		FileCommands.createFile(sdf2table);
 		IOUtils.copy(sdf2tableInput, new FileOutputStream(sdf2table.getAbsolutePath()));
 		
-		Path implodePT = context.basePath("include/build/native/implodePT");
+		File implodePT = context.basePath("include/build/native/implodePT");
 		FileCommands.createFile(implodePT);
 		IOUtils.copy(implodePTInput, new FileOutputStream(implodePT.getAbsolutePath()));
 		

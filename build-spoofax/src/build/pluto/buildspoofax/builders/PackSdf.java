@@ -1,6 +1,8 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +11,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.strategoxt.tools.main_pack_sdf_0_0;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.AbsolutePath;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
@@ -25,12 +25,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	
-	public static SpoofaxBuilderFactory<Input, None, PackSdf> factory = new SpoofaxBuilderFactory<Input, None, PackSdf>() {
-		private static final long serialVersionUID = -8067075652024253743L;
-
-		@Override
-		public PackSdf makeBuilder(Input input) { return new PackSdf(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, None, PackSdf> factory = PackSdf::new;
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 2058684747897720328L;
@@ -54,24 +49,24 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	}
 	
 	@Override
-	protected String description() {
+	protected String description(Input input) {
 		return "Pack SDF modules";
 	}
 	
 	@Override
-	protected Path persistentPath() {
+	protected File persistentPath(Input input) {
 		return context.depPath("packSdf." + input.sdfmodule + ".dep");
 	}
 	
 	@Override
-	public None build() throws IOException {
+	public None build(Input input) throws IOException {
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/src-gen/syntax/TemplateLang.sdf'.
 		requireBuild(CompileMetalanguageFiles.factory, input);
 		
 		copySdf2();
 		
-		RelativePath inputPath = context.basePath("${syntax}/" + input.sdfmodule + ".sdf");
-		RelativePath outputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
+		File inputPath = context.basePath("${syntax}/" + input.sdfmodule + ".sdf");
+		File outputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
 		String utilsInclude = FileCommands.exists(context.basePath("${utils}")) ? context.props.substitute("-I ${utils}") : "";
 		
 		require(inputPath);
@@ -86,7 +81,7 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 				input.buildSdfImports);
 		
 		provide(outputPath);
-		for (Path required : extractRequiredPaths(er.errLog))
+		for (File required : extractRequiredPaths(er.errLog))
 			require(required);
 		
 		setState(State.finished(er.success));
@@ -94,22 +89,22 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 		return None.val;
 	}
 
-	private List<Path> extractRequiredPaths(String log) {
+	private List<File> extractRequiredPaths(String log) {
 		final String prefix = "  including ";
 		final String infix = " from ";
 		
-		List<Path> paths = new ArrayList<>();
+		List<File> paths = new ArrayList<>();
 		for (String s : log.split("\\n")) {
 			if (s.startsWith(prefix)) {
 				String module = s.substring(prefix.length());
 				int infixIndex = module.indexOf(infix);
-				if (infixIndex < 0 && AbsolutePath.acceptable(module)) {
-					paths.add(new AbsolutePath(s.substring(prefix.length())));
+				if (infixIndex < 0 && FileCommands.acceptableAsAbsolute(module)) {
+					paths.add(new File(s.substring(prefix.length())));
 				}
 				else if (infixIndex >= 0) {
 					String def = module.substring(infixIndex + infix.length());
-					if (AbsolutePath.acceptable(def))
-						paths.add(new AbsolutePath(def));
+					if (FileCommands.acceptable(def))
+						paths.add(new File(def));
 				}
 			}
 		}
@@ -117,10 +112,10 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	}
 
 	private void copySdf2() {
-		List<RelativePath> srcSdfFiles = FileCommands.listFilesRecursive(context.basePath("syntax"), new SuffixFileFilter("sdf"));
-		for (RelativePath p : srcSdfFiles) {
-			require(p, LastModifiedStamper.instance);
-			Path target = FileCommands.copyFile(context.basePath("syntax"), context.basePath("${syntax}"), p, StandardCopyOption.COPY_ATTRIBUTES);
+		List<Path> srcSdfFiles = FileCommands.listFilesRecursive(context.basePath("syntax").toPath(), new SuffixFileFilter("sdf"));
+		for (Path p : srcSdfFiles) {
+			require(p.toFile(), LastModifiedStamper.instance);
+			File target = FileCommands.copyFile(context.basePath("syntax"), context.basePath("${syntax}"), p.toFile(), StandardCopyOption.COPY_ATTRIBUTES);
 			provide(target);
 		}		
 	}

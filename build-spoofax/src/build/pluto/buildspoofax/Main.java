@@ -1,12 +1,9 @@
 package build.pluto.buildspoofax;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
-
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.builders.PPPack;
 import build.pluto.buildspoofax.builders.SpoofaxDefaultCtree;
 import build.pluto.output.None;
@@ -23,9 +20,9 @@ public class Main extends SpoofaxBuilder<Main.Input, None> {
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 8115987062955840937L;
 		
-		public final Path projectPath;
+		public final File projectPath;
 
-		public Input(Path projectPath) {
+		public Input(File projectPath) {
 			super(SpoofaxContext.makeContext(Objects.requireNonNull(projectPath, "Spoofax builder requires project-path parameter")));
 			this.projectPath = projectPath;
 		}
@@ -36,19 +33,19 @@ public class Main extends SpoofaxBuilder<Main.Input, None> {
 	}
 
 	@Override
-	protected String description() {
+	protected String description(Input input) {
 		return null;
 	}
 	
 	@Override
-	protected Path persistentPath() {
+	protected File persistentPath(Input input) {
 		return context.depPath("all.dep");
 	}
 	
 	@Override
-	public None build() throws IOException {
-		RelativePath ppInput = context.basePath("${lib}/EditorService-pretty.pp");
-		RelativePath ppTermOutput = context.basePath("${include}/EditorService-pretty.pp.af");
+	public None build(Input input) throws IOException {
+		File ppInput = context.basePath("${lib}/EditorService-pretty.pp");
+		File ppTermOutput = context.basePath("${include}/EditorService-pretty.pp.af");
 		requireBuild(PPPack.factory, new PPPack.Input(context, ppInput, ppTermOutput));
 		
 		requireBuild(SpoofaxDefaultCtree.factory, input);

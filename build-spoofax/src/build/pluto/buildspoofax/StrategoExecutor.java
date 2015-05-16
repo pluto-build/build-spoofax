@@ -1,5 +1,6 @@
 package build.pluto.buildspoofax;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +14,7 @@ import org.strategoxt.stratego_lib.dr_scope_all_end_0_0;
 import org.strategoxt.stratego_lib.dr_scope_all_start_0_0;
 import org.strategoxt.stratego_sdf.stratego_sdf;
 import org.sugarj.common.Exec;
-import org.sugarj.common.FileCommands;
 import org.sugarj.common.Log;
-import org.sugarj.common.path.Path;
 
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 
@@ -100,9 +99,9 @@ public class StrategoExecutor {
 		}
 	}
 	
-	public static ExecutionResult runSdf2TableCLI(Path sdf2tableExecutable, Object... args) throws IOException {
-		Path sdf2tableDir = FileCommands.dropFilename(sdf2tableExecutable);
-		String sdf2tableFile = FileCommands.dropDirectory(sdf2tableExecutable);
+	public static ExecutionResult runSdf2TableCLI(File sdf2tableExecutable, Object... args) throws IOException {
+		File sdf2tableDir = sdf2tableExecutable.getParentFile();
+		String sdf2tableFile = sdf2tableExecutable.getName();
 		String[] sargs = new String[args.length + 1];
 		sargs[0] = sdf2tableFile;
 		for (int i = 0; i < args.length; i++)

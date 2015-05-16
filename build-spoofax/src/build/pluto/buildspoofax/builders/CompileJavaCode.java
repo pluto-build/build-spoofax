@@ -1,18 +1,17 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.AbsolutePath;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 
-import build.pluto.buildjava.JavaBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
 
 public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
@@ -21,28 +20,30 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		private static final long serialVersionUID = 5448125602790119713L;
 
 		@Override
-		public CompileJavaCode makeBuilder(SpoofaxInput input) { return new CompileJavaCode(input); }
+		public CompileJavaCode makeBuilder(SpoofaxInput input) {
+			return new CompileJavaCode(input);
+		}
 	};
-	
+
 	public CompileJavaCode(SpoofaxInput input) {
 		super(input);
 	}
 
 	@Override
-	protected String description() {
+	protected String description(SpoofaxInput input) {
 		return "Compile Java code for Spoofax";
 	}
-	
+
 	@Override
-	public Path persistentPath() {
+	public File persistentPath(SpoofaxInput input) {
 		return context.depPath("compileJavaCode.dep");
 	}
 
 	@Override
-	public None build() throws IOException {
+	public None build(SpoofaxInput input) throws IOException {
 		requireBuild(CopyUtils.factory, input);
-		
-		Path targetDir = context.basePath("${build}");
+
+		File targetDir = context.basePath("${build}");
 		boolean debug = true;
 		String sourceVersion = "1.7";
 		String targetVersion = "1.7";
@@ -53,51 +54,47 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		additionalArgs.add(sourceVersion);
 		additionalArgs.add("-target");
 		additionalArgs.add(targetVersion);
-		
+
 		String srcDirs = context.props.getOrElse("src-dirs", context.props.get("src-gen"));
-		List<Path> sourcePath = new ArrayList<>();
-		List<Path> sourceFiles = new ArrayList<>();
+		List<File> sourcePath = new ArrayList<>();
+		List<File> sourceFiles = new ArrayList<>();
 		for (String dir : srcDirs.split("[\\s]+")) {
-			Path p;
-			if (AbsolutePath.acceptable(dir))
-				p = new AbsolutePath(dir);
+			File p;
+			if (FileCommands.acceptableAsAbsolute(dir))
+				p = new File(dir);
 			else
 				p = context.basePath(dir);
-			
+
 			sourcePath.add(p);
-			
+
 			// TODO soundly select non-Eclipse files
-			for (RelativePath sourceFile : FileCommands.listFilesRecursive(p, new SuffixFileFilter("java"))) {
-				if (sourceFile.getRelativePath().contains("ParseController") || sourceFile.getRelativePath().contains("Validator"))
+			for (Path sourceFile : FileCommands.listFilesRecursive(p.toPath(), new SuffixFileFilter("java"))) {
+				if (sourceFile.toString().contains("ParseController") || sourceFile.toString().contains("Validator"))
 					continue;
-				
-				String content = FileCommands.readFileAsString(sourceFile);
+
+				String content = FileCommands.readFileAsString(sourceFile.toFile());
 				if (!content.contains("org.eclipse"))
-					sourceFiles.add(sourceFile);
+					sourceFiles.add(sourceFile.toFile());
 			}
 		}
-		
-		
-		List<Path> classPath = new ArrayList<>();
+
+		List<File> classPath = new ArrayList<>();
 		classPath.add(context.basePath("utils/strategoxt.jar"));
 		classPath.add(context.basePath("${src-gen}"));
 		if (context.props.isDefined("externaljar"))
-			classPath.add(new AbsolutePath(context.props.get("externaljar")));
+			classPath.add(new File(context.props.get("externaljar")));
 		if (context.props.isDefined("externaljarx"))
-			classPath.add(new AbsolutePath(context.props.get("externaljarx")));
+			classPath.add(new File(context.props.get("externaljarx")));
 		if (context.isJavaJarEnabled(this))
 			classPath.add(context.basePath("${include}/${strmodule}-java.jar"));
 
-		requireBuild(JavaBuilder.factory, 
-				new JavaBuilder.Input(
-						sourceFiles.toArray(new Path[sourceFiles.size()]),
-						targetDir,
-						sourcePath.toArray(new Path[sourcePath.size()]), 
-						classPath.toArray(new Path[classPath.size()]),
-						additionalArgs.toArray(new String[additionalArgs.size()]),
-						null,
-						false));
-		
+		/*
+		 * requireBuild( JavaBuilder.factory, new
+		 * JavaBuilder.Input(sourceFiles.toArray(new File[sourceFiles.size()]),
+		 * targetDir, sourcePath.toArray(new File[sourcePath.size()]), classPath
+		 * .toArray(new File[classPath.size()]), additionalArgs.toArray(new
+		 * String[additionalArgs.size()]), null, false));
+		 */
 		return None.val;
 	}
 }

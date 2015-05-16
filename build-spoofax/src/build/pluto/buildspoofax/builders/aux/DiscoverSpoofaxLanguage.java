@@ -1,5 +1,7 @@
 package build.pluto.buildspoofax.builders.aux;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Iterator;
 
 import org.apache.commons.vfs2.FileObject;
@@ -7,24 +9,19 @@ import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageDiscoveryService;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.Path;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
+import build.pluto.buildspoofax.SpoofaxInput;
+import build.pluto.output.Out;
 import build.pluto.stamp.LastModifiedStamper;
 
 import com.google.inject.Injector;
 
-public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, ILanguage> {
+public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, Out<ILanguage>> {
 
-	public static SpoofaxBuilderFactory<Input, ILanguage, DiscoverSpoofaxLanguage> factory = new SpoofaxBuilderFactory<Input, ILanguage, DiscoverSpoofaxLanguage>() {
-		private static final long serialVersionUID = -8387363389037442076L;
-
-		@Override
-		public DiscoverSpoofaxLanguage makeBuilder(Input input) { return new DiscoverSpoofaxLanguage(input); }
-	};
-	
+	public static SpoofaxBuilderFactory<Input, Out<ILanguage>, DiscoverSpoofaxLanguage> factory = DiscoverSpoofaxLanguage::new;
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 12331766781256062L;
@@ -41,32 +38,32 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 	}
 
 	@Override
-	protected String description() {
+	protected String description(Input input) {
 		return "Discover Spoofax language for " + input.someClassFromLanguage.getName();
 	}
 	
 	@Override
-	public Path persistentPath() {
+	public File persistentPath(Input input) {
 		return context.depPath("discover." + input.someClassFromLanguage.getName() + ".dep");
 	}
 
 	@Override
-	public ILanguage build() throws Exception {
+	public Out<ILanguage> build(Input input) throws Exception {
 		Injector injector = context.guiceInjector();
 		IResourceService resourceSerivce = context.getResourceService();
 		ILanguageDiscoveryService discoverySerivce = injector.getInstance(ILanguageDiscoveryService.class);
 		
-		Path jar = FileCommands.getRessourcePath(input.someClassFromLanguage);
-		Path dir;
-		if (jar.getFile().isDirectory())
+		File jar = FileCommands.getRessourcePath(input.someClassFromLanguage).toFile();
+		File dir;
+		if (jar.isDirectory())
 			dir = jar;
 		else {
-			dir = context.depPath("discover." + FileCommands.fileName(jar));
+			dir = context.depPath("discover." + FileCommands.fileName(jar.getName()));
 			requireBuild(UnpackJarFile.factory, new UnpackJarFile.Input(context, jar, dir));
 		}
 		
-		for (Path p : FileCommands.listFilesRecursive(dir))
-			require(p, LastModifiedStamper.instance);
+		for (Path p : FileCommands.listFilesRecursive(dir.toPath()))
+			require(p.toFile(), LastModifiedStamper.instance);
 
 		FileObject fo = resourceSerivce.resolve(dir.getAbsolutePath());
 		Iterable<ILanguage> langs = discoverySerivce.discover(fo);
@@ -77,6 +74,6 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 		if (it.hasNext())
 			throw new IllegalStateException("Discovered multiple languages for " + input.someClassFromLanguage);
 		
-		return lang;
+		return Out.of(lang);
 	}
 }

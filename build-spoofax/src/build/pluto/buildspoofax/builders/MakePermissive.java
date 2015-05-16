@@ -1,17 +1,17 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.strategoxt.permissivegrammars.make_permissive;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
@@ -30,8 +30,9 @@ public class MakePermissive extends SpoofaxBuilder<MakePermissive.Input, None> {
 
 		public final String sdfmodule;
 		public final String buildSdfImports;
-		public final Path externaldef;
-		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, Path externaldef) {
+		public final File externaldef;
+
+		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, File externaldef) {
 			super(context);
 			this.sdfmodule = sdfmodule;
 			this.buildSdfImports = buildSdfImports;
@@ -44,22 +45,22 @@ public class MakePermissive extends SpoofaxBuilder<MakePermissive.Input, None> {
 	}
 
 	@Override
-	protected String description() {
+	protected String description(Input input) {
 		return "Make grammar permissive for error-recovery parsing.";
 	}
 	
 	@Override
-	public Path persistentPath() {
+	public File persistentPath(Input input) {
 		return context.depPath("makePermissive." + input.sdfmodule + ".dep");
 	}
 
 	@Override
-	public None build() throws IOException {
+	public None build(Input input) throws IOException {
 		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfmodule, input.externaldef));
 		requireBuild(PackSdf.factory, new PackSdf.Input(context,input.sdfmodule, input.buildSdfImports));
 		
-		RelativePath inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
-		RelativePath outputPath = context.basePath("${include}/" + input.sdfmodule + "-Permissive.def");
+		File inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
+		File outputPath = context.basePath("${include}/" + input.sdfmodule + "-Permissive.def");
 		
 		require(inputPath);
 		ExecutionResult er = StrategoExecutor.runStrategoCLI(StrategoExecutor.permissiveGrammarsContext(), 

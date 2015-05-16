@@ -1,17 +1,18 @@
 package build.pluto.buildspoofax.builders;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.StringCommands;
-import org.sugarj.common.path.Path;
-import org.sugarj.common.path.RelativePath;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
-import build.pluto.buildspoofax.SpoofaxBuilder.SpoofaxInput;
+import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
+import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
 
 public class StrategoAster extends SpoofaxBuilder<StrategoAster.Input, None> {
@@ -38,23 +39,23 @@ public class StrategoAster extends SpoofaxBuilder<StrategoAster.Input, None> {
 	}
 
 	@Override
-	protected String description() {
+	protected String description(Input input) {
 		return "Compile attribute grammar to Stratego";
 	}
 	
 	@Override
-	public Path persistentPath() {
+	public File persistentPath(Input input) {
 		return context.depPath("strategoAster." + input.strmodule + ".dep");
 	}
 
 	@Override
-	public None build() throws IOException {
-		List<RelativePath> asterInputList = FileCommands.listFilesRecursive(context.baseDir, new SuffixFileFilter("astr"));
-		for (RelativePath p : asterInputList)
-			require(p);
+	public None build(Input input) throws IOException {
+		List<Path> asterInputList = FileCommands.listFilesRecursive(context.baseDir.toPath(), new SuffixFileFilter("astr"));
+		for (Path p : asterInputList)
+			require(p.toFile());
 		
 		String asterInput = StringCommands.printListSeparated(asterInputList, " ");
-		RelativePath outputPath = context.basePath("${trans}/" + input.strmodule + ".rtree");
+		File outputPath = context.basePath("${trans}/" + input.strmodule + ".rtree");
 		
 		// TODO Aster compiler not available
 //		ExecutionResult er = StrategoExecutor.runStrategoCLI(context.asterContext, 

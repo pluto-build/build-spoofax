@@ -1,5 +1,6 @@
 package build.pluto.buildspoofax.stampers;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,11 +11,11 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermTransformer;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.path.Path;
 
-import build.pluto.builder.BuildManager;
+import build.pluto.builder.BuildManagers;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.StrategoExecutor;
+import build.pluto.output.Out;
 import build.pluto.stamp.LastModifiedStamper;
 import build.pluto.stamp.Stamp;
 import build.pluto.stamp.Stamper;
@@ -23,25 +24,25 @@ import build.pluto.stamp.ValueStamp;
 public class PPGenStamper implements Stamper {
 	private static final long serialVersionUID = 3294157251470549994L;
 	
-	private final BuildRequest<?, IStrategoTerm, ?, ?> parseSdfDefinition;
+	private final BuildRequest<?, Out<IStrategoTerm>, ?, ?> parseSdfDefinition;
 	
-	public PPGenStamper(BuildRequest<?, IStrategoTerm, ?, ?> parseSdfDefinition) {
+	public PPGenStamper(BuildRequest<?, Out<IStrategoTerm>, ?, ?> parseSdfDefinition) {
 		this.parseSdfDefinition = parseSdfDefinition;
 	}
 
 	@Override
-	public Stamp stampOf(Path p) {
+	public Stamp stampOf(File p) {
 		if (!FileCommands.exists(p))
 			return new ValueStamp<>(this, null);
 
-		IStrategoTerm term = BuildManager.build(parseSdfDefinition);
+		Out<IStrategoTerm> term = BuildManagers.build(parseSdfDefinition);
 		
-		if (term == null)
+		if (term == null || term.val == null)
 			return LastModifiedStamper.instance.stampOf(p);
 		
 		ITermFactory factory = StrategoExecutor.strategoSdfcontext().getFactory();
 		CFProdExtractor cfProdExtractor = new CFProdExtractor(factory);
-		cfProdExtractor.transform(term);
+		cfProdExtractor.transform(term.val);
 		return new ValueStamp<>(this, cfProdExtractor.getRelevantProds());
 	}
 

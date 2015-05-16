@@ -1,5 +1,6 @@
 package build.pluto.buildspoofax;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,7 +13,6 @@ import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.core.project.IProject;
 import org.metaborg.spoofax.core.project.IProjectService;
 import org.metaborg.spoofax.core.resource.ResourceService;
-import org.sugarj.common.path.Path;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -20,9 +20,9 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 public class SpoofaxPlutoModule extends SpoofaxModule {
-	private final Path baseDir;
+	private final File baseDir;
 	
-	public SpoofaxPlutoModule(Path baseDir) {
+	public SpoofaxPlutoModule(File baseDir) {
 		super();
 		this.baseDir = baseDir;
 	}
