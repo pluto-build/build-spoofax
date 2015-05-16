@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 
+import build.pluto.buildjava.JavaBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
@@ -88,13 +89,9 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		if (context.isJavaJarEnabled(this))
 			classPath.add(context.basePath("${include}/${strmodule}-java.jar"));
 
-		/*
-		 * requireBuild( JavaBuilder.factory, new
-		 * JavaBuilder.Input(sourceFiles.toArray(new File[sourceFiles.size()]),
-		 * targetDir, sourcePath.toArray(new File[sourcePath.size()]), classPath
-		 * .toArray(new File[classPath.size()]), additionalArgs.toArray(new
-		 * String[additionalArgs.size()]), null, false));
-		 */
+		requireBuild(JavaBuilder.factory,
+				new JavaBuilder.Input(sourceFiles, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs.size()]), null, false));
+
 		return None.val;
 	}
 }
