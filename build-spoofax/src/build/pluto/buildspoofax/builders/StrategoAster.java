@@ -17,12 +17,7 @@ import build.pluto.output.None;
 
 public class StrategoAster extends SpoofaxBuilder<StrategoAster.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, StrategoAster> factory = new SpoofaxBuilderFactory<Input, None, StrategoAster>() {
-		private static final long serialVersionUID = -1290903435504555665L;
-
-		@Override
-		public StrategoAster makeBuilder(Input input) { return new StrategoAster(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, None, StrategoAster> factory = SpoofaxBuilderFactory.of(StrategoAster.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -4593910056510380042L;

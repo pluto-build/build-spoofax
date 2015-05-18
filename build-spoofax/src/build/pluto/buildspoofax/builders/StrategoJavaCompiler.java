@@ -21,7 +21,7 @@ import build.pluto.output.None;
 
 public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, StrategoJavaCompiler> factory = StrategoJavaCompiler::new;
+	public static SpoofaxBuilderFactory<Input, None, StrategoJavaCompiler> factory = SpoofaxBuilderFactory.of(StrategoJavaCompiler.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -5234502421638344690L;

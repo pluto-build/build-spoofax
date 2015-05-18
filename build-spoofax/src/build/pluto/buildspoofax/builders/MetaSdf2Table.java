@@ -15,7 +15,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class MetaSdf2Table extends SpoofaxBuilder<MetaSdf2Table.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, MetaSdf2Table> factory = MetaSdf2Table::new;
+	public static SpoofaxBuilderFactory<Input, None, MetaSdf2Table> factory = SpoofaxBuilderFactory.of(MetaSdf2Table.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -3179663405417276186L;

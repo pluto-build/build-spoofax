@@ -16,12 +16,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class CopyJar extends SpoofaxBuilder<CopyJar.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, CopyJar> factory = new SpoofaxBuilderFactory<Input, None, CopyJar>() {
-		private static final long serialVersionUID = -8387363389037442076L;
-
-		@Override
-		public CopyJar makeBuilder(Input input) { return new CopyJar(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, None, CopyJar> factory = SpoofaxBuilderFactory.of(CopyJar.class, Input.class);
 	
 
 	public static class Input extends SpoofaxInput {

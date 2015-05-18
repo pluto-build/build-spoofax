@@ -19,12 +19,8 @@ import build.pluto.output.Out;
 
 public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, SpoofaxDefaultCtree> factory = new SpoofaxBuilderFactory<SpoofaxInput, None, SpoofaxDefaultCtree>() {
-		private static final long serialVersionUID = -6945708860855449389L;
-
-		@Override
-		public SpoofaxDefaultCtree makeBuilder(SpoofaxInput input) { return new SpoofaxDefaultCtree(input); }
-	};
+	public static SpoofaxBuilderFactory<SpoofaxInput, None, SpoofaxDefaultCtree> factory = SpoofaxBuilderFactory.of(SpoofaxDefaultCtree.class,
+			SpoofaxInput.class);
 	
 
 	public SpoofaxDefaultCtree(SpoofaxInput input) {

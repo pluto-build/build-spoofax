@@ -14,7 +14,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class UnpackJarFile extends SpoofaxBuilder<UnpackJarFile.Input, Out<File>> {
 
-	public static SpoofaxBuilderFactory<Input, Out<File>, UnpackJarFile> factory = UnpackJarFile::new;
+	public static SpoofaxBuilderFactory<Input, Out<File>, UnpackJarFile> factory = SpoofaxBuilderFactory.of(UnpackJarFile.class, Input.class);
 	
 
 	public static class Input extends SpoofaxInput {

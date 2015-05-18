@@ -21,7 +21,8 @@ import build.pluto.stamp.Stamper;
 
 public class ParseSdfDefinition extends SpoofaxBuilder<ParseSdfDefinition.Input, Out<IStrategoTerm>> {
 	
-	public final static SpoofaxBuilderFactory<Input, Out<IStrategoTerm>, ParseSdfDefinition> factory = ParseSdfDefinition::new;
+	public final static SpoofaxBuilderFactory<Input, Out<IStrategoTerm>, ParseSdfDefinition> factory = SpoofaxBuilderFactory.of(ParseSdfDefinition.class,
+			Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -4790160594622807382L;

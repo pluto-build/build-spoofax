@@ -17,14 +17,7 @@ import build.pluto.output.None;
 
 public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileJavaCode> factory = new SpoofaxBuilderFactory<SpoofaxInput, None, CompileJavaCode>() {
-		private static final long serialVersionUID = 5448125602790119713L;
-
-		@Override
-		public CompileJavaCode makeBuilder(SpoofaxInput input) {
-			return new CompileJavaCode(input);
-		}
-	};
+	public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileJavaCode> factory = SpoofaxBuilderFactory.of(CompileJavaCode.class, SpoofaxInput.class);
 
 	public CompileJavaCode(SpoofaxInput input) {
 		super(input);

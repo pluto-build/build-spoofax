@@ -18,12 +18,7 @@ import build.pluto.output.None;
 
 public class MakePermissive extends SpoofaxBuilder<MakePermissive.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, MakePermissive> factory = new SpoofaxBuilderFactory<Input, None, MakePermissive>() {
-		private static final long serialVersionUID = 657230698706473822L;
-
-		@Override
-		public MakePermissive makeBuilder(Input input) { return new MakePermissive(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, None, MakePermissive> factory = SpoofaxBuilderFactory.of(MakePermissive.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 4381601872931676757L;

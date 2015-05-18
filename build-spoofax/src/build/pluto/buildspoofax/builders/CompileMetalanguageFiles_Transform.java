@@ -28,7 +28,8 @@ import com.google.inject.TypeLiteral;
 public class CompileMetalanguageFiles_Transform extends SpoofaxBuilder<CompileMetalanguageFiles_Transform.Input, Out<IStrategoTerm>> {
 	private static final TypeLiteral<ITransformer<IStrategoTerm, IStrategoTerm, IStrategoTerm>> TRANSFORM_LITERAL = new TypeLiteral<ITransformer<IStrategoTerm, IStrategoTerm, IStrategoTerm>>(){};
 
-	public static SpoofaxBuilderFactory<Input, Out<IStrategoTerm>, CompileMetalanguageFiles_Transform> factory = CompileMetalanguageFiles_Transform::new;
+	public static SpoofaxBuilderFactory<Input, Out<IStrategoTerm>, CompileMetalanguageFiles_Transform> factory = SpoofaxBuilderFactory.of(
+			CompileMetalanguageFiles_Transform.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 37855003667874400L;

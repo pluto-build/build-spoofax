@@ -19,14 +19,7 @@ import build.pluto.output.None;
 
 public class Sdf2Imp extends SpoofaxBuilder<Sdf2Imp.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Sdf2Imp> factory = new SpoofaxBuilderFactory<Input, None, Sdf2Imp>() {
-		private static final long serialVersionUID = 8374273854477950798L;
-
-		@Override
-		public Sdf2Imp makeBuilder(Input input) {
-			return new Sdf2Imp(input);
-		}
-	};
+	public static SpoofaxBuilderFactory<Input, None, Sdf2Imp> factory = SpoofaxBuilderFactory.of(Sdf2Imp.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 5390265710389276659L;

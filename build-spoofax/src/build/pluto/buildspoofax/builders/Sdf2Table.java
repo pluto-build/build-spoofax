@@ -15,7 +15,7 @@ import build.pluto.output.Out;
 public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Out<File>> {
 
 
-	public static SpoofaxBuilderFactory<Input, Out<File>, Sdf2Table> factory = Sdf2Table::new;
+	public static SpoofaxBuilderFactory<Input, Out<File>, Sdf2Table> factory = SpoofaxBuilderFactory.of(Sdf2Table.class, Input.class);
 	
 
 	public static class Input extends SpoofaxInput {

@@ -15,12 +15,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class CopySdf extends SpoofaxBuilder<CopySdf.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, CopySdf> factory = new SpoofaxBuilderFactory<Input, None, CopySdf>() {
-		private static final long serialVersionUID = -2175787090501831305L;
-
-		@Override
-		public CopySdf makeBuilder(Input input) { return new CopySdf(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, None, CopySdf> factory = SpoofaxBuilderFactory.of(CopySdf.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6298820503718314523L;

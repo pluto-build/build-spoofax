@@ -33,7 +33,8 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 	private static final TypeLiteral<IAnalysisService<IStrategoTerm, IStrategoTerm>> ANALYSIS_LITERAL = new TypeLiteral<IAnalysisService<IStrategoTerm, IStrategoTerm>>() {
 	};
 
-	public static SpoofaxBuilderFactory<Input, Out<HashMap<File, IStrategoTerm>>, CompileMetalanguageFiles_Analyze> factory = CompileMetalanguageFiles_Analyze::new;
+	public static SpoofaxBuilderFactory<Input, Out<HashMap<File, IStrategoTerm>>, CompileMetalanguageFiles_Analyze> factory = SpoofaxBuilderFactory.of(
+			CompileMetalanguageFiles_Analyze.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 37855003667874400L;

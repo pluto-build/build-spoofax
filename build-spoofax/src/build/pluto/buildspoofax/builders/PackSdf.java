@@ -25,7 +25,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	
-	public static SpoofaxBuilderFactory<Input, None, PackSdf> factory = PackSdf::new;
+	public static SpoofaxBuilderFactory<Input, None, PackSdf> factory = SpoofaxBuilderFactory.of(PackSdf.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 2058684747897720328L;

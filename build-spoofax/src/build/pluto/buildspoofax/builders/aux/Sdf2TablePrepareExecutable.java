@@ -21,7 +21,8 @@ import com.google.common.base.Objects;
 
 public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf2TablePrepareExecutable.Output> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, Output, Sdf2TablePrepareExecutable> factory = Sdf2TablePrepareExecutable::new;
+	public static SpoofaxBuilderFactory<SpoofaxInput, Output, Sdf2TablePrepareExecutable> factory = SpoofaxBuilderFactory.of(Sdf2TablePrepareExecutable.class,
+			SpoofaxInput.class);
 
 	public static class Output implements build.pluto.output.Output {
 		private static final long serialVersionUID = -6018464107000421068L;

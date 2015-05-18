@@ -23,7 +23,7 @@ import build.pluto.output.Out;
 
 public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Sdf2Parenthesize> factory = Sdf2Parenthesize::new;
+	public static SpoofaxBuilderFactory<Input, None, Sdf2Parenthesize> factory = SpoofaxBuilderFactory.of(Sdf2Parenthesize.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6177130857266733408L;

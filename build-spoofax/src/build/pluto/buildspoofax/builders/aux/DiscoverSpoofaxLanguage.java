@@ -21,7 +21,8 @@ import com.google.inject.Injector;
 
 public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, Out<ILanguage>> {
 
-	public static SpoofaxBuilderFactory<Input, Out<ILanguage>, DiscoverSpoofaxLanguage> factory = DiscoverSpoofaxLanguage::new;
+	public static SpoofaxBuilderFactory<Input, Out<ILanguage>, DiscoverSpoofaxLanguage> factory = SpoofaxBuilderFactory.of(DiscoverSpoofaxLanguage.class,
+			Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 12331766781256062L;

@@ -40,12 +40,8 @@ import com.google.common.collect.Multimap;
 
 public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileMetalanguageFiles> factory = new SpoofaxBuilderFactory<SpoofaxInput, None, CompileMetalanguageFiles>() {
-		private static final long serialVersionUID = 4436143308769039647L;
-
-		@Override
-		public CompileMetalanguageFiles makeBuilder(SpoofaxInput input) { return new CompileMetalanguageFiles(input); }
-	};
+	public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileMetalanguageFiles> factory = SpoofaxBuilderFactory.of(CompileMetalanguageFiles.class,
+			SpoofaxInput.class);
 	
 	public CompileMetalanguageFiles(SpoofaxInput input) {
 		super(input);

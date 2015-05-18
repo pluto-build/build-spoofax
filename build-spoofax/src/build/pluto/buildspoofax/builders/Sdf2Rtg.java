@@ -23,12 +23,7 @@ import build.pluto.output.Out;
 
 public class Sdf2Rtg extends SpoofaxBuilder<Sdf2Rtg.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Sdf2Rtg> factory = new SpoofaxBuilderFactory<Input, None, Sdf2Rtg>() {
-		private static final long serialVersionUID = 7325200974940523707L;
-
-		@Override
-		public Sdf2Rtg makeBuilder(Input input) { return new Sdf2Rtg(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, None, Sdf2Rtg> factory = SpoofaxBuilderFactory.of(Sdf2Rtg.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -4487049822305558202L;

@@ -23,7 +23,8 @@ import com.google.inject.TypeLiteral;
 public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetalanguageFiles_Parse.Input, Out<IStrategoTerm>> {
 	private static final TypeLiteral<ISyntaxService<IStrategoTerm>> SYNTAX_LITERAL = new TypeLiteral<ISyntaxService<IStrategoTerm>>(){};
 
-	public static SpoofaxBuilderFactory<Input, Out<IStrategoTerm>, CompileMetalanguageFiles_Parse> factory = CompileMetalanguageFiles_Parse::new;
+	public static SpoofaxBuilderFactory<Input, Out<IStrategoTerm>, CompileMetalanguageFiles_Parse> factory = SpoofaxBuilderFactory.of(
+			CompileMetalanguageFiles_Parse.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 37855003667874400L;

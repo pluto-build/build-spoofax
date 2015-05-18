@@ -17,14 +17,7 @@ import build.pluto.output.None;
 
 public class Clean extends SpoofaxBuilder<SpoofaxInput, None> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, Clean> factory = new SpoofaxBuilderFactory<SpoofaxInput, None, Clean>() {
-		private static final long serialVersionUID = -1133955108882900676L;
-
-		@Override
-		public Clean makeBuilder(SpoofaxInput input) {
-			return new Clean(input);
-		}
-	};
+	public static SpoofaxBuilderFactory<SpoofaxInput, None, Clean> factory = SpoofaxBuilderFactory.of(Clean.class, SpoofaxInput.class);
 
 	public Clean(SpoofaxInput input) {
 		super(input);

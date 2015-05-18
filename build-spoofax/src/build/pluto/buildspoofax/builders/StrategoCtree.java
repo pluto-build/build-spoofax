@@ -17,7 +17,7 @@ import build.pluto.stamp.Stamper;
 
 public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, Out<File>> {
 
-	public static SpoofaxBuilderFactory<Input, Out<File>, StrategoCtree> factory = StrategoCtree::new;
+	public static SpoofaxBuilderFactory<Input, Out<File>, StrategoCtree> factory = SpoofaxBuilderFactory.of(StrategoCtree.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6323245405121428720L;

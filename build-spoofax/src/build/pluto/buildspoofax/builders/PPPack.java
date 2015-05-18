@@ -20,7 +20,7 @@ import build.pluto.output.None;
 
 public class PPPack extends SpoofaxBuilder<PPPack.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, PPPack> factory = PPPack::new;
+	public static SpoofaxBuilderFactory<Input, None, PPPack> factory = SpoofaxBuilderFactory.of(PPPack.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -5786344696509159033L;

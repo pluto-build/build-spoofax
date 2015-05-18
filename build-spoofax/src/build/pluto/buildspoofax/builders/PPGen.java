@@ -26,7 +26,7 @@ import build.pluto.output.Out;
 
 public class PPGen extends SpoofaxBuilder<SpoofaxInput, None> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, PPGen> factory = PPGen::new;
+	public static SpoofaxBuilderFactory<SpoofaxInput, None, PPGen> factory = SpoofaxBuilderFactory.of(PPGen.class, SpoofaxInput.class);
 	
 	public PPGen(SpoofaxInput context) {
 		super(context);
