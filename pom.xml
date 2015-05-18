@@ -9,7 +9,7 @@
 
         <modules>
           <module>build-spoofax</module>
-          <!-- <module>build-spoofax-eclipse</module> -->
+          <module>build-spoofax-eclipse</module>
 	</modules>
 
 	<build>
