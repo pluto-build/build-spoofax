@@ -34,6 +34,14 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 			super(context);
 			this.someClassFromLanguage = someClassFromLanguage;
 		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Input) {
+				return super.context.equals(((Input) obj).context) && someClassFromLanguage.equals(((Input) obj).someClassFromLanguage);
+			}
+			return false;
+		}
 	}
 	
 	public DiscoverSpoofaxLanguage(Input input) {

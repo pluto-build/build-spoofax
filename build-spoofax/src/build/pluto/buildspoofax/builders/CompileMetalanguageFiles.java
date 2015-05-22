@@ -23,9 +23,9 @@ import org.metaborg.spoofax.core.language.ResourceExtensionFacet;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.Log;
 import org.sugarj.common.util.Pair;
 
+import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
@@ -90,6 +90,10 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 		Out<KryoWrapper<ILanguage>> sdf3 = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class));
 		
 		Class<?> nablClass = org.metaborg.meta.lang.nabl.strategies.InteropRegisterer.class;
+
+		assert !new BuildRequest<>(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class)).equals(new BuildRequest<>(
+				DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass)));
+
 		Out<KryoWrapper<ILanguage>> nabl = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass));
 		
 		Class<?> tsClass = org.metaborg.meta.lang.ts.strategies.InteropRegisterer.class;
