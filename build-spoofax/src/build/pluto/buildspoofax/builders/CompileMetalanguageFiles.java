@@ -23,12 +23,14 @@ import org.metaborg.spoofax.core.language.ResourceExtensionFacet;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.FileCommands;
+import org.sugarj.common.Log;
 import org.sugarj.common.util.Pair;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.builders.aux.DiscoverSpoofaxLanguage;
+import build.pluto.buildspoofax.util.KryoWrapper;
 import build.pluto.buildspoofax.util.PatternFileFilter;
 import build.pluto.output.None;
 import build.pluto.output.Out;
@@ -85,15 +87,15 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 
 	private List<ILanguage> loadMetalanguages() throws IOException {
 		Class<?> sdf3Class = org.strategoxt.imp.editors.template.strategies.InteropRegisterer.class;
-		Out<ILanguage> sdf3 = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class));
+		Out<KryoWrapper<ILanguage>> sdf3 = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class));
 		
 		Class<?> nablClass = org.metaborg.meta.lang.nabl.strategies.InteropRegisterer.class;
-		Out<ILanguage> nabl = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass));
+		Out<KryoWrapper<ILanguage>> nabl = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass));
 		
 		Class<?> tsClass = org.metaborg.meta.lang.ts.strategies.InteropRegisterer.class;
-		Out<ILanguage> ts = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, tsClass));
+		Out<KryoWrapper<ILanguage>> ts = requireBuild(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, tsClass));
 		
-		return Lists.newArrayList(sdf3.val, nabl.val, ts.val);
+		return Lists.newArrayList(sdf3.val.get(), nabl.val.get(), ts.val.get());
 	}
 	
 	private Map<String, ILanguage> getMetalanguageExtensions(List<ILanguage> metalangs) {

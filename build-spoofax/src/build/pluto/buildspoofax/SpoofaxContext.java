@@ -35,7 +35,8 @@ public class SpoofaxContext implements Serializable{
 	}
 	
 	public File basePath(String relative) {
-		return new File(baseDir, props.substitute(relative));
+		final String relativeSubst = props.substitute(relative);
+		return new File(baseDir, relativeSubst);
 	}
 	
 	public File depDir() {
@@ -60,7 +61,12 @@ public class SpoofaxContext implements Serializable{
 	}
 	
 	
-	
+	private static String unquote(String s) {
+		if (s.charAt(0) == '\"' && s.charAt(s.length() - 1) == '\"') {
+			return s.substring(1, s.length() - 1);
+		}
+		return s;
+	}
 	
 	
 	public static Properties makeSpoofaxProperties(File baseDir) {
@@ -80,6 +86,8 @@ public class SpoofaxContext implements Serializable{
 
 //		props.put("externaljarx", new PluginClasspathProvider().getAntPropertyValue(null));
 		
+		props.put("basedir", baseDir.getAbsolutePath());
+
 		String lang;
 		File[] sdfImports;
 		File antBuildXML = new File(baseDir, "build.main.xml");
@@ -101,7 +109,9 @@ public class SpoofaxContext implements Serializable{
 							List<File> paths = new ArrayList<>();
 							for (String imp : imports)
 								if (!imp.isEmpty()) {
-									String subst = props.substitute(imp);
+									System.out.println(imp);
+									String subst = props.substitute(unquote(imp));
+									System.out.println(subst);
 									if (FileCommands.acceptableAsAbsolute(subst))
 										paths.add(new File(subst));
 									else
@@ -118,8 +128,7 @@ public class SpoofaxContext implements Serializable{
 			throw new RuntimeException(e);
 		}
 
-		
-		props.put("basedir", baseDir.getAbsolutePath());
+
 		props.put("sdfmodule", lang);
 		props.put("metasdfmodule", "Stratego-" + lang);
 		props.put("esvmodule", lang);
@@ -129,8 +138,11 @@ public class SpoofaxContext implements Serializable{
 		
 		if (sdfImports != null) {
 			StringBuilder importString = new StringBuilder();
-			for (File imp : sdfImports)
+			for (File imp : sdfImports) {
+
 				importString.append("-Idef " + props.substitute(imp.getAbsolutePath()));
+				System.out.println(importString);
+			}
 			props.put("build.sdf.imports", importString.toString());
 		}
 

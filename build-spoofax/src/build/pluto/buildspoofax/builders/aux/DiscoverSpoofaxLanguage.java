@@ -14,14 +14,16 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
+import build.pluto.buildspoofax.util.KryoWrapper;
 import build.pluto.output.Out;
 import build.pluto.stamp.LastModifiedStamper;
 
 import com.google.inject.Injector;
 
-public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, Out<ILanguage>> {
+public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, Out<KryoWrapper<ILanguage>>> {
 
-	public static SpoofaxBuilderFactory<Input, Out<ILanguage>, DiscoverSpoofaxLanguage> factory = SpoofaxBuilderFactory.of(DiscoverSpoofaxLanguage.class,
+	public static SpoofaxBuilderFactory<Input, Out<KryoWrapper<ILanguage>>, DiscoverSpoofaxLanguage> factory = SpoofaxBuilderFactory.of(
+			DiscoverSpoofaxLanguage.class,
 			Input.class);
 
 	public static class Input extends SpoofaxInput {
@@ -49,7 +51,7 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 	}
 
 	@Override
-	public Out<ILanguage> build(Input input) throws Exception {
+	public Out<KryoWrapper<ILanguage>> build(Input input) throws Exception {
 		Injector injector = context.guiceInjector();
 		IResourceService resourceSerivce = context.getResourceService();
 		ILanguageDiscoveryService discoverySerivce = injector.getInstance(ILanguageDiscoveryService.class);
@@ -74,7 +76,7 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 		ILanguage lang = it.next();
 		if (it.hasNext())
 			throw new IllegalStateException("Discovered multiple languages for " + input.someClassFromLanguage);
-		
-		return Out.of(lang);
+
+		return Out.of(new KryoWrapper<>(lang));
 	}
 }

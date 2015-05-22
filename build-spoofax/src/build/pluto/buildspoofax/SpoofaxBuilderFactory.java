@@ -47,6 +47,11 @@ public interface SpoofaxBuilderFactory<In extends SpoofaxInput, Out extends Outp
 				return true;
 			}
 			
+			@Override
+			public String toString() {
+				return factory.toString();
+			}
+
 		};
 		return new GeneratedSpoofaxBuilderFactory();
 	}

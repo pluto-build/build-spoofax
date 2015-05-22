@@ -2,6 +2,7 @@ package build.pluto.buildspoofax.builders;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.language.ILanguage;
@@ -34,6 +35,7 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 
 		public Input(SpoofaxContext context, File file, ILanguage lang) {
 			super(context);
+			Objects.requireNonNull(lang);
 			this.file = file;
 			this.lang = lang;
 		}
