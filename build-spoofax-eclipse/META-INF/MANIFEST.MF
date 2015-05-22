@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Spoofax Cleardep Builder
-Bundle-SymbolicName: build-spoofax;singleton:=true
+Bundle-Name: Spoofax Pluto Builder
+Bundle-SymbolicName: build-spoofax-eclipse;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: build.pluto.buildspoofax.Activator
 Require-Bundle: org.eclipse.ui,
@@ -10,8 +10,13 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.imp.runtime,
  org.eclipse.jface.text,
  org.eclipse.ui.console,
- org.spoofax.interpreter.externaldeps
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+ org.spoofax.interpreter.externaldeps,
+ build.pluto.build-spoofax;bundle-version="1.1.0",
+ build.pluto.pluto;bundle-version="1.2.1",
+ org.strategoxt.imp.metatooling;bundle-version="1.5.0",
+ org.metaborg.meta.lang.nabl;bundle-version="1.5.0",
+ org.metaborg.meta.lang.ts;bundle-version="1.5.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.strategoxt.imp.runtime
 Import-Package: build.pluto,
@@ -21,46 +26,8 @@ Import-Package: build.pluto,
  build.pluto.output,
  build.pluto.stamp,
  build.pluto.xattr,
- org.spoofax.interpreter.core,
- org.spoofax.interpreter.library,
- org.spoofax.interpreter.library.ssl,
- org.spoofax.interpreter.terms,
- org.spoofax.terms;version="1.3.0",
- org.strategoxt,
- org.strategoxt.eclipse.ant,
- org.strategoxt.imp.generator,
- org.strategoxt.imp.metatooling,
- org.strategoxt.imp.metatooling.building,
- org.strategoxt.imp.metatooling.loading,
- org.strategoxt.imp.metatooling.stratego,
+ org.eclipse.ant.core,
  org.strategoxt.imp.runtime,
- org.strategoxt.imp.runtime.dynamicloading,
- org.strategoxt.imp.runtime.parser,
- org.strategoxt.imp.runtime.services,
- org.strategoxt.imp.runtime.stratego,
- org.strategoxt.lang,
- org.strategoxt.permissivegrammars,
- org.strategoxt.stratego_xtc,
- org.strategoxt.tools,
  org.sugarj.common,
  org.sugarj.common.path,
  org.sugarj.common.util
-Export-Package: build.pluto.buildspoofax;
-  uses:="org.sugarj.cleardep.stamp,
-   org.sugarj.common.path,
-   org.eclipse.ui.plugin,
-   org.sugarj.cleardep.build,
-   org.spoofax.interpreter.terms,
-   org.osgi.framework,
-   org.strategoxt.lang,
-   org.eclipse.core.runtime,
-   org.sugarj.cleardep,
-   org.eclipse.core.resources,
-   org.spoofax.interpreter.library",
- build.pluto.buildspoofax.builders;
-  uses:="org.sugarj.cleardep,
-   org.metaborg.spoofax.build.cleardep,
-   org.sugarj.cleardep.stamp,
-   org.sugarj.common.path,
-   org.sugarj.cleardep.build",
- build.pluto.buildspoofax.util

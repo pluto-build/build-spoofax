@@ -2,8 +2,8 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension
-             id="SpoofaxCleardepBuilder"
-             name="Spoofax Cleardep Builder"
+             id="SpoofaxPlutoBuilder"
+             name="Spoofax Pluto Builder"
              point="org.eclipse.core.resources.builders">
       <builder callOnEmptyDelta="true">
         <run class="org.metaborg.spoofax.build.cleardep.EclipseBuilder">
