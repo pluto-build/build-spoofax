@@ -10,12 +10,7 @@ import build.pluto.output.None;
 
 public class Main extends SpoofaxBuilder<Main.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Main> factory = new SpoofaxBuilderFactory<Input, None, Main>() {
-		private static final long serialVersionUID = 1747202833519981639L;
-
-		@Override
-		public Main makeBuilder(Input input) { return new Main(input); }
-	};
+	public static SpoofaxBuilderFactory<Input, None, Main> factory = SpoofaxBuilderFactory.of(Main.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 8115987062955840937L;
