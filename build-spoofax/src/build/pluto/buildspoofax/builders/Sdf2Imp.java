@@ -56,7 +56,7 @@ public class Sdf2Imp extends SpoofaxBuilder<Sdf2Imp.Input, None> {
 		File inputPath = new File(context.basePath("editor"), input.esvmodule + ".main.esv");
 
 		LoggingFilteringIOAgent agent = new LoggingFilteringIOAgent(".*");
-		agent.setWorkingDir(inputPath.getAbsolutePath());
+		agent.setWorkingDir(inputPath.getParentFile().getAbsolutePath());
 
 		require(inputPath);
 		ExecutionResult er = StrategoExecutor.runStratego(StrategoExecutor.generatorContext(), sdf2imp_jvm_0_0.instance, "sdf2imp", agent, StrategoExecutor

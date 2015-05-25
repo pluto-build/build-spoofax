@@ -41,7 +41,7 @@ public class Main extends SpoofaxBuilder<Main.Input, None> {
 	public None build(Input input) throws IOException {
 		File ppInput = context.basePath("${lib}/EditorService-pretty.pp");
 		File ppTermOutput = context.basePath("${include}/EditorService-pretty.pp.af");
-		requireBuild(PPPack.factory, new PPPack.Input(context, ppInput, ppTermOutput));
+		requireBuild(PPPack.factory, new PPPack.Input(context, ppInput, ppTermOutput, true));
 		
 		requireBuild(SpoofaxDefaultCtree.factory, input);
 		return None.val;
