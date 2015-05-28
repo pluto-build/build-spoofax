@@ -15,13 +15,15 @@ public class FileObjectSerializer extends Serializer<FileObject> {
 	@Override
 	public void write(Kryo kryo, Output output, FileObject object) {
 		String uri = object.getName().getURI();
+		
 		kryo.writeObject(output, new String(uri));
 	}
 
 	@Override
 	public FileObject read(Kryo kryo, Input input, Class<FileObject> type) {
 		try {
-			return VFS.getManager().resolveFile(kryo.readObject(input, String.class));
+			String uri = kryo.readObject(input, String.class);
+			return VFS.getManager().resolveFile(uri);
 		} catch (FileSystemException e) {
 			throw new KryoException(e);
 		}

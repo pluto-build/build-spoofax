@@ -22,6 +22,7 @@ import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Kryo.DefaultInstantiatorStrategy;
+import com.esotericsoftware.kryo.Registration;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
@@ -51,10 +52,18 @@ public class KryoWrapper<T> implements Serializable {
 	});
 
 	private T elem;
+	private Class<T> clazz;
+
+	public KryoWrapper(T elem, Class<T> clazz) {
+		super();
+		this.elem = elem;
+		this.clazz = clazz;
+	}
 
 	public KryoWrapper(T elem) {
 		super();
 		this.elem = elem;
+		this.clazz = null;
 	}
 
 	public T get() {
@@ -65,7 +74,12 @@ public class KryoWrapper<T> implements Serializable {
 		Kryo kryo = kryos.get();
 		ByteArrayOutputStream bStream = new ByteArrayOutputStream();
 		Output output = new Output(bStream);
-		kryo.writeClassAndObject(output, elem);
+		kryo.writeClass(output, clazz);
+		if (clazz != null) {
+			kryo.writeObject(output, elem, kryo.getSerializer(clazz));
+		} else {
+			kryo.writeClassAndObject(output, elem);
+		}
 		output.close();
 		byte[] kryoData = bStream.toByteArray();
 		stream.writeInt(kryoData.length);
@@ -83,7 +97,47 @@ public class KryoWrapper<T> implements Serializable {
 		ByteArrayInputStream bStream = new ByteArrayInputStream(kryoData);
 		Input input = new Input(bStream);
 
-		elem = (T) kryo.readClassAndObject(input);
+		Registration reg = kryo.readClass(input);
+		if (reg == null) {
+			elem = (T) kryo.readClassAndObject(input);
+		} else {
+			clazz = (Class<T>) reg.getType();
+			elem = (T) kryo.readObject(input, clazz);
+		}
+
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((elem == null) ? 0 : elem.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		System.out.print("Kryo equals");
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		KryoWrapper other = (KryoWrapper) obj;
+		if (elem == null) {
+			if (other.elem != null) {
+
+				return false;
+			}
+		} else {
+
+			if (!elem.equals(other.elem)) {
+
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
