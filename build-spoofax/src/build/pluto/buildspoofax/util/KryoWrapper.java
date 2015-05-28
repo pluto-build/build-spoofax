@@ -8,10 +8,20 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.spoofax.core.analysis.stratego.StrategoFacet;
+import org.metaborg.spoofax.core.context.ContextFacet;
+import org.metaborg.spoofax.core.language.IdentificationFacet;
 import org.metaborg.spoofax.core.language.Language;
 import org.metaborg.spoofax.core.language.LanguageVersion;
+import org.metaborg.spoofax.core.language.ResourceExtensionFacet;
+import org.metaborg.spoofax.core.style.Style;
+import org.metaborg.spoofax.core.syntax.SyntaxFacet;
+import org.metaborg.spoofax.core.transform.stratego.menu.Action;
+import org.metaborg.spoofax.core.transform.stratego.menu.Menu;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Kryo.DefaultInstantiatorStrategy;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
@@ -25,9 +35,18 @@ public class KryoWrapper<T> implements Serializable {
 
 	private static ThreadLocal<Kryo> kryos = ThreadLocal.withInitial(() -> {
 		Kryo kryo = new Kryo();
+		kryo.register(FileObject.class, new FileObjectSerializer());
 		kryo.register(Language.class, new LanguageSerializer());
 		kryo.register(LanguageVersion.class, new LanguageVersionSerializer());
-		kryo.register(FileObject.class, new JavaSerializer());
+		kryo.register(Style.class, new JavaSerializer());
+		kryo.register(StrategoFacet.class, new JavaSerializer());
+		kryo.register(IdentificationFacet.class, new JavaSerializer());
+		kryo.register(ContextFacet.class, new JavaSerializer());
+		kryo.register(Action.class, new ActionSerializer());
+		kryo.register(ResourceExtensionFacet.class, new JavaSerializer());
+		kryo.register(SyntaxFacet.class, new SyntaxFacetSerializer());
+		kryo.register(Menu.class, new MenuSerializer());
+		kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
 		return kryo;
 	});
 
