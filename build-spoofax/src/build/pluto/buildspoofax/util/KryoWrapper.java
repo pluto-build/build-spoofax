@@ -117,7 +117,6 @@ public class KryoWrapper<T> implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		System.out.print("Kryo equals");
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -127,13 +126,10 @@ public class KryoWrapper<T> implements Serializable {
 		KryoWrapper other = (KryoWrapper) obj;
 		if (elem == null) {
 			if (other.elem != null) {
-
 				return false;
 			}
 		} else {
-
 			if (!elem.equals(other.elem)) {
-
 				return false;
 			}
 		}
