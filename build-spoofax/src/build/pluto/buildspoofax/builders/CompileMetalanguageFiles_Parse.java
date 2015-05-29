@@ -68,6 +68,7 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 		require(input.file);
 		String source = FileCommands.readFileAsString(input.file);
 		FileObject fo = resourceSerivce.resolve(input.file);
-		return Out.of(syntaxService.parse(source, fo, input.lang.get()).result);
+		IStrategoTerm result = syntaxService.parse(source, fo, input.lang.get()).result;
+		return Out.of(result);
 	}
 }

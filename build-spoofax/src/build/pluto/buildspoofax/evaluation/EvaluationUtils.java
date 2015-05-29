@@ -9,8 +9,11 @@ public class EvaluationUtils {
 	
 	public static void replaceAllInFile(File file, String toReplace, String replaceWith) throws IOException {
 		String content = FileCommands.readFileAsString(file);
-		content = content.replaceAll(toReplace, replaceWith);
-		FileCommands.writeToFile(file, content);
+		String newContent = content.replaceAll(toReplace, replaceWith);
+		if (content.equals(newContent)) {
+			throw new RuntimeException("Replacement in " + file + " did not changed content");
+		}
+		FileCommands.writeToFile(file, newContent);
 	}
 
 }
