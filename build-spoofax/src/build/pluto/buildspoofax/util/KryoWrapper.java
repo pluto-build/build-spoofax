@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.URI;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.analysis.stratego.StrategoFacet;
 import org.metaborg.spoofax.core.context.ContextFacet;
+import org.metaborg.spoofax.core.context.ContextIdentifier;
 import org.metaborg.spoofax.core.language.IdentificationFacet;
 import org.metaborg.spoofax.core.language.Language;
 import org.metaborg.spoofax.core.language.LanguageVersion;
@@ -47,6 +49,8 @@ public class KryoWrapper<T> implements Serializable {
 		kryo.register(ResourceExtensionFacet.class, new JavaSerializer());
 		kryo.register(SyntaxFacet.class, new SyntaxFacetSerializer());
 		kryo.register(Menu.class, new MenuSerializer());
+		kryo.register(URI.class, new JavaSerializer());
+		kryo.register(ContextIdentifier.class, new ContextIdentifierSerializer());
 		kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
 		return kryo;
 	});

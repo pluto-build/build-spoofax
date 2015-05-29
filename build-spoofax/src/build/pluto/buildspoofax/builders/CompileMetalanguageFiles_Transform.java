@@ -19,6 +19,7 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
+import build.pluto.buildspoofax.util.KryoWrapper;
 import build.pluto.output.Out;
 
 import com.google.inject.Injector;
@@ -35,20 +36,24 @@ public class CompileMetalanguageFiles_Transform extends SpoofaxBuilder<CompileMe
 		private static final long serialVersionUID = 37855003667874400L;
 
 		public final File file;
-		public final IContext langContext;
+		private final KryoWrapper<IContext> langContext;
 		public final IStrategoTerm parseResult;
 		public final IStrategoTerm analysisResult;
 
 		public Input(SpoofaxContext context, File file, IContext langContext, IStrategoTerm parseResult, IStrategoTerm analysisResult) {
 			super(context);
 			this.file = file;
-			this.langContext = langContext;
+			this.langContext = new KryoWrapper<>(langContext);
 			this.parseResult = parseResult;
 			this.analysisResult = analysisResult;
 		}
 		
 		public String langName() {
-			return langContext.language().name();
+			return langContext.get().language().name();
+		}
+
+		public IContext langContext() {
+			return langContext.get();
 		}
 	}
 	
@@ -76,10 +81,11 @@ public class CompileMetalanguageFiles_Transform extends SpoofaxBuilder<CompileMe
 		ITransformer<IStrategoTerm, IStrategoTerm, IStrategoTerm> transformer = injector.getInstance(Key.get(TRANSFORM_LITERAL));
 		
 		FileObject source = resourceService.resolve(input.file);
-		ParseResult<IStrategoTerm> parseResult = new ParseResult<>(input.parseResult, source, Collections.emptyList(), -1, input.langContext.language(), null);
+		ParseResult<IStrategoTerm> parseResult = new ParseResult<>(input.parseResult, source, Collections.emptyList(), -1, input.langContext().language(), null);
 		AnalysisFileResult<IStrategoTerm, IStrategoTerm> transformInput = new AnalysisFileResult<IStrategoTerm, IStrategoTerm>(input.analysisResult, source, Collections.emptyList(), parseResult);
 		
-		TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm> result = transformer.transform(transformInput, input.langContext, new CompileGoal());
+		TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm> result = transformer.transform(transformInput, input.langContext(),
+				new CompileGoal());
 		return Out.of(result.result);
 	}
 }

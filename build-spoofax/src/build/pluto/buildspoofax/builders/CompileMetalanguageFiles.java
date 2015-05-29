@@ -120,7 +120,8 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 		for (Path p : paths) {
 			ILanguage lang = metalangsByExtension.get(FileCommands.getExtension(p.toFile()));
 			Out<IStrategoTerm> parseResult = requireBuild(CompileMetalanguageFiles_Parse.factory,
-					new CompileMetalanguageFiles_Parse.Input(context, p.toFile(), lang));
+ new CompileMetalanguageFiles_Parse.Input(context, p.toFile(),
+					new KryoWrapper<>(lang)));
 			parseResults.put(p.toFile(), new Pair<>(lang, parseResult.val));
 		}
 		return parseResults;

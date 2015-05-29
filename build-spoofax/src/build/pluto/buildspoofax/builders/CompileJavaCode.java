@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 
+import build.pluto.builder.BuildRequest;
+import build.pluto.builder.BuilderFactory;
 import build.pluto.buildjava.JavaBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
@@ -35,7 +38,8 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 	@Override
 	public None build(SpoofaxInput input) throws IOException {
-		requireBuild(CopyUtils.factory, input);
+		BuildRequest<SpoofaxInput, None, CopyUtils, BuilderFactory<SpoofaxInput, None, CopyUtils>> copyReq = new BuildRequest<>(CopyUtils.factory, input);
+		requireBuild(copyReq);
 
 		File targetDir = context.basePath("${build}");
 		boolean debug = true;
@@ -86,8 +90,12 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		if (context.isJavaJarEnabled(this))
 			classPath.add(context.basePath("${include}/${strmodule}-java.jar"));
 
+		System.out.println(classPath);
+
+
 		requireBuild(JavaBuilder.factory,
-				new JavaBuilder.Input(sourceFiles, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs.size()]), null, false));
+				new JavaBuilder.Input(sourceFiles, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs.size()]), Arrays
+						.asList(copyReq), false));
 
 		return None.val;
 	}

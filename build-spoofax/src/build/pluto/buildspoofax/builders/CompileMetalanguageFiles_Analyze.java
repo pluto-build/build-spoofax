@@ -23,6 +23,7 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
+import build.pluto.buildspoofax.util.KryoWrapper;
 import build.pluto.output.Out;
 
 import com.google.inject.Injector;
@@ -39,17 +40,36 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 37855003667874400L;
 
-		public final IContext langContext;
+		private final KryoWrapper<IContext> langContext;
 		public final Map<File, IStrategoTerm> parseResults;
 
 		public Input(SpoofaxContext context, IContext langContext, Map<File, IStrategoTerm> parseResults) {
 			super(context);
-			this.langContext = langContext;
+			this.langContext = new KryoWrapper<>(langContext);
 			this.parseResults = parseResults;
 		}
 
 		public String langName() {
-			return langContext.language().name();
+			return langContext.get().language().name();
+		}
+
+		public IContext langContext() {
+			return this.langContext.get();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Input) {
+				Input other = (Input) obj;
+				boolean parseResultsEq = parseResults.equals(other.parseResults);
+				boolean langEq = langContext().language().equals(other.langContext().language());
+				FileObject location = langContext().location();
+				FileObject otherLocation = other.langContext().location();
+				boolean locationEq = (location == null && otherLocation == null) || location.equals(otherLocation);
+
+				return parseResultsEq && langEq && locationEq;
+			}
+			return false;
 		}
 	}
 
@@ -88,15 +108,17 @@ public class CompileMetalanguageFiles_Analyze extends SpoofaxBuilder<CompileMeta
 		for (Entry<File, IStrategoTerm> e : input.parseResults.entrySet()) {
 			FileObject source = resourceService.resolve(e.getKey());
 			fileMap.put(source, e.getKey());
-			ParseResult<IStrategoTerm> pres = new ParseResult<>(e.getValue(), source, Collections.emptyList(), -1, input.langContext.language(), null);
+			ParseResult<IStrategoTerm> pres = new ParseResult<>(e.getValue(), source, Collections.emptyList(), -1, input.langContext().language(), null);
 			analysisInput.add(pres);
 		}
 
-		AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult = analysisService.analyze(analysisInput, input.langContext);
+		AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult = analysisService.analyze(analysisInput, input.langContext());
 
 		HashMap<File, IStrategoTerm> result = new HashMap<>();
-		for (AnalysisFileResult<IStrategoTerm, IStrategoTerm> res : analysisResult.fileResults)
-			result.put(fileMap.get(res.source), res.result);
+		for (AnalysisFileResult<IStrategoTerm, IStrategoTerm> res : analysisResult.fileResults) {
+			if (res.result != null)
+				result.put(fileMap.get(res.source), res.result);
+		}
 
 		return Out.of(result);
 	}

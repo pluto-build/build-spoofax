@@ -15,6 +15,7 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
+import build.pluto.buildspoofax.util.KryoWrapper;
 import build.pluto.output.Out;
 
 import com.google.inject.Injector;
@@ -31,9 +32,9 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 		private static final long serialVersionUID = 37855003667874400L;
 
 		public final File file;
-		public final ILanguage lang;
+		public final KryoWrapper<ILanguage> lang;
 
-		public Input(SpoofaxContext context, File file, ILanguage lang) {
+		public Input(SpoofaxContext context, File file, KryoWrapper<ILanguage> lang) {
 			super(context);
 			Objects.requireNonNull(lang);
 			this.file = file;
@@ -47,14 +48,14 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 
 	@Override
 	protected String description(Input input) {
-		return "Parse " + input.lang.name() + " file " + FileCommands.getRelativePath(context.baseDir, input.file).toString();
+		return "Parse " + input.lang.get().name() + " file " + FileCommands.getRelativePath(context.baseDir, input.file).toString();
 	}
 	
 	@Override
 	protected File persistentPath(Input input) {
 		Path rel = FileCommands.getRelativePath(context.baseDir, input.file);
 		String relname = rel.toString().replace(File.separatorChar, '_');
-		return context.depPath("meta/parse." + input.lang.name() + "." + relname + ".dep");
+		return context.depPath("meta/parse." + input.lang.get().name() + "." + relname + ".dep");
 	}
 
 	
@@ -67,6 +68,6 @@ public class CompileMetalanguageFiles_Parse extends SpoofaxBuilder<CompileMetala
 		require(input.file);
 		String source = FileCommands.readFileAsString(input.file);
 		FileObject fo = resourceSerivce.resolve(input.file);
-		return Out.of(syntaxService.parse(source, fo, input.lang).result);
+		return Out.of(syntaxService.parse(source, fo, input.lang.get()).result);
 	}
 }
