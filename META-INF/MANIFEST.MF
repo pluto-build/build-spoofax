@@ -4,6 +4,7 @@ Bundle-Name: Spoofax Cleardep Builder
 Bundle-SymbolicName: org.metaborg.spoofax.build.cleardep;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.metaborg.spoofax.build.cleardep.Activator
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -28,6 +29,7 @@ Import-Package: org.spoofax.interpreter.core,
  org.strategoxt.imp.metatooling.stratego,
  org.strategoxt.imp.runtime,
  org.strategoxt.imp.runtime.dynamicloading,
+ org.strategoxt.imp.runtime.parser,
  org.strategoxt.imp.runtime.services,
  org.strategoxt.imp.runtime.stratego,
  org.strategoxt.lang,
