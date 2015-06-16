@@ -90,9 +90,6 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		if (context.isJavaJarEnabled(this))
 			classPath.add(context.basePath("${include}/${strmodule}-java.jar"));
 
-		System.out.println(classPath);
-
-
 		requireBuild(JavaBuilder.factory,
 				new JavaBuilder.Input(sourceFiles, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs.size()]), Arrays
 						.asList(copyReq), false));

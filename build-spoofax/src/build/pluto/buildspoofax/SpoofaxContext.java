@@ -109,9 +109,7 @@ public class SpoofaxContext implements Serializable{
 							List<File> paths = new ArrayList<>();
 							for (String imp : imports)
 								if (!imp.isEmpty()) {
-									System.out.println(imp);
 									String subst = props.substitute(unquote(imp));
-									System.out.println(subst);
 									if (FileCommands.acceptableAsAbsolute(subst))
 										paths.add(new File(subst));
 									else
@@ -141,7 +139,6 @@ public class SpoofaxContext implements Serializable{
 			for (File imp : sdfImports) {
 
 				importString.append("-Idef " + props.substitute(imp.getAbsolutePath()));
-				System.out.println(importString);
 			}
 			props.put("build.sdf.imports", importString.toString());
 		}

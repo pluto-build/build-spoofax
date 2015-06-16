@@ -22,9 +22,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.util.Pair;
 
-import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.builders.aux.DiscoverSpoofaxLanguage;
 import build.pluto.buildspoofax.builders.aux.DiscoverSpoofaxLanguage.DiscoverSpoofaxLanguageRequest;
@@ -38,33 +38,50 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
-public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None> {
+public class CompileMetalanguageFiles extends SpoofaxBuilder<CompileMetalanguageFiles.Input, None> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileMetalanguageFiles> factory = SpoofaxBuilderFactory.of(CompileMetalanguageFiles.class,
-			SpoofaxInput.class);
+	public final static String[] DEFAULT_LANGUAGES = {"TemplateLang", "NameBindingLanguage", "TypeSystemLanguage"};
 	
-	public CompileMetalanguageFiles(SpoofaxInput input) {
+	public static SpoofaxBuilderFactory<Input, None, CompileMetalanguageFiles> factory = SpoofaxBuilderFactory.of(CompileMetalanguageFiles.class, Input.class);
+	
+	public static class Input extends SpoofaxInput {
+
+		private static final long serialVersionUID = 8233923229608629326L;
+		
+		public final String[] languageNames;
+		
+		public Input(SpoofaxContext context) {
+			this(context, DEFAULT_LANGUAGES);
+		}
+		
+		public Input(SpoofaxContext context, String[] languageNames) {
+			super(context);
+			this.languageNames = languageNames;
+		}
+	}
+	
+	public CompileMetalanguageFiles(Input input) {
 		super(input);
 	}
 
 	@Override
-	protected String description(SpoofaxInput input) {
+	protected String description(Input input) {
 		return "Compile metalanguage files";
 	}
 	
 	@Override
-	protected File persistentPath(SpoofaxInput input) {
+	protected File persistentPath(Input input) {
 		return context.depPath("metalang.compile.dep");
 	}
 
 	@Override
-	public None build(SpoofaxInput input) throws Exception {
+	public None build(Input input) throws Exception {
 		// XXX really need to delete old sdf3 files? Or is it sufficient to remove them from `paths` below?
 		List<Path> oldSdf3Paths = FileCommands.listFilesRecursive(context.basePath("src-gen").toPath(), new SuffixFileFilter("sdf3"));
 		for (Path p : oldSdf3Paths)
 			FileCommands.delete(p);
 		
-		Map<ILanguage, DiscoverSpoofaxLanguageRequest> metalangs = loadMetalanguages();
+		Map<ILanguage, DiscoverSpoofaxLanguageRequest> metalangs = loadMetalanguages(input.languageNames);
 		Map<String, Entry<ILanguage, DiscoverSpoofaxLanguageRequest>> metalangsByExtension = getMetalanguageExtensions(metalangs);
 		
 		File include = context.basePath("${include}");
@@ -84,23 +101,14 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 		return None.val;
 	}
 
-	private Map<ILanguage, DiscoverSpoofaxLanguageRequest> loadMetalanguages() throws IOException {
+	private Map<ILanguage, DiscoverSpoofaxLanguageRequest> loadMetalanguages(String[] languageNames) throws IOException {
 		Map<ILanguage, DiscoverSpoofaxLanguageRequest> langs = new HashMap<>();
 		
-		Class<?> sdf3Class = org.strategoxt.imp.editors.template.TemplateLangParseController.class;
-		DiscoverSpoofaxLanguageRequest sdf3Req = new DiscoverSpoofaxLanguageRequest(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class));
-		Out<ILanguage> sdf3 = requireBuild(sdf3Req);
-		langs.put(sdf3.val(), sdf3Req);
-		
-		Class<?> nablClass = org.metaborg.meta.lang.nabl.NameBindingLanguageParseController.class;
-		DiscoverSpoofaxLanguageRequest nablReq = new DiscoverSpoofaxLanguageRequest(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass));
-		Out<ILanguage> nabl = requireBuild(nablReq);
-		langs.put(nabl.val(), nablReq);
-		
-		Class<?> tsClass = org.metaborg.meta.lang.ts.TypeSystemLanguageParseController.class;
-		DiscoverSpoofaxLanguageRequest tsReq = new DiscoverSpoofaxLanguageRequest(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, tsClass));
-		Out<ILanguage> ts = requireBuild(tsReq);
-		langs.put(ts.val(), tsReq);
+		for (String langName : languageNames) {
+			DiscoverSpoofaxLanguageRequest langReq = new DiscoverSpoofaxLanguageRequest(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, langName));
+			Out<ILanguage> lang = requireBuild(langReq);
+			langs.put(lang.val(), langReq);
+		}
 		
 		return langs;
 	}

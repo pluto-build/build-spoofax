@@ -1,6 +1,7 @@
 package build.pluto.buildspoofax.builders.aux;
 
 import java.io.File;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Iterator;
 
@@ -19,7 +20,6 @@ import build.pluto.output.Out;
 import build.pluto.output.OutputTransient;
 import build.pluto.stamp.LastModifiedStamper;
 
-import com.cedarsoftware.util.DeepEquals;
 import com.google.inject.Injector;
 
 public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, Out<ILanguage>> {
@@ -38,24 +38,12 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 12331766781256062L;
 
-		public final Class<?> someClassFromLanguage;
+		public final String langName;
 
-		public Input(SpoofaxContext context, Class<?> someClassFromLanguage) {
+		public Input(SpoofaxContext context, String langName) {
 			super(context);
-			this.someClassFromLanguage = someClassFromLanguage;
+			this.langName = langName;
 		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof Input) {
-				// Deep equals has some problems with class objects? Otherwise
-				// the object is equals to an object with another class object
-				// in it
-				return DeepEquals.deepEquals(context, ((Input) obj).context) && someClassFromLanguage.equals(((Input) obj).someClassFromLanguage);
-			}
-			return false;
-		}
-
 	}
 
 	public DiscoverSpoofaxLanguage(Input input) {
@@ -64,12 +52,12 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 
 	@Override
 	protected String description(Input input) {
-		return "Discover Spoofax language for " + input.someClassFromLanguage.getName();
+		return "Discover Spoofax language " + input.langName;
 	}
 
 	@Override
 	public File persistentPath(Input input) {
-		return context.depPath("discover." + input.someClassFromLanguage.getName() + ".dep");
+		return context.depPath("discover." + input.langName + ".dep");
 	}
 
 	@Override
@@ -77,7 +65,9 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 		Injector injector = context.guiceInjector();
 		ILanguageDiscoveryService discoverySerivce = injector.getInstance(ILanguageDiscoveryService.class);
 
-		File jar = FileCommands.getRessourcePath(input.someClassFromLanguage).toFile();
+		String esv = "/include/" + input.langName + ".packed.esv";
+		URL url = DiscoverSpoofaxLanguage.class.getResource(esv);
+		File jar = FileCommands.getRessourcePath(url).toFile();
 		File dir;
 		if (jar.isDirectory())
 			dir = jar;
@@ -92,11 +82,11 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 		FileObject fo = VFS.getManager().resolveFile(dir.getAbsolutePath());
 		Iterable<ILanguage> langs = discoverySerivce.discover(fo);
 		if (langs == null || !langs.iterator().hasNext())
-			throw new IllegalStateException("Failed to discover language for " + input.someClassFromLanguage);
+			throw new IllegalStateException("Failed to discover language " + input.langName);
 		Iterator<ILanguage> it = langs.iterator();
 		ILanguage lang = it.next();
 		if (it.hasNext())
-			throw new IllegalStateException("Discovered multiple languages for " + input.someClassFromLanguage);
+			throw new IllegalStateException("Discovered multiple languages named " + input.langName);
 
 		return OutputTransient.of(lang);
 	}

@@ -61,7 +61,7 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	@Override
 	public None build(Input input) throws IOException {
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/src-gen/syntax/TemplateLang.sdf'.
-		requireBuild(CompileMetalanguageFiles.factory, input);
+		requireBuild(CompileMetalanguageFiles.factory, new CompileMetalanguageFiles.Input(context));
 		
 		copySdf2();
 		
