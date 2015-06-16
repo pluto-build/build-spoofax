@@ -14,7 +14,7 @@
 	</parent>
 
 	<packaging>eclipse-plugin</packaging>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>build.pluto</groupId>
@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>org.sugarj</groupId>
 			<artifactId>common</artifactId>
-			<version>1.4.0-SNAPSHOT</version>
+			<version>1.4.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -37,6 +37,11 @@
 			<groupId>build.pluto</groupId>
 			<artifactId>pluto</artifactId>
 			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.spoofax.interpreter.core</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 	</dependencies>
 
