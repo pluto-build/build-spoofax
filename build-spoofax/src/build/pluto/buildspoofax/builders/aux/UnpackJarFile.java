@@ -9,12 +9,12 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
-import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 import build.pluto.stamp.LastModifiedStamper;
 
-public class UnpackJarFile extends SpoofaxBuilder<UnpackJarFile.Input, Out<File>> {
+public class UnpackJarFile extends SpoofaxBuilder<UnpackJarFile.Input, OutputPersisted<File>> {
 
-	public static SpoofaxBuilderFactory<Input, Out<File>, UnpackJarFile> factory = SpoofaxBuilderFactory.of(UnpackJarFile.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, UnpackJarFile> factory = SpoofaxBuilderFactory.of(UnpackJarFile.class, Input.class);
 	
 
 	public static class Input extends SpoofaxInput {
@@ -45,13 +45,13 @@ public class UnpackJarFile extends SpoofaxBuilder<UnpackJarFile.Input, Out<File>
 	}
 
 	@Override
-	public Out<File> build(Input input) throws Exception {
+	public OutputPersisted<File> build(Input input) throws Exception {
 		require(input.jarfile, LastModifiedStamper.instance);
 		File dir = input.outdir != null ? input.outdir : FileCommands.newTempDir();
 		FileCommands.unpackJarfile(dir, input.jarfile);
 		for (Path p : FileCommands.listFilesRecursive(dir.toPath()))
 			provide(p.toFile(), LastModifiedStamper.instance);
-		return Out.of(dir);
+		return OutputPersisted.of(dir);
 		
 	}
 }

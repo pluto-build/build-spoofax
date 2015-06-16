@@ -15,7 +15,7 @@ import org.sugarj.common.FileCommands;
 import build.pluto.builder.BuildManagers;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.StrategoExecutor;
-import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 import build.pluto.stamp.LastModifiedStamper;
 import build.pluto.stamp.Stamp;
 import build.pluto.stamp.Stamper;
@@ -24,9 +24,9 @@ import build.pluto.stamp.ValueStamp;
 public class PPGenStamper implements Stamper {
 	private static final long serialVersionUID = 3294157251470549994L;
 	
-	private final BuildRequest<?, Out<IStrategoTerm>, ?, ?> parseSdfDefinition;
+	private final BuildRequest<?, OutputPersisted<IStrategoTerm>, ?, ?> parseSdfDefinition;
 	
-	public PPGenStamper(BuildRequest<?, Out<IStrategoTerm>, ?, ?> parseSdfDefinition) {
+	public PPGenStamper(BuildRequest<?, OutputPersisted<IStrategoTerm>, ?, ?> parseSdfDefinition) {
 		this.parseSdfDefinition = parseSdfDefinition;
 	}
 
@@ -35,7 +35,7 @@ public class PPGenStamper implements Stamper {
 		if (!FileCommands.exists(p))
 			return new ValueStamp<>(this, null);
 
-		Out<IStrategoTerm> term = BuildManagers.build(parseSdfDefinition);
+		OutputPersisted<IStrategoTerm> term = BuildManagers.build(parseSdfDefinition);
 		
 		if (term == null || term.val == null)
 			return LastModifiedStamper.instance.stampOf(p);

@@ -15,13 +15,13 @@ import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
-import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 import build.pluto.stamp.FileHashStamper;
 import build.pluto.stamp.Stamper;
 
-public class ParseSdfDefinition extends SpoofaxBuilder<ParseSdfDefinition.Input, Out<IStrategoTerm>> {
+public class ParseSdfDefinition extends SpoofaxBuilder<ParseSdfDefinition.Input, OutputPersisted<IStrategoTerm>> {
 	
-	public final static SpoofaxBuilderFactory<Input, Out<IStrategoTerm>, ParseSdfDefinition> factory = SpoofaxBuilderFactory.of(ParseSdfDefinition.class,
+	public final static SpoofaxBuilderFactory<Input, OutputPersisted<IStrategoTerm>, ParseSdfDefinition> factory = SpoofaxBuilderFactory.of(ParseSdfDefinition.class,
 			Input.class);
 	
 	public static class Input extends SpoofaxInput {
@@ -59,7 +59,7 @@ public class ParseSdfDefinition extends SpoofaxBuilder<ParseSdfDefinition.Input,
 	}
 
 	@Override
-	protected Out<IStrategoTerm> build(Input input) throws Throwable {
+	protected OutputPersisted<IStrategoTerm> build(Input input) throws Throwable {
 		requireBuild(input.requiredUnits);
 		
 		require(input.defPath);
@@ -71,6 +71,6 @@ public class ParseSdfDefinition extends SpoofaxBuilder<ParseSdfDefinition.Input,
 				parse_sdf_definition_file_0_0.instance, "parse-sdf-definition", new LoggingFilteringIOAgent(),
 				factory.makeString(input.defPath.getAbsolutePath()));
 		
-		return Out.of(er.result);
+		return OutputPersisted.of(er.result);
 	}
 }

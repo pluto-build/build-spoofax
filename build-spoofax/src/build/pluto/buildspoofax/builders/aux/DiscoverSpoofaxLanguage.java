@@ -8,23 +8,31 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageDiscoveryService;
-import org.metaborg.spoofax.core.resource.IResourceService;
 import org.sugarj.common.FileCommands;
 
+import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
-import build.pluto.buildspoofax.util.KryoWrapper;
 import build.pluto.output.Out;
+import build.pluto.output.OutputTransient;
 import build.pluto.stamp.LastModifiedStamper;
 
 import com.cedarsoftware.util.DeepEquals;
 import com.google.inject.Injector;
 
-public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, Out<KryoWrapper<ILanguage>>> {
+public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLanguage.Input, Out<ILanguage>> {
 
-	public static SpoofaxBuilderFactory<Input, Out<KryoWrapper<ILanguage>>, DiscoverSpoofaxLanguage> factory = SpoofaxBuilderFactory.of(
+	public static class DiscoverSpoofaxLanguageRequest extends BuildRequest<Input, Out<ILanguage>, DiscoverSpoofaxLanguage, SpoofaxBuilderFactory<Input, Out<ILanguage>, DiscoverSpoofaxLanguage>> {
+		public DiscoverSpoofaxLanguageRequest(SpoofaxBuilderFactory<Input, Out<ILanguage>, DiscoverSpoofaxLanguage> factory, Input input) {
+			super(factory, input);
+		}
+
+		private static final long serialVersionUID = -8195304087460359223L;
+	}
+	
+	public static SpoofaxBuilderFactory<Input, Out<ILanguage>, DiscoverSpoofaxLanguage> factory = SpoofaxBuilderFactory.of(
 			DiscoverSpoofaxLanguage.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
@@ -65,9 +73,8 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 	}
 
 	@Override
-	public Out<KryoWrapper<ILanguage>> build(Input input) throws Exception {
+	public Out<ILanguage> build(Input input) throws Exception {
 		Injector injector = context.guiceInjector();
-		IResourceService resourceSerivce = context.getResourceService();
 		ILanguageDiscoveryService discoverySerivce = injector.getInstance(ILanguageDiscoveryService.class);
 
 		File jar = FileCommands.getRessourcePath(input.someClassFromLanguage).toFile();
@@ -91,6 +98,6 @@ public class DiscoverSpoofaxLanguage extends SpoofaxBuilder<DiscoverSpoofaxLangu
 		if (it.hasNext())
 			throw new IllegalStateException("Discovered multiple languages for " + input.someClassFromLanguage);
 
-		return Out.of(new KryoWrapper<>(lang));
+		return OutputTransient.of(lang);
 	}
 }

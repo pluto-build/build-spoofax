@@ -19,7 +19,7 @@ import build.pluto.buildspoofax.builders.aux.ParseSdfDefinition;
 import build.pluto.buildspoofax.stampers.Sdf2ParenthesizeStamper;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
-import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 
 public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, None> {
 
@@ -65,7 +65,7 @@ public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, Non
 		String outputmodule = "include/" + input.sdfmodule + "-parenthesize";
 
 		if (SpoofaxContext.BETTER_STAMPERS) {
-			BuildRequest<ParseSdfDefinition.Input, Out<IStrategoTerm>, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(
+			BuildRequest<ParseSdfDefinition.Input, OutputPersisted<IStrategoTerm>, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(
 					ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?, ?, ?, ?>[] { packSdf }));
 			require(inputPath, new Sdf2ParenthesizeStamper(parseSdfDefinition));
 		}

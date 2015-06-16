@@ -22,7 +22,7 @@ import build.pluto.buildspoofax.builders.aux.ParseSdfDefinition;
 import build.pluto.buildspoofax.stampers.PPGenStamper;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
-import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 
 public class PPGen extends SpoofaxBuilder<SpoofaxInput, None> {
 
@@ -56,7 +56,7 @@ public class PPGen extends SpoofaxBuilder<SpoofaxInput, None> {
 		File afOutputPath = context.basePath("${include}/${sdfmodule}.generated.pp.af");
 		
 		if (SpoofaxContext.BETTER_STAMPERS) {
-			BuildRequest<ParseSdfDefinition.Input, Out<IStrategoTerm>, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(
+			BuildRequest<ParseSdfDefinition.Input, OutputPersisted<IStrategoTerm>, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(
 					ParseSdfDefinition.factory, new ParseSdfDefinition.Input(context, inputPath, new BuildRequest<?, ?, ?, ?>[] { packSdf }));
 			require(inputPath, new PPGenStamper(parseSdfDefinition));
 		}

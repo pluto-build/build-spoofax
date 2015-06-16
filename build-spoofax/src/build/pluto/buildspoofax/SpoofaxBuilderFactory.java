@@ -10,11 +10,8 @@ public interface SpoofaxBuilderFactory<In extends SpoofaxInput, Out extends Outp
 	public static <In extends SpoofaxInput, Out extends Output, B extends Builder<In, Out>> SpoofaxBuilderFactory<In, Out, B> of(Class<B> builderClass,
 			Class<In> inputClass) {
 		class GeneratedSpoofaxBuilderFactory implements SpoofaxBuilderFactory<In, Out, B> {
-			
-			/**
-			 * 
-			 */
 			private static final long serialVersionUID = -8054132810629331468L;
+
 			private BuilderFactory<In, Out, B> factory = BuilderFactory.of(builderClass, inputClass);
 
 			@Override

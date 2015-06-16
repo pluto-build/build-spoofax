@@ -7,6 +7,8 @@ import java.util.Collections;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.analysis.AnalysisFileResult;
 import org.metaborg.spoofax.core.context.IContext;
+import org.metaborg.spoofax.core.context.IContextService;
+import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.metaborg.spoofax.core.syntax.ParseResult;
 import org.metaborg.spoofax.core.transform.CompileGoal;
@@ -19,8 +21,9 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
-import build.pluto.buildspoofax.util.KryoWrapper;
+import build.pluto.buildspoofax.builders.aux.DiscoverSpoofaxLanguage.DiscoverSpoofaxLanguageRequest;
 import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -36,24 +39,18 @@ public class CompileMetalanguageFiles_Transform extends SpoofaxBuilder<CompileMe
 		private static final long serialVersionUID = 37855003667874400L;
 
 		public final File file;
-		private final KryoWrapper<IContext> langContext;
+		public final String langName;
+		public final DiscoverSpoofaxLanguageRequest langDiscoverReq;
 		public final IStrategoTerm parseResult;
 		public final IStrategoTerm analysisResult;
 
-		public Input(SpoofaxContext context, File file, IContext langContext, IStrategoTerm parseResult, IStrategoTerm analysisResult) {
+		public Input(SpoofaxContext context, File file, String langName, DiscoverSpoofaxLanguageRequest langDiscoverReq, IStrategoTerm parseResult, IStrategoTerm analysisResult) {
 			super(context);
 			this.file = file;
-			this.langContext = new KryoWrapper<>(langContext);
+			this.langName = langName;
+			this.langDiscoverReq = langDiscoverReq;
 			this.parseResult = parseResult;
 			this.analysisResult = analysisResult;
-		}
-		
-		public String langName() {
-			return langContext.get().language().name();
-		}
-
-		public IContext langContext() {
-			return langContext.get();
 		}
 	}
 	
@@ -63,7 +60,7 @@ public class CompileMetalanguageFiles_Transform extends SpoofaxBuilder<CompileMe
 
 	@Override
 	protected String description(Input input) {
-		return "Transform " + input.langName() + " file " + FileCommands.getRelativePath(context.baseDir, input.file).toString();
+		return "Transform " + input.langName + " file " + FileCommands.getRelativePath(context.baseDir, input.file).toString();
 	}
 	
 	@Override
@@ -78,14 +75,18 @@ public class CompileMetalanguageFiles_Transform extends SpoofaxBuilder<CompileMe
 	public Out<IStrategoTerm> build(Input input) throws Exception {
 		Injector injector = context.guiceInjector();
 		IResourceService resourceService = context.getResourceService();
-		ITransformer<IStrategoTerm, IStrategoTerm, IStrategoTerm> transformer = injector.getInstance(Key.get(TRANSFORM_LITERAL));
+		IContextService contextService = injector.getInstance(IContextService.class);
 		
 		FileObject source = resourceService.resolve(input.file);
-		ParseResult<IStrategoTerm> parseResult = new ParseResult<>(input.parseResult, source, Collections.emptyList(), -1, input.langContext().language(), null);
+		ILanguage lang = requireBuild(input.langDiscoverReq).val();
+		IContext langContext = contextService.get(source, lang);
+		
+		ITransformer<IStrategoTerm, IStrategoTerm, IStrategoTerm> transformer = injector.getInstance(Key.get(TRANSFORM_LITERAL));
+		
+		ParseResult<IStrategoTerm> parseResult = new ParseResult<IStrategoTerm>(input.parseResult, source, Collections.emptyList(), -1, lang, null);
 		AnalysisFileResult<IStrategoTerm, IStrategoTerm> transformInput = new AnalysisFileResult<IStrategoTerm, IStrategoTerm>(input.analysisResult, source, Collections.emptyList(), parseResult);
 		
-		TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm> result = transformer.transform(transformInput, input.langContext(),
-				new CompileGoal());
-		return Out.of(result.result);
+		TransformResult<AnalysisFileResult<IStrategoTerm, IStrategoTerm>, IStrategoTerm> result = transformer.transform(transformInput, langContext, new CompileGoal());
+		return OutputPersisted.of(result.result);
 	}
 }

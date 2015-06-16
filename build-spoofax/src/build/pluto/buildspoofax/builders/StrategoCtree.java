@@ -11,13 +11,13 @@ import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
-import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 import build.pluto.stamp.LastModifiedStamper;
 import build.pluto.stamp.Stamper;
 
-public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, Out<File>> {
+public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, OutputPersisted<File>> {
 
-	public static SpoofaxBuilderFactory<Input, Out<File>, StrategoCtree> factory = SpoofaxBuilderFactory.of(StrategoCtree.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, StrategoCtree> factory = SpoofaxBuilderFactory.of(StrategoCtree.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6323245405121428720L;
@@ -64,7 +64,7 @@ public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, Out<File>
 	}
 
 	@Override
-	public Out<File> build(Input input) throws IOException {
+	public OutputPersisted<File> build(Input input) throws IOException {
 		BuildRequest<Rtg2Sig.Input, None, Rtg2Sig, ?> rtg2Sig = new BuildRequest<>(Rtg2Sig.factory, new Rtg2Sig.Input(context, input.sdfmodule,
 				input.buildSdfImports));
 
@@ -84,6 +84,6 @@ public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, Out<File>
 				"stratego-lib", "stratego-sglr", "stratego-gpp", "stratego-xtc", "stratego-aterm", "stratego-sdf", "strc" }, context.basePath(".cache"),
 				ArrayUtils.arrayAdd("-F", input.externaljarflags.split("[\\s]+")), ArrayUtils.arrayAdd(rtg2Sig, input.requiredUnits)));
 
-		return Out.of(outputPath);
+		return OutputPersisted.of(outputPath);
 	}
 }

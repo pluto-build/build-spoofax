@@ -10,12 +10,12 @@ import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.builders.aux.Sdf2TablePrepareExecutable;
-import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 
-public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Out<File>> {
+public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, OutputPersisted<File>> {
 
 
-	public static SpoofaxBuilderFactory<Input, Out<File>, Sdf2Table> factory = SpoofaxBuilderFactory.of(Sdf2Table.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, Sdf2Table> factory = SpoofaxBuilderFactory.of(Sdf2Table.class, Input.class);
 	
 
 	public static class Input extends SpoofaxInput {
@@ -47,7 +47,7 @@ public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Out<File>> {
 	}
 
 	@Override
-	public Out<File> build(Input input) throws IOException {
+	public OutputPersisted<File> build(Input input) throws IOException {
 		requireBuild(MakePermissive.factory, new MakePermissive.Input(context, input.sdfmodule, input.buildSdfImports, input.externaldef));
 		Sdf2TablePrepareExecutable.Output commands = requireBuild(Sdf2TablePrepareExecutable.factory, input);
 		
@@ -63,7 +63,7 @@ public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, Out<File>> {
 		
 		provide(outputPath);
 		setState(State.finished(er.success));
-		return Out.of(outputPath);
+		return OutputPersisted.of(outputPath);
 	}
 
 }

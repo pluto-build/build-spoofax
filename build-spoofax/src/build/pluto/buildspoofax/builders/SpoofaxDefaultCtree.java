@@ -15,7 +15,7 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
-import build.pluto.output.Out;
+import build.pluto.output.OutputPersisted;
 
 public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 
@@ -65,7 +65,7 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang-parenthesize.str'.
 		BuildRequest<Sdf2Parenthesize.Input,None,Sdf2Parenthesize,?> sdf2Parenthesize = new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfmodule, buildSdfImports, externaldef));
 
-		Out<File> ctree = requireBuild(StrategoCtree.factory,
+		OutputPersisted<File> ctree = requireBuild(StrategoCtree.factory,
 				new StrategoCtree.Input(
 						context,
 						sdfmodule, 
