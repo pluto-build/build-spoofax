@@ -87,21 +87,17 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<SpoofaxInput, None>
 	private Map<ILanguage, DiscoverSpoofaxLanguageRequest> loadMetalanguages() throws IOException {
 		Map<ILanguage, DiscoverSpoofaxLanguageRequest> langs = new HashMap<>();
 		
-		Class<?> sdf3Class = org.strategoxt.imp.editors.template.strategies.InteropRegisterer.class;
+		Class<?> sdf3Class = org.strategoxt.imp.editors.template.TemplateLangParseController.class;
 		DiscoverSpoofaxLanguageRequest sdf3Req = new DiscoverSpoofaxLanguageRequest(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class));
 		Out<ILanguage> sdf3 = requireBuild(sdf3Req);
 		langs.put(sdf3.val(), sdf3Req);
 		
-		Class<?> nablClass = org.metaborg.meta.lang.nabl.strategies.InteropRegisterer.class;
-		
-		assert !new BuildRequest<>(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, sdf3Class)).equals(new BuildRequest<>(
-				DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass)));
-
+		Class<?> nablClass = org.metaborg.meta.lang.nabl.NameBindingLanguageParseController.class;
 		DiscoverSpoofaxLanguageRequest nablReq = new DiscoverSpoofaxLanguageRequest(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, nablClass));
 		Out<ILanguage> nabl = requireBuild(nablReq);
 		langs.put(nabl.val(), nablReq);
 		
-		Class<?> tsClass = org.metaborg.meta.lang.ts.strategies.InteropRegisterer.class;
+		Class<?> tsClass = org.metaborg.meta.lang.ts.TypeSystemLanguageParseController.class;
 		DiscoverSpoofaxLanguageRequest tsReq = new DiscoverSpoofaxLanguageRequest(DiscoverSpoofaxLanguage.factory, new DiscoverSpoofaxLanguage.Input(context, tsClass));
 		Out<ILanguage> ts = requireBuild(tsReq);
 		langs.put(ts.val(), tsReq);
