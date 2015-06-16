@@ -1,5 +1,5 @@
 sudo: false
-script: mvn deploy -U --batch-mode
+script: (cd build-java; mvn deploy -U --batch-mode) && (cd build-java-eclipse; mvn deploy -U --batch-mode)
 
 cache:
   directories:
