@@ -31,6 +31,7 @@ import build.pluto.buildspoofax.builders.aux.DiscoverSpoofaxLanguage.DiscoverSpo
 import build.pluto.buildspoofax.util.PatternFileFilter;
 import build.pluto.output.None;
 import build.pluto.output.Out;
+import build.pluto.output.OutputHashStamper;
 import build.pluto.output.OutputPersisted;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -130,7 +131,8 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<CompileMetalanguage
 		Multimap<Entry<ILanguage, DiscoverSpoofaxLanguageRequest>, Pair<File, IStrategoTerm>> parseResults = ArrayListMultimap.create();
 		for (File p : paths) {
 			Entry<ILanguage, DiscoverSpoofaxLanguageRequest> lang = metalangsByExtension.get(FileCommands.getExtension(p));
-			OutputPersisted<IStrategoTerm> parseResult = requireBuild(CompileMetalanguageFiles_Parse.factory, new CompileMetalanguageFiles_Parse.Input(context, p, lang.getKey().name(), lang.getValue()));
+			CompileMetalanguageFiles_Parse.Input parseInput = new CompileMetalanguageFiles_Parse.Input(context, p, lang.getKey().name(), lang.getValue());
+			OutputPersisted<IStrategoTerm> parseResult = requireBuild(CompileMetalanguageFiles_Parse.factory, parseInput, OutputHashStamper.instance());
 			parseResults.put(lang, new Pair<>(p, parseResult.val));
 		}
 		return parseResults;
@@ -141,8 +143,8 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<CompileMetalanguage
 		Map<Entry<ILanguage, DiscoverSpoofaxLanguageRequest>, Map<File, Pair<IStrategoTerm, IStrategoTerm>>> analysisResults = Maps.newHashMapWithExpectedSize(parseResults.keySet().size());
 		for (Entry<Entry<ILanguage, DiscoverSpoofaxLanguageRequest>, Collection<Pair<File, IStrategoTerm>>> e : parseResults.asMap().entrySet()) {
 			Entry<ILanguage, DiscoverSpoofaxLanguageRequest> lang = e.getKey();
-			OutputPersisted<HashMap<File, Pair<IStrategoTerm, IStrategoTerm>>> analysisResult =
-            		requireBuild(CompileMetalanguageFiles_Analyze.factory, new CompileMetalanguageFiles_Analyze.Input(context, lang.getKey().name(), lang.getValue(), Pair.asMap(e.getValue())));
+			CompileMetalanguageFiles_Analyze.Input analzeInput = new CompileMetalanguageFiles_Analyze.Input(context, lang.getKey().name(), lang.getValue(), Pair.asMap(e.getValue()));
+			OutputPersisted<HashMap<File, Pair<IStrategoTerm, IStrategoTerm>>> analysisResult = requireBuild(CompileMetalanguageFiles_Analyze.factory, analzeInput, OutputHashStamper.instance());
 			analysisResults.put(lang, analysisResult.val);
         }
         
@@ -159,8 +161,8 @@ public class CompileMetalanguageFiles extends SpoofaxBuilder<CompileMetalanguage
 				File p = fileRes.getKey();
 				IStrategoTerm parseResult = fileRes.getValue().a;
 				IStrategoTerm analysisResult = fileRes.getValue().b;
-				Out<IStrategoTerm> result = requireBuild(CompileMetalanguageFiles_Transform.factory, 
-						new CompileMetalanguageFiles_Transform.Input(this.context, p, lang.getKey().name(), lang.getValue(), parseResult, analysisResult));
+				CompileMetalanguageFiles_Transform.Input transformInput = new CompileMetalanguageFiles_Transform.Input(this.context, p, lang.getKey().name(), lang.getValue(), parseResult, analysisResult);
+				Out<IStrategoTerm> result = requireBuild(CompileMetalanguageFiles_Transform.factory, transformInput, OutputHashStamper.instance());
 				compileResults.put(p, result.val());
 			}
 		}
