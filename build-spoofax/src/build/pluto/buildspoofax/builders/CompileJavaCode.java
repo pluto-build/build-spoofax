@@ -13,6 +13,7 @@ import org.sugarj.common.FileCommands;
 import build.pluto.builder.BuildRequest;
 import build.pluto.builder.BuilderFactory;
 import build.pluto.buildjava.JavaBuilder;
+import build.pluto.buildjava.JavaInput;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
@@ -90,9 +91,10 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		if (context.isJavaJarEnabled(this))
 			classPath.add(context.basePath("${include}/${strmodule}-java.jar"));
 
-		requireBuild(JavaBuilder.factory,
-				new JavaBuilder.Input(sourceFiles, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs.size()]), Arrays
-						.asList(copyReq), false));
+		for (File sourceFile : sourceFiles) {
+			requireBuild(JavaBuilder.request(new JavaInput(sourceFile, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs
+					.size()]), Arrays.asList(copyReq))));
+		}
 
 		return None.val;
 	}
