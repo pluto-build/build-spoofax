@@ -7,6 +7,7 @@ import java.util.Arrays;
 import org.sugarj.common.Exec;
 import org.sugarj.common.Exec.ExecutionResult;
 
+import build.pluto.builder.BuildManager;
 import build.pluto.builder.BuildManagers;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.Main;
@@ -22,6 +23,7 @@ public class Measurer {
 	private final BuildRequest req;
 
 	public Measurer(EvaluationMeasurement measurement) {
+		BuildManager.ASSERT_SERIALIZABLE = false;
 		this.measurement = measurement;
 		numTries = EvaluationConfiguration.NUM_TRIES;
 		projectRoot = EvaluationConfiguration.PROJECT_ROOT;
