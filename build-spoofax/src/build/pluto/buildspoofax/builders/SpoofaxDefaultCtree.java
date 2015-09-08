@@ -47,8 +47,6 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		File externaldef = context.props.isDefined("externaldef") ? new File(context.props.get("externaldef")) : null;
 		File externaljar = context.props.isDefined("externaljar") ? new File(context.props.get("externaljar")) : null;
 		String externaljarflags = context.props.getOrElse("externaljarflags", "");
-
-		checkClassPath();
 		
 		requireBuild(Sdf2Table.factory, new Sdf2Table.Input(context, sdfmodule, buildSdfImports, externaldef));
 		requireBuild(MetaSdf2Table.factory, new MetaSdf2Table.Input(context, metasdfmodule, buildSdfImports, externaldef));
@@ -57,11 +55,7 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		File ppPackInputPath = context.basePath("${syntax}/${sdfmodule}.pp");
 		File ppPackOutputPath = context.basePath("${include}/${sdfmodule}.pp.af");
 		requireBuild(PPPack.factory, new PPPack.Input(context, ppPackInputPath, ppPackOutputPath, true));
-		
-		requireBuild(StrategoAster.factory, new StrategoAster.Input(context, strmodule));
 
-		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/lib/editor-common.generated.str'.
-		BuildRequest<Sdf2Imp.Input,None,Sdf2Imp,?> sdf2imp = new BuildRequest<>(Sdf2Imp.factory, new Sdf2Imp.Input(context, esvmodule, sdfmodule, buildSdfImports));
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang-parenthesize.str'.
 		BuildRequest<Sdf2Parenthesize.Input,None,Sdf2Parenthesize,?> sdf2Parenthesize = new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfmodule, buildSdfImports, externaldef));
 
@@ -74,7 +68,7 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 						externaljar, 
 						externaljarflags, 
 						externaldef,
-						new BuildRequest<?,?,?,?>[] {sdf2imp, sdf2Parenthesize}));
+						new BuildRequest<?,?,?,?>[] {sdf2Parenthesize}));
 		
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/editor/java/org/strategoxt/imp/editors/template/strategies/InteropRegisterer.class'.
 		BuildRequest<SpoofaxInput,None,CompileJavaCode,?> compileJavaCode = new BuildRequest<>(CompileJavaCode.factory, input);
@@ -83,12 +77,6 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		javaJar(strmodule, compileJavaCode);
 		
 		return None.val;
-	}
-
-	
-	private void checkClassPath() {
-		@SuppressWarnings("unused")
-		org.strategoxt.imp.generator.sdf2imp c;
 	}
 
 	private void javaJar(String strmodule, BuildRequest<?,?,?,?> compileJavaCode) throws IOException {

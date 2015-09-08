@@ -22,12 +22,12 @@ public class Measurer {
 
 	private final BuildRequest req;
 
-	public Measurer(EvaluationMeasurement measurement) {
+	public Measurer(EvaluationMeasurement measurement, Main.Input input) {
 		BuildManager.ASSERT_SERIALIZABLE = false;
 		this.measurement = measurement;
 		numTries = EvaluationConfiguration.NUM_TRIES;
 		projectRoot = EvaluationConfiguration.PROJECT_ROOT;
-		req = new BuildRequest(Main.factory, new Main.Input(projectRoot));
+		req = new BuildRequest(Main.factory, input);
 	}
 
 	public MeasurementResult measure() throws IOException {

@@ -44,14 +44,29 @@
 			<artifactId>org.metaborg.spoofax.core</artifactId>
 			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+		  <groupId>org.metaborg</groupId>
+		  <artifactId>org.metaborg.spoofax.meta.core</artifactId>
+		  <version>1.5.0-SNAPSHOT</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.spoofax.terms</artifactId>
 			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
-
 		<dependency>
+		  <groupId>org.metaborg</groupId>
+		  <artifactId>make-permissive</artifactId>
+		  <version>1.5.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.metaborg</groupId>
+		  <artifactId>strategoxt-min-jar</artifactId>
+		  <version>1.5.0-SNAPSHOT</version>
+		</dependency>
+
+		<!-- 		<dependency>
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.spoofax.interpreter.core</artifactId>
 			<version>1.4.0</version>
@@ -61,30 +76,35 @@
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.strategoxt.imp.nativebundle</artifactId>
 			<version>1.4.0</version>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>3.0</version>
 		</dependency>
+		<dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-lang3</artifactId>
+		  <version>3.3.2</version>
+		</dependency>
 
-		<dependency><!-- SDF3 -->
+		<!-- 		<dependency>SDF3
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.strategoxt.imp.editors.template</artifactId>
 			<version>1.4.0</version>
 		</dependency>
-		<dependency><!-- NaBL -->
+		<dependency>NaBL
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.metaborg.meta.lang.nabl</artifactId>
 			<version>1.4.0</version>
 		</dependency>
-		<dependency><!-- TS -->
+		<dependency>TS
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.metaborg.meta.lang.ts</artifactId>
 			<version>1.4.0</version>
 		</dependency>
-		
+		 -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

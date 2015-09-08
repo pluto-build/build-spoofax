@@ -117,23 +117,12 @@ public class StrategoExecutor {
 			Log.log.endTask(success);
 		}
 	}
-	
-
 
 	private static Context strategoSdfContext;
-	private static Context generatorContext;
 	private static Context permissiveGrammarsContext;
 	private static Context toolsContext;
 	private static Context xtcContext;
-	
-	public static Context generatorContext() {
-		synchronized (StrategoExecutor.class) {
-			if (generatorContext != null)
-				return generatorContext;
-			generatorContext = org.strategoxt.imp.generator.generator.init();
-			return generatorContext;
-		}
-	}
+
 
 	public static synchronized Context strategoSdfcontext() {
 		if (strategoSdfContext == null)

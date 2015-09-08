@@ -3,12 +3,14 @@ package build.pluto.buildspoofax.evaluation;
 import java.io.IOException;
 import java.util.List;
 
+import build.pluto.buildspoofax.Main;
+
 public class Evaluator {
 
-	public void evaluate() throws IOException {
+	public void evaluate(Main.Input input) throws IOException {
 		EvaluationResult evaluationResult = new EvaluationResult();
 		for (EvaluationMeasurement measurement : EvaluationConfiguration.measurements) {
-			MeasurementResult result = new Measurer(measurement).measure();
+			MeasurementResult result = new Measurer(measurement, input).measure();
 			double cleanTime = calculateTime(result.getCleanBuildTimes());
 			double incrementalTime = calculateTime(result.getIncrementalTimes());
 			double speedup = cleanTime / incrementalTime;
@@ -25,7 +27,8 @@ public class Evaluator {
 	}
 
 	public static void main(String[] args) throws IOException {
-		new Evaluator().evaluate();
+	    // TODO: instantiate with real input
+		new Evaluator().evaluate(null);
 	}
 
 }

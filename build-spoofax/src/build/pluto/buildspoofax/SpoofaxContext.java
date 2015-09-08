@@ -8,7 +8,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.metaborg.spoofax.core.resource.IResourceService;
+import org.metaborg.core.resource.IResourceService;
+import org.metaborg.spoofax.core.project.settings.SpoofaxProjectSettings;
 import org.sugarj.common.FileCommands;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -18,7 +19,6 @@ import build.pluto.builder.Builder;
 import build.pluto.stamp.FileExistsStamper;
 import build.pluto.stamp.LastModifiedStamper;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class SpoofaxContext implements Serializable{
@@ -28,10 +28,14 @@ public class SpoofaxContext implements Serializable{
 	
 	public final File baseDir;
 	public final Properties props;
+	public final SpoofaxProjectSettings settings;
 	
-	public SpoofaxContext(File baseDir, Properties props) {
-		this.baseDir = baseDir;
-		this.props = props;
+	public SpoofaxContext(Injector injector, SpoofaxProjectSettings settings) {
+	    this.guiceInjector = injector;
+	    this.baseDir = new File(settings.location().getName().getPath());
+		this.props = makeSpoofaxProperties(baseDir);
+		this.settings = settings;
+		
 	}
 	
 	public File basePath(String relative) {
@@ -146,24 +150,13 @@ public class SpoofaxContext implements Serializable{
 		return props;
 	}
 	
-	public static SpoofaxContext makeContext(File projectPath) {
-		Properties props = makeSpoofaxProperties(projectPath);
-		return new SpoofaxContext(projectPath, props);
-	}
+	private final Injector guiceInjector;
 
-	private static Injector guiceInjector;
-	private static IResourceService resourceService;
 	public synchronized Injector guiceInjector() {
-		if (guiceInjector != null)
-			return guiceInjector;
-		guiceInjector = Guice.createInjector(new SpoofaxPlutoModule(baseDir));
 		return guiceInjector;
 	}
+	
 	public synchronized IResourceService getResourceService() {
-		if (resourceService != null)
-			return resourceService;
-		resourceService = guiceInjector().getInstance(IResourceService.class);
-		return resourceService;
+		return guiceInjector.getInstance(IResourceService.class);
 	}
-
 }

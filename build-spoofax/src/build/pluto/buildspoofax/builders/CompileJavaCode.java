@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 
@@ -39,9 +40,6 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 	@Override
 	public None build(SpoofaxInput input) throws IOException {
-		BuildRequest<SpoofaxInput, None, CopyUtils, BuilderFactory<SpoofaxInput, None, CopyUtils>> copyReq = new BuildRequest<>(CopyUtils.factory, input);
-		requireBuild(copyReq);
-
 		File targetDir = context.basePath("${build}");
 		boolean debug = true;
 		String sourceVersion = "1.7";
@@ -93,7 +91,7 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 		for (File sourceFile : sourceFiles) {
 			requireBuild(JavaBuilder.request(new JavaInput(sourceFile, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs
-					.size()]), Arrays.asList(copyReq))));
+					.size()]), null)));
 		}
 
 		return None.val;

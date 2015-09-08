@@ -1,8 +1,11 @@
 package build.pluto.buildspoofax.builders;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.sugarj.common.FileCommands;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
@@ -53,8 +56,11 @@ public class MetaSdf2Table extends SpoofaxBuilder<MetaSdf2Table.Input, None> {
 		boolean metasdfmoduleAvailable = FileCommands.exists(metamodule);
 		
 		if (metasdfmoduleAvailable) {
-			requireBuild(CopyUtils.factory, input);
-			File strategoMixDef = context.basePath("utils/StrategoMix.def");
+		    InputStream stream = this.getClass().getResourceAsStream("StrategoMix.def");
+		    File strategoMixDef = new File(context.basePath("utils"), "StrategoMix.def");
+		    FileCommands.createFile(strategoMixDef);
+		    IOUtils.copy(stream, new FileOutputStream(strategoMixDef));
+		    provide(strategoMixDef);
 			
 			String sdfImports = "-Idef " + strategoMixDef + " " + input.buildSdfImports;
 			requireBuild(Sdf2Table.factory, new Sdf2Table.Input(context, input.metasdfmodule, sdfImports, input.externaldef));
