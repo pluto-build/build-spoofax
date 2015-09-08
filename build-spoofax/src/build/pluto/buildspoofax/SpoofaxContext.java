@@ -152,11 +152,11 @@ public class SpoofaxContext implements Serializable{
 	
 	private final Injector guiceInjector;
 
-	public synchronized Injector guiceInjector() {
+	public Injector injector() {
 		return guiceInjector;
 	}
 	
-	public synchronized IResourceService getResourceService() {
+	public IResourceService getResourceService() {
 		return guiceInjector.getInstance(IResourceService.class);
 	}
 }

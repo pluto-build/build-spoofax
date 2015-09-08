@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.strategoxt.strj.strj;
 import org.sugarj.common.FileCommands;
 
 import build.pluto.builder.BuildRequest;
@@ -80,7 +81,7 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		}
 
 		List<File> classPath = new ArrayList<>();
-		classPath.add(context.basePath("utils/strategoxt.jar"));
+		classPath.add(FileCommands.getRessourcePath(strj.class).toFile());
 		classPath.add(context.basePath("${src-gen}"));
 		if (context.props.isDefined("externaljar"))
 			classPath.add(new File(context.props.get("externaljar")));
