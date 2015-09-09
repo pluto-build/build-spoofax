@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.metaborg.util.file.FileUtils;
 import org.sugarj.common.FileCommands;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
@@ -51,7 +52,7 @@ public class MetaSdf2Table extends SpoofaxBuilder<MetaSdf2Table.Input, None> {
 
 	@Override
 	public None build(Input input) throws IOException {
-		File metamodule = context.basePath("${syntax}/${metasdfmodule}.sdf");
+		File metamodule = FileUtils.toFile(context.settings.getMetaSdfMainFile());
 		require(metamodule, SpoofaxContext.BETTER_STAMPERS ? FileExistsStamper.instance : LastModifiedStamper.instance);
 		boolean metasdfmoduleAvailable = FileCommands.exists(metamodule);
 		

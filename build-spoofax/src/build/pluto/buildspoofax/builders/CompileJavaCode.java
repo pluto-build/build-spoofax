@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.metaborg.util.file.FileUtils;
 import org.strategoxt.strj.strj;
 import org.sugarj.common.FileCommands;
 
@@ -41,7 +42,7 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 	@Override
 	public None build(SpoofaxInput input) throws IOException {
-		File targetDir = context.basePath("${build}");
+		File targetDir = FileUtils.toFile(context.settings.getClassesDirectory());
 		boolean debug = true;
 		String sourceVersion = "1.7";
 		String targetVersion = "1.7";
@@ -82,13 +83,13 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 		List<File> classPath = new ArrayList<>();
 		classPath.add(FileCommands.getRessourcePath(strj.class).toFile());
-		classPath.add(context.basePath("${src-gen}"));
-		if (context.props.isDefined("externaljar"))
-			classPath.add(new File(context.props.get("externaljar")));
-		if (context.props.isDefined("externaljarx"))
-			classPath.add(new File(context.props.get("externaljarx")));
-		if (context.isJavaJarEnabled(this))
-			classPath.add(context.basePath("${include}/${strmodule}-java.jar"));
+
+		if (context.settings.externalJar() != null) {
+		    classPath.add(new File(context.settings.externalJar()));
+		}
+		if (context.isJavaJarEnabled(this)) {
+			classPath.add(FileUtils.toFile(context.settings.getStrategoJavaJarFile()));
+		}
 
 		for (File sourceFile : sourceFiles) {
 			requireBuild(JavaBuilder.request(new JavaInput(sourceFile, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs

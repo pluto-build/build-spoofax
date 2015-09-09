@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import org.metaborg.util.file.FileUtils;
 import org.sugarj.common.FileCommands;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
@@ -51,7 +52,7 @@ public class CopyJar extends SpoofaxBuilder<CopyJar.Input, None> {
 	@Override
 	public None build(Input input) throws IOException {
 		if (input.externaljar != null) {
-			File target = context.basePath("${include}/" + input.externaljar.getName());
+			File target = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.externaljar.getName()));
 			require(input.externaljar, LastModifiedStamper.instance);
 			FileCommands.copyFile(input.externaljar, target, StandardCopyOption.COPY_ATTRIBUTES);
 			provide(target);

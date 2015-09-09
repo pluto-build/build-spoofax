@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.StandardCopyOption;
 
+import org.metaborg.util.file.FileUtils;
 import org.sugarj.common.FileCommands;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
@@ -49,7 +50,7 @@ public class CopySdf extends SpoofaxBuilder<CopySdf.Input, None> {
 	@Override
 	public None build(Input input) throws IOException {
 		if (input.externaldef != null) {
-			File target = context.basePath("${include}/" + input.sdfmodule + ".def");
+			File target = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.sdfmodule + ".def"));
 			require(input.externaldef, LastModifiedStamper.instance);
 			FileCommands.copyFile(input.externaldef, target, StandardCopyOption.COPY_ATTRIBUTES);
 			provide(target);

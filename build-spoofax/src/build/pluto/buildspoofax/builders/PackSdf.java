@@ -111,6 +111,9 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 		return paths;
 	}
 
+	/**
+	 * Copy SDF2 files from syntax/ to src-gen/syntax, to support projects that do not use SDF3.
+	 */
 	private void copySdf2() {
 		List<Path> srcSdfFiles = FileCommands.listFilesRecursive(context.basePath("syntax").toPath(), new SuffixFileFilter("sdf"));
 		for (Path p : srcSdfFiles) {

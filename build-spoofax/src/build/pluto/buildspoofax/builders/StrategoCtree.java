@@ -3,6 +3,7 @@ package build.pluto.buildspoofax.builders;
 import java.io.File;
 import java.io.IOException;
 
+import org.metaborg.util.file.FileUtils;
 import org.sugarj.common.util.ArrayUtils;
 
 import build.pluto.builder.BuildRequest;
@@ -68,19 +69,23 @@ public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, OutputPer
 		BuildRequest<Rtg2Sig.Input, None, Rtg2Sig, ?> rtg2Sig = new BuildRequest<>(Rtg2Sig.factory, new Rtg2Sig.Input(context, input.sdfmodule,
 				input.buildSdfImports));
 
-		if (!context.isBuildStrategoEnabled(this))
-			throw new IllegalArgumentException(context.props.substitute("Main stratego file '${strmodule}.str' not found."));
+		if (!context.isBuildStrategoEnabled(this)) {
+		    final String strategoModule = context.settings.strategoName();
+			throw new IllegalArgumentException(String.format("Main stratego file '%s' not found", strategoModule));
+		}
 
 		requireBuild(CopyJar.factory, new CopyJar.Input(context, input.externaljar));
 
-		File inputPath = context.basePath("${trans}/" + input.strmodule + ".str");
-		File outputPath = context.basePath("${include}/" + input.strmodule + ".ctree");
+		File inputPath = FileUtils.toFile(context.settings.getStrategoMainFile());
+		File outputPath = FileUtils.toFile(context.settings.getStrategoCtreeFile());
 
-		File[] directoryIncludes = new File[] { context.baseDir, context.basePath("${trans}"), context.basePath("${lib}"), context.basePath("${include}"),
-				input.externalDef };
+		// GTODO: get source paths from source path service
+		File[] directoryIncludes = new File[] { context.baseDir, FileUtils.toFile(context.settings.getTransDirectory()), 
+		    FileUtils.toFile(context.settings.getLibDirectory()), FileUtils.toFile(context.settings.getIconsDirectory()), 
+		    input.externalDef };
 		requireBuild(
 				StrategoJavaCompiler.factory,
-				new StrategoJavaCompiler.Input(context, inputPath, outputPath, "trans", null, true, true, directoryIncludes, new String[] {
+				new StrategoJavaCompiler.Input(context, inputPath, outputPath, "trans", true, true, directoryIncludes, new String[] {
 				"stratego-lib", "stratego-sglr", "stratego-gpp", "stratego-xtc", "stratego-aterm", "stratego-sdf", "strc" }, context.basePath(".cache"),
 				ArrayUtils.arrayAdd("-F", input.externaljarflags.split("[\\s]+")), ArrayUtils.arrayAdd(rtg2Sig, input.requiredUnits)));
 

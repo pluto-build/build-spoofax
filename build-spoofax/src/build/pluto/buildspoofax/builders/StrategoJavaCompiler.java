@@ -29,7 +29,6 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 		public final File inputPath;
 		public final File outputPath;
 		public final String packageName;
-		public final String mainStrategy;
 		public final boolean library;
 		public final boolean clean;
 		public final File[] directoryIncludes;
@@ -38,13 +37,12 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 		public final String[] additionalArgs;
 		public final BuildRequest<?, ?, ?, ?>[] requiredUnits;
 
-		public Input(SpoofaxContext context, File inputPath, File outputPath, String packageName, String mainStrategy, boolean library, boolean clean,
+		public Input(SpoofaxContext context, File inputPath, File outputPath, String packageName, boolean library, boolean clean,
 				File[] directoryIncludes, String[] libraryIncludes, File cacheDir, String[] additionalArgs, BuildRequest<?, ?, ?, ?>[] requiredUnits) {
 			super(context);
 			this.inputPath = inputPath;
 			this.outputPath = outputPath;
 			this.packageName = packageName;
-			this.mainStrategy = mainStrategy;
 			this.library = library;
 			this.clean = clean;
 			this.directoryIncludes = directoryIncludes;

@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.core.project.settings.SpoofaxProjectSettings;
+import org.metaborg.util.file.FileUtils;
 import org.sugarj.common.FileCommands;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,142 +22,90 @@ import build.pluto.stamp.LastModifiedStamper;
 
 import com.google.inject.Injector;
 
-public class SpoofaxContext implements Serializable{
-	private static final long serialVersionUID = -1973461199459693455L;
-	
-	public final static boolean BETTER_STAMPERS = true;
-	
-	public final File baseDir;
-	public final Properties props;
-	public final SpoofaxProjectSettings settings;
-	
-	public SpoofaxContext(Injector injector, SpoofaxProjectSettings settings) {
-	    this.guiceInjector = injector;
-	    this.baseDir = new File(settings.location().getName().getPath());
-		this.props = makeSpoofaxProperties(baseDir);
-		this.settings = settings;
-		
-	}
-	
-	public File basePath(String relative) {
-		final String relativeSubst = props.substitute(relative);
-		return new File(baseDir, relativeSubst);
-	}
-	
-	public File depDir() {
-		return new File(baseDir, props.substitute("${include}/build"));
-	}
-	
-	public File depPath(String relative) {
-		return new File(baseDir, props.substitute("${include}/build/" + relative));
-	}
-	
-	public boolean isBuildStrategoEnabled(Builder<?, ?> result) {
-		File strategoPath = basePath("${trans}/${strmodule}.str");
-		result.require(strategoPath, SpoofaxContext.BETTER_STAMPERS ? FileExistsStamper.instance : LastModifiedStamper.instance);
-		boolean buildStrategoEnabled = FileCommands.exists(strategoPath);
-		return buildStrategoEnabled;
-	}
-	
-	public boolean isJavaJarEnabled(Builder<?, ?> result) {
-		File mainPath = basePath("${src-gen}/org/strategoxt/imp/editors/template/strategies/Main.java");
-		result.require(mainPath, SpoofaxContext.BETTER_STAMPERS ? FileExistsStamper.instance : LastModifiedStamper.instance);
-		return FileCommands.exists(mainPath);
-	}
-	
-	
-	private static String unquote(String s) {
-		if (s.charAt(0) == '\"' && s.charAt(s.length() - 1) == '\"') {
-			return s.substring(1, s.length() - 1);
-		}
-		return s;
-	}
-	
-	
-	public static Properties makeSpoofaxProperties(File baseDir) {
-		Properties props = new Properties();
-		props.put("trans", "trans");
-		props.put("src-gen", "editor/java");
-		props.put("syntax", "src-gen/syntax");
-		props.put("include", "include");
-		props.put("lib", "lib");
-		props.put("build", "target/classes");
-		props.put("dist", "bin/dist");
-		props.put("pp", "src-gen/pp");
-		props.put("signatures", "src-gen/signatures");
-		props.put("completions", "src-gen/completions");
-		props.put("sdf-src-gen", "src-gen");
-		props.put("lib-gen", "include");
+public class SpoofaxContext implements Serializable {
+    private static final long serialVersionUID = -1973461199459693455L;
 
-//		props.put("externaljarx", new PluginClasspathProvider().getAntPropertyValue(null));
-		
-		props.put("basedir", baseDir.getAbsolutePath());
+    public final static boolean BETTER_STAMPERS = true;
 
-		String lang;
-		File[] sdfImports;
-		File antBuildXML = new File(baseDir, "build.main.xml");
-		try {
-			
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(antBuildXML);
-			Element project = doc.getDocumentElement();
-			lang = project.getAttribute("name");
-			
-			Node kid = project.getFirstChild();
-			sdfImports = null;
-			while (kid != null) {
-				if ("property".equals(kid.getNodeName()) && kid.hasAttributes()) {
-					Node name = kid.getAttributes().getNamedItem("name");
-					if (name != null && "build.sdf.imports".equals(name.getNodeValue())) {
-						Node value = kid.getAttributes().getNamedItem("value");
-						if (value != null) {
-							String[] imports = value.getNodeValue().split("[\\s]*" + Pattern.quote("-Idef") + "[\\s]+");
-							List<File> paths = new ArrayList<>();
-							for (String imp : imports)
-								if (!imp.isEmpty()) {
-									String subst = props.substitute(unquote(imp));
-									if (FileCommands.acceptableAsAbsolute(subst))
-										paths.add(new File(subst));
-									else
-										paths.add(new File(baseDir, subst));
-								}
-							sdfImports = paths.toArray(new File[paths.size()]);
-							break;
-						}
-					}
-				}
-				kid = kid.getNextSibling();
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+    public final File baseDir;
+    public final Properties props;
+    public final SpoofaxProjectSettings settings;
+
+    public SpoofaxContext(Injector injector, SpoofaxProjectSettings settings) {
+        this.guiceInjector = injector;
+        this.baseDir = new File(settings.location().getName().getPath());
+        this.props = makeSpoofaxProperties(baseDir);
+        this.settings = settings;
+
+    }
+
+    public File basePath(String relative) {
+        final String relativeSubst = props.substitute(relative);
+        return new File(baseDir, relativeSubst);
+    }
+
+    public File depDir() {
+        return new File(baseDir, props.substitute("${include}/build"));
+    }
+
+    public File depPath(String relative) {
+        return new File(baseDir, props.substitute("${include}/build/" + relative));
+    }
+
+    public boolean isBuildStrategoEnabled(Builder<?, ?> result) {
+        final File strategoPath = FileUtils.toFile(settings.getStrategoMainFile());
+        result.require(strategoPath, SpoofaxContext.BETTER_STAMPERS ? FileExistsStamper.instance
+            : LastModifiedStamper.instance);
+        boolean buildStrategoEnabled = FileCommands.exists(strategoPath);
+        return buildStrategoEnabled;
+    }
+
+    public boolean isJavaJarEnabled(Builder<?, ?> result) {
+        final File mainFile = FileUtils.toFile(settings.getStrategoJavaStrategiesMainFile());
+        result.require(mainFile, SpoofaxContext.BETTER_STAMPERS ? FileExistsStamper.instance
+            : LastModifiedStamper.instance);
+        return FileCommands.exists(mainFile);
+    }
 
 
-		props.put("sdfmodule", lang);
-		props.put("metasdfmodule", "Stratego-" + lang);
-		props.put("esvmodule", lang);
-		props.put("strmodule", lang.toLowerCase());
-		props.put("ppmodule", lang + "-pp");
-		props.put("sigmodule", lang + "-sig");
-		
-		if (sdfImports != null) {
-			StringBuilder importString = new StringBuilder();
-			for (File imp : sdfImports) {
+    private static String unquote(String s) {
+        if(s.charAt(0) == '\"' && s.charAt(s.length() - 1) == '\"') {
+            return s.substring(1, s.length() - 1);
+        }
+        return s;
+    }
 
-				importString.append("-Idef " + props.substitute(imp.getAbsolutePath()));
-			}
-			props.put("build.sdf.imports", importString.toString());
-		}
 
-		return props;
-	}
-	
-	private final Injector guiceInjector;
+    public static Properties makeSpoofaxProperties(SpoofaxProjectSettings settings) {
+        Properties props = new Properties();
+        props.put("trans", "trans");
+        props.put("src-gen", "editor/java");
+        props.put("syntax", "src-gen/syntax");
+        props.put("include", "include");
+        props.put("lib", "lib");
+        props.put("build", "target/classes");
 
-	public Injector injector() {
-		return guiceInjector;
-	}
-	
-	public IResourceService getResourceService() {
-		return guiceInjector.getInstance(IResourceService.class);
-	}
+        props.put("sdfmodule", lang);
+
+        if(sdfImports != null) {
+            StringBuilder importString = new StringBuilder();
+            for(File imp : sdfImports) {
+
+                importString.append("-Idef " + props.substitute(imp.getAbsolutePath()));
+            }
+            props.put("build.sdf.imports", importString.toString());
+        }
+
+        return props;
+    }
+
+    private final Injector guiceInjector;
+
+    public Injector injector() {
+        return guiceInjector;
+    }
+
+    public IResourceService getResourceService() {
+        return guiceInjector.getInstance(IResourceService.class);
+    }
 }

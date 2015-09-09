@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import org.metaborg.util.file.FileUtils;
 import org.strategoxt.permissivegrammars.make_permissive;
 
 import build.pluto.BuildUnit.State;
@@ -54,8 +55,8 @@ public class MakePermissive extends SpoofaxBuilder<MakePermissive.Input, None> {
 		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfmodule, input.externaldef));
 		requireBuild(PackSdf.factory, new PackSdf.Input(context,input.sdfmodule, input.buildSdfImports));
 		
-		File inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
-		File outputPath = context.basePath("${include}/" + input.sdfmodule + "-Permissive.def");
+		File inputPath = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.sdfmodule + ".def"));
+		File outputPath = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.sdfmodule + "-Permissive.def"));
 		
 		require(inputPath);
 		ExecutionResult er = StrategoExecutor.runStrategoCLI(StrategoExecutor.permissiveGrammarsContext(), 
