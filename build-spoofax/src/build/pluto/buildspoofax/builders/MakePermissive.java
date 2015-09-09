@@ -24,15 +24,13 @@ public class MakePermissive extends SpoofaxBuilder<MakePermissive.Input, None> {
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 4381601872931676757L;
 
-		public final String sdfmodule;
-		public final String buildSdfImports;
-		public final File externaldef;
-
-		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, File externaldef) {
+		public final String sdfModule;
+		public final String sdfArgs;
+		
+		public Input(SpoofaxContext context, String sdfModule, String sdfArgs) {
 			super(context);
-			this.sdfmodule = sdfmodule;
-			this.buildSdfImports = buildSdfImports;
-			this.externaldef = externaldef;
+            this.sdfModule = sdfModule;
+            this.sdfArgs = sdfArgs;
 		}
 	}
 	
@@ -47,16 +45,16 @@ public class MakePermissive extends SpoofaxBuilder<MakePermissive.Input, None> {
 	
 	@Override
 	public File persistentPath(Input input) {
-		return context.depPath("makePermissive." + input.sdfmodule + ".dep");
+		return context.depPath("makePermissive." + context.settings.sdfName() + ".dep");
 	}
 
 	@Override
 	public None build(Input input) throws IOException {
-		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfmodule, input.externaldef));
-		requireBuild(PackSdf.factory, new PackSdf.Input(context,input.sdfmodule, input.buildSdfImports));
+		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfModule));
+		requireBuild(PackSdf.factory, new PackSdf.Input(context, input.sdfModule, input.sdfArgs));
 		
-		File inputPath = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.sdfmodule + ".def"));
-		File outputPath = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.sdfmodule + "-Permissive.def"));
+		File inputPath = FileUtils.toFile(context.settings.getSdfCompiledDefFile(input.sdfModule));
+		File outputPath = FileUtils.toFile(context.settings.getSdfCompiledPermissiveDefFile(input.sdfModule));
 		
 		require(inputPath);
 		ExecutionResult er = StrategoExecutor.runStrategoCLI(StrategoExecutor.permissiveGrammarsContext(), 

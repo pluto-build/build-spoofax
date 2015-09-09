@@ -3,6 +3,7 @@ package build.pluto.buildspoofax.builders;
 import java.io.File;
 import java.io.IOException;
 
+import org.metaborg.util.file.FileUtils;
 import org.strategoxt.tools.main_rtg2sig_0_0;
 
 import build.pluto.BuildUnit.State;
@@ -22,12 +23,11 @@ public class Rtg2Sig extends SpoofaxBuilder<Rtg2Sig.Input, None> {
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -8305692591357842018L;
 		
-		public final String sdfmodule;
-		public final String buildSdfImports;
-		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports) {
+		public final String sdfModule;
+		
+		public Input(SpoofaxContext context, String sdfModule) {
 			super(context);
-			this.sdfmodule = sdfmodule;
-			this.buildSdfImports = buildSdfImports;
+            this.sdfModule = sdfModule;
 		}
 	}
 	
@@ -42,7 +42,7 @@ public class Rtg2Sig extends SpoofaxBuilder<Rtg2Sig.Input, None> {
 	
 	@Override
 	protected File persistentPath(Input input) {
-		return context.depPath("rtg2Sig." + input.sdfmodule + ".dep");
+		return context.depPath("rtg2Sig." + input.sdfModule + ".dep");
 	}
 
 	@Override
@@ -50,16 +50,16 @@ public class Rtg2Sig extends SpoofaxBuilder<Rtg2Sig.Input, None> {
 		
 		if (context.isBuildStrategoEnabled(this)) {
 			// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang.rtg'.
-			requireBuild(Sdf2Rtg.factory, new Sdf2Rtg.Input(context, input.sdfmodule, input.buildSdfImports));
+			requireBuild(Sdf2Rtg.factory, new Sdf2Rtg.Input(context, input.sdfModule));
 
-			File inputPath = context.basePath("${include}/" + input.sdfmodule + ".rtg");
-			File outputPath = context.basePath("${include}/" + input.sdfmodule + ".str");
+			File inputPath = FileUtils.toFile(context.settings.getRtgFile(input.sdfModule));
+			File outputPath = FileUtils.toFile(context.settings.getSdfCompiledSigFile(input.sdfModule));
 			
 			require(inputPath);
 			ExecutionResult er = StrategoExecutor.runStrategoCLI(StrategoExecutor.toolsContext(), 
 					main_rtg2sig_0_0.instance, "rtg2sig", new LoggingFilteringIOAgent(),
 					"-i", inputPath,
-					"--module", input.sdfmodule,
+					"--module", input.sdfModule,
 					"-o", outputPath);
 			provide(outputPath);
 			setState(State.finished(er.success));

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.metaborg.util.file.FileUtils;
 import org.strategoxt.tools.main_pack_sdf_0_0;
 import org.sugarj.common.FileCommands;
 
@@ -30,17 +31,13 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 2058684747897720328L;
 		
-		public final String sdfmodule;
-		public final String buildSdfImports;
-		public Input(SpoofaxContext context) {
+		public final String sdfModule;
+		public final String sdfArgs;
+		
+		public Input(SpoofaxContext context, String sdfModule, String sdfArgs) {
 			super(context);
-			this.sdfmodule = context.props.get("sdfmodule");
-			this.buildSdfImports = context.props.get("build.sdf.imports");
-		}
-		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports) {
-			super(context);
-			this.sdfmodule = sdfmodule;
-			this.buildSdfImports = buildSdfImports;
+            this.sdfModule = sdfModule;
+            this.sdfArgs = sdfArgs;
 		}
 	}
 	
@@ -55,7 +52,7 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	
 	@Override
 	protected File persistentPath(Input input) {
-		return context.depPath("packSdf." + input.sdfmodule + ".dep");
+		return context.depPath("packSdf." + input.sdfModule + ".dep");
 	}
 	
 	@Override
@@ -65,9 +62,13 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 		
 		copySdf2();
 		
-		File inputPath = context.basePath("${syntax}/" + input.sdfmodule + ".sdf");
-		File outputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
-		String utilsInclude = FileCommands.exists(context.basePath("${utils}")) ? context.props.substitute("-I ${utils}") : "";
+		File inputPath = FileUtils.toFile(context.settings.getSdfMainFile(input.sdfModule));
+		File outputPath = FileUtils.toFile(context.settings.getSdfCompiledDefFile(input.sdfModule));
+		//String utilsInclude = FileCommands.exists(context.basePath("${utils}")) ? context.props.substitute("-I ${utils}") : "";
+		
+		// TODO: put these includes in the parent POM, since they are always needed.
+		final String syntaxInclude = context.settings.getSyntaxDirectory().exists() ? "-I " + context.settings.getSyntaxDirectory().getName().getPath() : "";
+		final String libInclude = context.settings.getLibDirectory().exists() ? "-I " + context.settings.getLibDirectory().getName().getPath() : "";
 		
 		require(inputPath);
 		
@@ -75,10 +76,9 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 				main_pack_sdf_0_0.instance, "pack-sdf", new LoggingFilteringIOAgent(Pattern.quote("  including ") + ".*"),
 				"-i", inputPath,
 				"-o", outputPath,
-				FileCommands.exists(context.basePath("${syntax}")) ? "-I " + context.basePath("${syntax}") : "",
-				FileCommands.exists(context.basePath("${lib}")) ? "-I " + context.basePath("${lib}") : "",
-				utilsInclude,
-				input.buildSdfImports);
+				syntaxInclude,
+				libInclude,
+				input.sdfArgs);
 		
 		provide(outputPath);
 		for (File required : extractRequiredPaths(er.errLog))
@@ -115,10 +115,14 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	 * Copy SDF2 files from syntax/ to src-gen/syntax, to support projects that do not use SDF3.
 	 */
 	private void copySdf2() {
-		List<Path> srcSdfFiles = FileCommands.listFilesRecursive(context.basePath("syntax").toPath(), new SuffixFileFilter("sdf"));
+	    final File syntaxDir = FileUtils.toFile(context.settings.getSyntaxDirectory());
+	    final File genSyntaxDir = FileUtils.toFile(context.settings.getGenSyntaxDirectory());
+	    
+	    // TODO: identify sdf2 files using Spoofax core
+		List<Path> srcSdfFiles = FileCommands.listFilesRecursive(syntaxDir.toPath(), new SuffixFileFilter("sdf"));
 		for (Path p : srcSdfFiles) {
 			require(p.toFile(), LastModifiedStamper.instance);
-			File target = FileCommands.copyFile(context.basePath("syntax"), context.basePath("${syntax}"), p.toFile(), StandardCopyOption.COPY_ATTRIBUTES);
+			File target = FileCommands.copyFile(syntaxDir, genSyntaxDir, p.toFile(), StandardCopyOption.COPY_ATTRIBUTES);
 			provide(target);
 		}		
 	}

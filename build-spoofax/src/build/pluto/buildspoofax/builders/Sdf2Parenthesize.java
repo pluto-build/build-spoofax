@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import org.metaborg.spoofax.core.SpoofaxProjectConstants;
+import org.metaborg.util.file.FileUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.tools.main_sdf2parenthesize_0_0;
 import org.sugarj.common.FileCommands;
@@ -21,22 +23,20 @@ import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
 import build.pluto.output.OutputPersisted;
 
+import com.google.common.base.Joiner;
+
 public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, None> {
 
 	public static SpoofaxBuilderFactory<Input, None, Sdf2Parenthesize> factory = SpoofaxBuilderFactory.of(Sdf2Parenthesize.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6177130857266733408L;
-		
-		public final String sdfmodule;
-		public final String buildSdfImports;
-		public final File externaldef;
 
-		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, File externaldef) {
+		public final String sdfModule;
+		
+		public Input(SpoofaxContext context, String sdfModule) {
 			super(context);
-			this.sdfmodule = sdfmodule;
-			this.buildSdfImports = buildSdfImports;
-			this.externaldef = externaldef;
+            this.sdfModule = sdfModule;
 		}
 	}
 	
@@ -51,18 +51,18 @@ public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, Non
 	
 	@Override
 	protected File persistentPath(Input input) {
-		return context.depPath("sdf2Parenthesize." + input.sdfmodule + ".dep");
+		return context.depPath("sdf2Parenthesize." + input.sdfModule + ".dep");
 	}
 
 	@Override
 	public None build(Input input) throws IOException {
-		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfmodule, input.externaldef));
-		BuildRequest<PackSdf.Input, None, PackSdf, ?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context, input.sdfmodule, input.buildSdfImports));
+		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfModule));
+		BuildRequest<PackSdf.Input, None, PackSdf, ?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context, input.sdfModule, Joiner.on(' ').join(context.settings.sdfArgs())));
 		requireBuild(packSdf);
 		
-		File inputPath = context.basePath("${include}/" + input.sdfmodule + ".def");
-		File outputPath = context.basePath("${include}/" + input.sdfmodule + "-parenthesize.str");
-		String outputmodule = "include/" + input.sdfmodule + "-parenthesize";
+		File inputPath = FileUtils.toFile(context.settings.getSdfCompiledDefFile(input.sdfModule));
+		File outputPath = FileUtils.toFile(context.settings.getStrCompiledParenthesizerFile(input.sdfModule));
+		String outputmodule = "include/" + input.sdfModule + "-parenthesize";
 
 		if (SpoofaxContext.BETTER_STAMPERS) {
 			BuildRequest<ParseSdfDefinition.Input, OutputPersisted<IStrategoTerm>, ParseSdfDefinition, ?> parseSdfDefinition = new BuildRequest<>(
@@ -72,20 +72,21 @@ public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, Non
 		else
 			require(inputPath);
 		
-		// XXX avoid redundant call to sdf2table
+		// TODO: avoid redundant call to sdf2table
+		// TODO: set nativepath to the native bundle, so that sdf2table can be found
 		ExecutionResult er = StrategoExecutor.runStrategoCLI(StrategoExecutor.toolsContext(), 
 				main_sdf2parenthesize_0_0.instance, "sdf2parenthesize", new LoggingFilteringIOAgent(Pattern.quote("[ sdf2parenthesize | info ]") + ".*", Pattern.quote("Invoking native tool") + ".*"),
 				"-i", inputPath,
-				"-m", input.sdfmodule,
-				"--lang", input.sdfmodule,
+				"-m", input.sdfModule,
+				"--lang", input.sdfModule,
 				"--omod", outputmodule,
 				"-o", outputPath,
-				"--main-strategy", "io-" + input.sdfmodule + "-parenthesize",
-				"--rule-prefix", input.sdfmodule,
-				"--sig-module", context.props.get("lib-gen") + "/" + input.sdfmodule);
+				"--main-strategy", "io-" + input.sdfModule + "-parenthesize",
+				"--rule-prefix", input.sdfModule,
+				"--sig-module", SpoofaxProjectConstants.DIR_INCLUDE + "/" + input.sdfModule);
 		
 		if (!er.success)
-			FileCommands.writeToFile(outputPath, "module include/" + input.sdfmodule + "-parenthesize rules parenthesize-" + input.sdfmodule + " = id");
+			FileCommands.writeToFile(outputPath, "module include/" + input.sdfModule + "-parenthesize rules parenthesize-" + input.sdfModule + " = id");
 		
 		provide(outputPath);
 		

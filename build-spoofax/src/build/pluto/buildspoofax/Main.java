@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.metaborg.spoofax.core.project.settings.SpoofaxProjectSettings;
+import org.metaborg.util.file.FileUtils;
 
 import build.pluto.buildspoofax.builders.PPPack;
 import build.pluto.buildspoofax.builders.SpoofaxDefaultCtree;
@@ -42,9 +43,12 @@ public class Main extends SpoofaxBuilder<Main.Input, None> {
 	public None build(Input input) throws IOException {
 	    requireBuild(SpoofaxGenerator.factory, input);
 	    
-		File ppInput = context.basePath("${lib}/EditorService-pretty.pp");
-		File ppTermOutput = context.basePath("${include}/EditorService-pretty.pp.af");
-		requireBuild(PPPack.factory, new PPPack.Input(context, ppInput, ppTermOutput, true));
+	    // TODO: this is not generic, get rid of this build step
+		File ppInput = FileUtils.toFile(context.settings.getLibDirectory().resolveFile("EditorService-pretty.pp"));
+		if(ppInput.exists()) {
+    		File ppTermOutput = context.basePath("${include}/EditorService-pretty.pp.af");
+    		requireBuild(PPPack.factory, new PPPack.Input(context, ppInput, ppTermOutput, true));
+		}
 		
 		requireBuild(SpoofaxDefaultCtree.factory, input);
 		return None.val;

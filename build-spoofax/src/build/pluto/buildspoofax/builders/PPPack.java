@@ -18,6 +18,8 @@ import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
 
+import com.google.common.base.Joiner;
+
 public class PPPack extends SpoofaxBuilder<PPPack.Input, None> {
 
 	public static SpoofaxBuilderFactory<Input, None, PPPack> factory = SpoofaxBuilderFactory.of(PPPack.class, Input.class);
@@ -63,7 +65,7 @@ public class PPPack extends SpoofaxBuilder<PPPack.Input, None> {
 		if (!context.isBuildStrategoEnabled(this))
 			return None.val;
 		
-		requireBuild(PackSdf.factory, new PackSdf.Input(context));
+		requireBuild(PackSdf.factory, new PackSdf.Input(context, context.settings.sdfName(), Joiner.on(' ').join(context.settings.sdfArgs())));
 		
 		require(input.ppInput);
 		if (input.fallback && !FileCommands.exists(input.ppInput)) {

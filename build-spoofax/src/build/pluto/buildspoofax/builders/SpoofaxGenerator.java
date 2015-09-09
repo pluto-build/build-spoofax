@@ -32,7 +32,7 @@ public class SpoofaxGenerator extends SpoofaxBuilder<SpoofaxInput, None> {
     }
 
     @Override protected None build(SpoofaxInput input) throws Throwable {
-        final Injector injector = context.injector();
+        final Injector injector = context.injector;
         final IProject project = injector.getInstance(IProjectService.class).get(context.settings.location());
         final SpoofaxMetaBuilder metaBuilder = injector.getInstance(SpoofaxMetaBuilder.class);
         final FileAccess access = new FileAccess();

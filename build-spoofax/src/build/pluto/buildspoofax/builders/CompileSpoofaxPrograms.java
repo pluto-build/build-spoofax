@@ -48,7 +48,7 @@ public class CompileSpoofaxPrograms extends SpoofaxBuilder<SpoofaxInput, None> {
     }
 
     @Override protected None build(SpoofaxInput input) throws Throwable {
-        final Injector injector = context.injector();
+        final Injector injector = context.injector;
         final SpoofaxProjectSettings settings = context.settings;
         final ISpoofaxBuilder builder = injector.getInstance(ISpoofaxBuilder.class);
         final ISourceTextService sourceTextService = injector.getInstance(ISourceTextService.class);

@@ -1,17 +1,10 @@
 package build.pluto.buildspoofax.builders.aux;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.nativebundle.NativeBundle;
-import org.sugarj.common.Exec;
-import org.sugarj.common.FileCommands;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
@@ -64,39 +57,28 @@ public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf
     }
 
     @Override public Output build(SpoofaxInput input) throws IOException {
-        final URI implodePTUri = NativeBundle.getImplodePT();
-        final URI sdf2TableUri = NativeBundle.getSdf2Table();
+        final FileObject sdf2TablePath = context.resourceService.resolve(NativeBundle.getSdf2Table().toString());
+        final File sdf2TableFile = context.resourceService.localFile(sdf2TablePath);
+        restoreExecutablePermissions(sdf2TableFile);
 
-        require(FileCommands.getRessourcePath(NativeBundle.class).toFile(), LastModifiedStamper.instance);
-        try(InputStream sdf2tableInput = sdf2TableUri.toURL().openStream();
-            InputStream implodePTInput = implodePTUri.toURL().openStream()) {
+        final FileObject implodePtPath = context.resourceService.resolve(NativeBundle.getImplodePT().toString());
+        final File implodePtFile = context.resourceService.localFile(implodePtPath);
+        restoreExecutablePermissions(implodePtFile);
 
-            File sdf2table = context.basePath("include/build/native/sdf2table");
-            FileCommands.createFile(sdf2table);
-            try(OutputStream output = new FileOutputStream(sdf2table.getAbsolutePath())) {
-                IOUtils.copy(sdf2tableInput, output);
-            }
+        provide(sdf2TableFile, LastModifiedStamper.instance);
+        provide(implodePtFile, LastModifiedStamper.instance);
 
-            File implodePT = context.basePath("include/build/native/implodePT");
-            FileCommands.createFile(implodePT);
-            try(OutputStream output = new FileOutputStream(implodePT.getAbsolutePath())) {
-                IOUtils.copy(implodePTInput, output);
-            }
-
-            if(SystemUtils.IS_OS_UNIX) {
-                Exec.run(context.baseDir, "/bin/sh", "-c", "chmod +x \"" + sdf2table.getAbsolutePath() + "\"");
-                Exec.run(context.baseDir, "/bin/sh", "-c", "chmod +x \"" + implodePT.getAbsolutePath() + "\"");
-            } else {
-                throw new UnsupportedOperationException("Only Unix systems at the moment.");
-            }
-
-            provide(sdf2table, LastModifiedStamper.instance);
-            provide(implodePT, LastModifiedStamper.instance);
-
-            return new Output(ExecutableCommandStrategy.getInstance("sdf2table", sdf2table),
-                ExecutableCommandStrategy.getInstance("implodePT", implodePT));
-        }
+        return new Output(ExecutableCommandStrategy.getInstance("sdf2table", sdf2TableFile),
+            ExecutableCommandStrategy.getInstance("implodePT", implodePtFile));
     }
 
-
+    private static void restoreExecutablePermissions(File directory) {
+        for(File fileOrDirectory : directory.listFiles()) {
+            if(fileOrDirectory.isDirectory()) {
+                restoreExecutablePermissions(fileOrDirectory);
+            } else {
+                fileOrDirectory.setExecutable(true);
+            }
+        }
+    }
 }

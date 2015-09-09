@@ -50,7 +50,8 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		additionalArgs.add("-target");
 		additionalArgs.add(targetVersion);
 
-		String srcDirs = context.props.getOrElse("src-dirs", context.props.get("src-gen"));
+		// TODO: this used to get src-dirs property before
+		String srcDirs = FileUtils.toPath(context.settings.getStrJavaDirectory());
 		List<File> sourcePath = new ArrayList<>();
 		List<File> sourceFiles = new ArrayList<>();
 		for (String dir : srcDirs.split("[\\s]+")) {
@@ -84,7 +85,7 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		    classPath.add(new File(context.settings.externalJar()));
 		}
 		if (context.isJavaJarEnabled(this)) {
-			classPath.add(FileUtils.toFile(context.settings.getStrategoJavaJarFile()));
+			classPath.add(FileUtils.toFile(context.settings.getStrCompiledJavaJarFile()));
 		}
 
 		for (File sourceFile : sourceFiles) {

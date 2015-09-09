@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.metaborg.spoofax.core.project.settings.SpoofaxProjectSettings;
+import org.metaborg.util.file.FileUtils;
 import org.sugarj.common.FileCommands;
 
 import build.pluto.builder.BuildRequest;
@@ -15,7 +17,8 @@ import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
-import build.pluto.output.OutputPersisted;
+
+import com.google.common.base.Joiner;
 
 public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 
@@ -39,52 +42,55 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 	
 	@Override
 	public None build(SpoofaxInput input) throws IOException {
-		String sdfmodule = context.props.getOrFail("sdfmodule");
-		String strmodule = context.props.getOrFail("strmodule");
-		String esvmodule = context.props.getOrFail("esvmodule");
-		String metasdfmodule = context.props.getOrFail("metasdfmodule");
-		String buildSdfImports = context.props.getOrElse("build.sdf.imports", "");
-		File externaldef = context.props.isDefined("externaldef") ? new File(context.props.get("externaldef")) : null;
-		File externaljar = context.props.isDefined("externaljar") ? new File(context.props.get("externaljar")) : null;
-		String externaljarflags = context.props.getOrElse("externaljarflags", "");
+	    final SpoofaxProjectSettings settings = context.settings;
+	    
+		String sdfModule = settings.sdfName();
+		String strModule = settings.strategoName();
+		String metaSdfModule = settings.metaSdfName();
+		String sdfArgs = Joiner.on(' ').join(settings.sdfArgs());
+		File externalDef = settings.externalDef() != null ? new File(settings.externalDef()) : null;
+		File externalJar = settings.externalJar() != null ? new File(settings.externalJar()) : null;
+		String externalJarFlags = settings.externalJarFlags();
 		
-		requireBuild(Sdf2Table.factory, new Sdf2Table.Input(context, sdfmodule, buildSdfImports, externaldef));
-		requireBuild(MetaSdf2Table.factory, new MetaSdf2Table.Input(context, metasdfmodule, buildSdfImports, externaldef));
-		requireBuild(PPGen.factory, input);
+		requireBuild(Sdf2Table.factory, new Sdf2Table.Input(context, sdfModule, sdfArgs));
+		requireBuild(MetaSdf2Table.factory, new MetaSdf2Table.Input(context, metaSdfModule));
+		requireBuild(PPGen.factory, new PPGen.Input(context, sdfModule));
 		
-		File ppPackInputPath = context.basePath("${syntax}/${sdfmodule}.pp");
-		File ppPackOutputPath = context.basePath("${include}/${sdfmodule}.pp.af");
+		File ppPackInputPath = FileUtils.toFile(settings.getPpFile(sdfModule));
+		File ppPackOutputPath = FileUtils.toFile(settings.getPpAfCompiledFile(sdfModule));
 		requireBuild(PPPack.factory, new PPPack.Input(context, ppPackInputPath, ppPackOutputPath, true));
 
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang-parenthesize.str'.
-		BuildRequest<Sdf2Parenthesize.Input,None,Sdf2Parenthesize,?> sdf2Parenthesize = new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfmodule, buildSdfImports, externaldef));
+		BuildRequest<Sdf2Parenthesize.Input,None,Sdf2Parenthesize,?> sdf2Parenthesize = new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfModule));
 
-		OutputPersisted<File> ctree = requireBuild(StrategoCtree.factory,
+		requireBuild(StrategoCtree.factory,
 				new StrategoCtree.Input(
 						context,
-						sdfmodule, 
-						buildSdfImports, 
-						strmodule, 
-						externaljar, 
-						externaljarflags, 
-						externaldef,
+						sdfModule, 
+						sdfArgs, 
+						strModule, 
+						externalJar, 
+						externalJarFlags, 
+						externalDef,
 						new BuildRequest<?,?,?,?>[] {sdf2Parenthesize}));
 		
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/editor/java/org/strategoxt/imp/editors/template/strategies/InteropRegisterer.class'.
 		BuildRequest<SpoofaxInput,None,CompileJavaCode,?> compileJavaCode = new BuildRequest<>(CompileJavaCode.factory, input);
 		requireBuild(compileJavaCode);
 		
-		javaJar(strmodule, compileJavaCode);
+		javaJar(compileJavaCode);
 		
 		return None.val;
 	}
 
-	private void javaJar(String strmodule, BuildRequest<?,?,?,?> compileJavaCode) throws IOException {
+	private void javaJar(BuildRequest<?,?,?,?> compileJavaCode) throws IOException {
 		if (!context.isJavaJarEnabled(this))
 			return;
 		
-		File baseDir = context.basePath("${build}");
-		String[] sfiles = context.props.getOrElse("javajar-includes", "org/strategoxt/imp/editors/template/strategies/").split("[\\s]+");
+		File buildDir = FileUtils.toFile(context.settings.getClassesDirectory());
+		// TODO: get javajar-includes from project settings
+		//String[] sfiles = context.props.getOrElse("javajar-includes", context.settings.packageStrategiesPath()).split("[\\s]+");
+		String[] sfiles = new String[]{context.settings.packageStrategiesPath()};
 		Map<File, Set<File>> files = new HashMap<>();
 		Set<File> relativeFiles = new HashSet<>();
 		Set<File> absoluteFiles = new HashSet<>();
@@ -92,12 +98,12 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 			if (FileCommands.acceptableAsAbsolute(sfiles[i]))
 				absoluteFiles.add(new File(sfiles[i]));
 			else
-				relativeFiles.add(new File(baseDir, sfiles[i]));
+				relativeFiles.add(new File(buildDir, sfiles[i]));
 		}
-		files.put(baseDir, relativeFiles);
+		files.put(buildDir, relativeFiles);
 		files.put(new File(""), absoluteFiles);
 		
-		File jarPath = context.basePath("${include}/" + strmodule + "-java.jar");
+		File jarPath = FileUtils.toFile(context.settings.getStrCompiledJavaJarFile());
 		requireBuild(JavaJar.factory, 
 				new JavaJar.Input(
 						JavaJar.Mode.CreateOrUpdate,

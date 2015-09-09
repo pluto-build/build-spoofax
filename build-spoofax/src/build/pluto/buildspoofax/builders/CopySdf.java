@@ -21,13 +21,11 @@ public class CopySdf extends SpoofaxBuilder<CopySdf.Input, None> {
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6298820503718314523L;
 
-		public final String sdfmodule;
-		public final File externaldef;
-
-		public Input(SpoofaxContext context, String sdfmodule, File externaldef) {
+		public final String sdfModule;
+		
+		public Input(SpoofaxContext context, String sdfModule) {
 			super(context);
-			this.sdfmodule = sdfmodule;
-			this.externaldef = externaldef;
+            this.sdfModule = sdfModule;
 		}
 	}
 	
@@ -42,17 +40,20 @@ public class CopySdf extends SpoofaxBuilder<CopySdf.Input, None> {
 	
 	@Override
 	public File persistentPath(Input input) {
-		if (input.externaldef != null)
-			return context.depPath("copySdf." + input.externaldef + "." + input.sdfmodule + ".dep");
-		return context.depPath("copySdf." + input.sdfmodule + ".dep");
+	    final String externalDef = context.settings.externalDef();
+		if (externalDef != null)
+			return context.depPath("copySdf." + externalDef + "." + input.sdfModule + ".dep");
+		return context.depPath("copySdf." + input.sdfModule + ".dep");
 	}
 
 	@Override
 	public None build(Input input) throws IOException {
-		if (input.externaldef != null) {
-			File target = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.sdfmodule + ".def"));
-			require(input.externaldef, LastModifiedStamper.instance);
-			FileCommands.copyFile(input.externaldef, target, StandardCopyOption.COPY_ATTRIBUTES);
+	    final String externalDef = context.settings.externalDef();
+		if (externalDef != null) {
+		    final File externalDefFile = new File(externalDef);
+			File target = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.sdfModule + ".def"));
+			require(externalDefFile, LastModifiedStamper.instance);
+			FileCommands.copyFile(externalDefFile, target, StandardCopyOption.COPY_ATTRIBUTES);
 			provide(target);
 		}
 		return None.val;

@@ -3,6 +3,8 @@ package build.pluto.buildspoofax.builders;
 import java.io.File;
 import java.io.IOException;
 
+import org.metaborg.util.file.FileUtils;
+
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
@@ -20,15 +22,14 @@ public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, OutputPersisted<F
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -2379365089609792204L;
-		public final String sdfmodule;
-		public final String buildSdfImports;
-		public final File externaldef;
 
-		public Input(SpoofaxContext context, String sdfmodule, String buildSdfImports, File externaldef) {
+		final String sdfModule;
+		final String sdfArgs;
+		
+		public Input(SpoofaxContext context, String sdfModule, String sdfArgs) {
 			super(context);
-			this.sdfmodule = sdfmodule;
-			this.buildSdfImports = buildSdfImports;
-			this.externaldef = externaldef;
+			this.sdfModule = sdfModule;
+			this.sdfArgs = sdfArgs;
 		}
 	}
 	
@@ -43,22 +44,22 @@ public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, OutputPersisted<F
 	
 	@Override
 	protected File persistentPath(Input input) {
-		return context.depPath("sdf2Table." + input.sdfmodule + ".dep");
+		return context.depPath("sdf2Table." + input.sdfModule + ".dep");
 	}
 
 	@Override
 	public OutputPersisted<File> build(Input input) throws IOException {
-		requireBuild(MakePermissive.factory, new MakePermissive.Input(context, input.sdfmodule, input.buildSdfImports, input.externaldef));
+		requireBuild(MakePermissive.factory, new MakePermissive.Input(context, input.sdfModule, input.sdfArgs));
 		Sdf2TablePrepareExecutable.Output commands = requireBuild(Sdf2TablePrepareExecutable.factory, input);
 		
-		File inputPath = context.basePath("${include}/" + input.sdfmodule + "-Permissive.def");
-		File outputPath = context.basePath("${include}/" + input.sdfmodule + ".tbl");
+		File inputPath = FileUtils.toFile(context.settings.getSdfCompiledPermissiveDefFile(input.sdfModule));
+		File outputPath = FileUtils.toFile(context.settings.getSdfCompiledTableFile(input.sdfModule));
 
 		require(inputPath);
 		ExecutionResult er = commands.sdf2table.run( 
 				"-t",
 				"-i", inputPath.getAbsolutePath(),
-				"-m", input.sdfmodule,
+				"-m", input.sdfModule,
 				"-o", outputPath.getAbsolutePath());
 		
 		provide(outputPath);

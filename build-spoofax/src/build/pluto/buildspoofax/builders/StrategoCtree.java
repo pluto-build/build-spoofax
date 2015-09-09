@@ -66,8 +66,7 @@ public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, OutputPer
 
 	@Override
 	public OutputPersisted<File> build(Input input) throws IOException {
-		BuildRequest<Rtg2Sig.Input, None, Rtg2Sig, ?> rtg2Sig = new BuildRequest<>(Rtg2Sig.factory, new Rtg2Sig.Input(context, input.sdfmodule,
-				input.buildSdfImports));
+		BuildRequest<Rtg2Sig.Input, None, Rtg2Sig, ?> rtg2Sig = new BuildRequest<>(Rtg2Sig.factory, new Rtg2Sig.Input(context, input.sdfmodule));
 
 		if (!context.isBuildStrategoEnabled(this)) {
 		    final String strategoModule = context.settings.strategoName();
@@ -76,17 +75,19 @@ public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, OutputPer
 
 		requireBuild(CopyJar.factory, new CopyJar.Input(context, input.externaljar));
 
-		File inputPath = FileUtils.toFile(context.settings.getStrategoMainFile());
-		File outputPath = FileUtils.toFile(context.settings.getStrategoCtreeFile());
+		File inputPath = FileUtils.toFile(context.settings.getStrMainFile());
+		File outputPath = FileUtils.toFile(context.settings.getStrCompiledCtreeFile());
+		File cacheDir = FileUtils.toFile(context.settings.getCacheDirectory());
 
-		// GTODO: get source paths from source path service
+		// TODO: get libraries from stratego arguments
+		// TODO: get source paths from source path service
 		File[] directoryIncludes = new File[] { context.baseDir, FileUtils.toFile(context.settings.getTransDirectory()), 
 		    FileUtils.toFile(context.settings.getLibDirectory()), FileUtils.toFile(context.settings.getIconsDirectory()), 
 		    input.externalDef };
 		requireBuild(
 				StrategoJavaCompiler.factory,
 				new StrategoJavaCompiler.Input(context, inputPath, outputPath, "trans", true, true, directoryIncludes, new String[] {
-				"stratego-lib", "stratego-sglr", "stratego-gpp", "stratego-xtc", "stratego-aterm", "stratego-sdf", "strc" }, context.basePath(".cache"),
+				"stratego-lib", "stratego-sglr", "stratego-gpp", "stratego-xtc", "stratego-aterm", "stratego-sdf", "strc" }, cacheDir,
 				ArrayUtils.arrayAdd("-F", input.externaljarflags.split("[\\s]+")), ArrayUtils.arrayAdd(rtg2Sig, input.requiredUnits)));
 
 		return OutputPersisted.of(outputPath);
