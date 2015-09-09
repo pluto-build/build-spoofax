@@ -4,17 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.metaborg.util.file.FileUtils;
 import org.strategoxt.strj.strj;
 import org.sugarj.common.FileCommands;
 
-import build.pluto.builder.BuildRequest;
-import build.pluto.builder.BuilderFactory;
 import build.pluto.buildjava.JavaBuilder;
 import build.pluto.buildjava.JavaInput;
 import build.pluto.buildspoofax.SpoofaxBuilder;

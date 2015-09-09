@@ -2,6 +2,7 @@ package build.pluto.buildspoofax;
 
 import build.pluto.builder.Builder;
 import build.pluto.builder.BuilderFactory;
+import build.pluto.builder.BuilderFactoryFactory;
 import build.pluto.output.Output;
 
 public interface SpoofaxBuilderFactory<In extends SpoofaxInput, Out extends Output, B extends Builder<In, Out>> extends
@@ -12,7 +13,7 @@ public interface SpoofaxBuilderFactory<In extends SpoofaxInput, Out extends Outp
 		class GeneratedSpoofaxBuilderFactory implements SpoofaxBuilderFactory<In, Out, B> {
 			private static final long serialVersionUID = -8054132810629331468L;
 
-			private BuilderFactory<In, Out, B> factory = BuilderFactory.of(builderClass, inputClass);
+			private BuilderFactory<In, Out, B> factory = BuilderFactoryFactory.of(builderClass, inputClass);
 
 			@Override
 			public B makeBuilder(In input) {

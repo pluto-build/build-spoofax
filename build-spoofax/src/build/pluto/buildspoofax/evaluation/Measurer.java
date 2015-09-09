@@ -20,14 +20,14 @@ public class Measurer {
 
 	private final File projectRoot;
 
-	private final BuildRequest req;
+	private final BuildRequest<?,?,?,?> req;
 
 	public Measurer(EvaluationMeasurement measurement, Main.Input input) {
 		BuildManager.ASSERT_SERIALIZABLE = false;
 		this.measurement = measurement;
 		numTries = EvaluationConfiguration.NUM_TRIES;
 		projectRoot = EvaluationConfiguration.PROJECT_ROOT;
-		req = new BuildRequest(Main.factory, input);
+		req = new BuildRequest<>(Main.factory, input);
 	}
 
 	public MeasurementResult measure() throws IOException {

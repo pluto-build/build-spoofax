@@ -16,7 +16,6 @@ import build.pluto.BuildUnit;
 import build.pluto.BuildUnit.ModuleVisitor;
 import build.pluto.builder.BuildManagers;
 import build.pluto.builder.BuildRequest;
-import build.pluto.buildspoofax.builders.Clean;
 import build.pluto.dependency.FileRequirement;
 import build.pluto.dependency.Requirement;
 import build.pluto.stamp.Stamper;
@@ -32,11 +31,11 @@ public class EclipseBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) {
 		File projectPath = getProject().getProjectRelativePath().toFile();
-		SpoofaxContext context = SpoofaxContext.makeContext(projectPath);
-		SpoofaxInput input = new SpoofaxInput(context);
+		// TODO get guice injector and project settings
+		Main.Input input = new Main.Input(null, null);
 
 		try {
-			BuildManagers.build(new BuildRequest<>(Main.factory, new Main.Input(projectPath)));
+			BuildManagers.build(new BuildRequest<>(Main.factory, input)));
 //			logFileStatistics(new BuildRequest<>(All.factory, input));
 		} finally {
 			monitor.done();
