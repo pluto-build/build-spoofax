@@ -17,6 +17,7 @@ import org.metaborg.core.transform.CompileGoal;
 import org.metaborg.spoofax.core.build.ISpoofaxBuilder;
 import org.metaborg.spoofax.core.project.settings.SpoofaxProjectSettings;
 import org.metaborg.spoofax.core.resource.SpoofaxIgnoresSelector;
+import org.metaborg.util.file.FileUtils;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -24,31 +25,43 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
+import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
 
 import com.google.inject.Injector;
 
-public class CompileSpoofaxPrograms extends SpoofaxBuilder<SpoofaxInput, None> {
+public class CompileSpoofaxPrograms extends SpoofaxBuilder<CompileSpoofaxPrograms.Input, None> {
     private static final ILogger logger = LoggerUtils.logger(CompileSpoofaxPrograms.class);
 
-    public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileSpoofaxPrograms> factory = SpoofaxBuilderFactoryFactory.of(
-        CompileSpoofaxPrograms.class, SpoofaxInput.class);
+    public static SpoofaxBuilderFactory<Input, None, CompileSpoofaxPrograms> factory = SpoofaxBuilderFactoryFactory.of(
+        CompileSpoofaxPrograms.class, Input.class);
 
-    public CompileSpoofaxPrograms(SpoofaxInput input) {
+    
+    public static class Input extends SpoofaxInput {
+        private static final long serialVersionUID = -6664040135203547324L;
+
+        public Input(SpoofaxContext context) {
+            super(context);
+        }
+    }
+
+    
+    public CompileSpoofaxPrograms(Input input) {
         super(input);
+        // TODO Auto-generated constructor stub
     }
 
 
-    @Override protected String description(SpoofaxInput input) {
+    @Override protected String description(Input input) {
         return "Compiling Spoofax programs";
     }
 
-    @Override protected File persistentPath(SpoofaxInput input) {
+    @Override protected File persistentPath(Input input) {
         return context.depPath("compile.spoofax.programs.dep");
     }
 
-    @Override protected None build(SpoofaxInput input) throws Throwable {
+    @Override protected None build(Input input) throws Throwable {
         final Injector injector = context.injector;
         final SpoofaxProjectSettings settings = context.settings;
         final ISpoofaxBuilder builder = injector.getInstance(ISpoofaxBuilder.class);
@@ -75,6 +88,8 @@ public class CompileSpoofaxPrograms extends SpoofaxBuilder<SpoofaxInput, None> {
 
         final IBuildOutput<IStrategoTerm, IStrategoTerm, IStrategoTerm> output =
             builder.build(buildInput, new NullProgressReporter(), new CancellationToken());
+        
+        provide(FileUtils.toFile(context.settings.getPackedEsv()));
 
         return None.val;
     }

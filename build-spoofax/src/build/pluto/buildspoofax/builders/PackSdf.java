@@ -69,7 +69,7 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	    }
 
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/src-gen/syntax/TemplateLang.sdf'.
-		requireBuild(CompileSpoofaxPrograms.factory, input);
+		requireBuild(CompileSpoofaxPrograms.factory, new CompileSpoofaxPrograms.Input(context));
 		
 		copySdf2();
 		

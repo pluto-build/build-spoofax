@@ -24,16 +24,16 @@ public class SpoofaxContext implements Serializable {
 
     public final static boolean BETTER_STAMPERS = true;
 
-    public final File baseDir;
-    public final File depDir;
-
-    public final SpoofaxProjectSettings settings;
-    public transient final IProject project;
-    
     public static Injector injector;
     public static IResourceService resourceService;
     public static ILanguagePathService languagePathService;
     public static IProjectService projectService;
+    
+    public final SpoofaxProjectSettings settings;
+    public final File baseDir;
+    public final File depDir;
+    
+    public transient IProject project;
     
 
     public static void init(Injector injector) {
@@ -58,6 +58,10 @@ public class SpoofaxContext implements Serializable {
 
         this.settings = settings;
         this.project = projectService.get(settings.location());
+    }
+    
+    public void init(SpoofaxProjectSettings settings) {
+        
     }
 
 
@@ -89,5 +93,6 @@ public class SpoofaxContext implements Serializable {
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
         in.defaultReadObject();
         settings.initAfterDeserialization(resourceService);
+        this.project = projectService.get(settings.location());
     }
 }

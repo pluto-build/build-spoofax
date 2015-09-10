@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.metaborg.spoofax.core.project.settings.Format;
 import org.metaborg.spoofax.core.project.settings.SpoofaxProjectSettings;
 import org.metaborg.util.file.FileUtils;
 import org.sugarj.common.FileCommands;
@@ -43,7 +44,7 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 	
 	@Override
 	public None build(SpoofaxInput input) throws IOException {
-	    requireBuild(CompileSpoofaxPrograms.factory, input);
+	    requireBuild(CompileSpoofaxPrograms.factory, new CompileSpoofaxPrograms.Input(context));
 	    
 	    final SpoofaxProjectSettings settings = context.settings;
 	    
@@ -81,39 +82,40 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		BuildRequest<SpoofaxInput,None,CompileJavaCode,?> compileJavaCode = new BuildRequest<>(CompileJavaCode.factory, input);
 		requireBuild(compileJavaCode);
 		
-		javaJar(compileJavaCode);
+        if(context.isJavaJarEnabled(this)) {
+            final File buildDir = FileUtils.toFile(context.settings.getClassesDirectory());
+            // TODO: get javajar-includes from project settings?
+            // String[] paths = context.props.getOrElse("javajar-includes",
+            // context.settings.packageStrategiesPath()).split("[\\s]+");
+            final String[] paths = new String[] { context.settings.packageStrategiesPath() };
+            final File output = FileUtils.toFile(context.settings.getStrCompiledJavaJarFile());
+            jar(buildDir, paths, output, new BuildRequest<?, ?, ?, ?>[] { compileJavaCode });
+        }
+        
+        if(context.settings.format() == Format.jar) {
+            final File buildDir = FileUtils.toFile(context.settings.getClassesDirectory());
+            final String[] paths = new String[] { context.settings.getStrJavaTransDirectory().getName().getPath() };
+            final File output = FileUtils.toFile(context.settings.getStrCompiledJarFile());
+            jar(buildDir, paths, output, new BuildRequest<?, ?, ?, ?>[] { compileJavaCode });
+        }
 		
 		return None.val;
 	}
 
-	private void javaJar(BuildRequest<?,?,?,?> compileJavaCode) throws IOException {
-		if (!context.isJavaJarEnabled(this))
-			return;
-		
-		File buildDir = FileUtils.toFile(context.settings.getClassesDirectory());
-		// TODO: get javajar-includes from project settings
-		//String[] sfiles = context.props.getOrElse("javajar-includes", context.settings.packageStrategiesPath()).split("[\\s]+");
-		String[] sfiles = new String[]{context.settings.packageStrategiesPath()};
+	private void jar(File buildDir, String[] paths, File output, BuildRequest<?,?,?,?>[] requirements) throws IOException {
 		Map<File, Set<File>> files = new HashMap<>();
 		Set<File> relativeFiles = new HashSet<>();
 		Set<File> absoluteFiles = new HashSet<>();
-		for (int i = 0; i < sfiles.length; i++) {
-			if (FileCommands.acceptableAsAbsolute(sfiles[i]))
-				absoluteFiles.add(new File(sfiles[i]));
+		for (int i = 0; i < paths.length; i++) {
+			if (FileCommands.acceptableAsAbsolute(paths[i]))
+				absoluteFiles.add(new File(paths[i]));
 			else
-				relativeFiles.add(new File(buildDir, sfiles[i]));
+				relativeFiles.add(new File(buildDir, paths[i]));
 		}
 		files.put(buildDir, relativeFiles);
 		files.put(new File(""), absoluteFiles);
 		
-		File jarPath = FileUtils.toFile(context.settings.getStrCompiledJavaJarFile());
-		requireBuild(JavaJar.factory, 
-				new JavaJar.Input(
-						JavaJar.Mode.CreateOrUpdate,
-						jarPath,
-						null,
-						files, 
-						new BuildRequest<?,?,?,?>[] {compileJavaCode}));
+        requireBuild(JavaJar.factory, new JavaJar.Input(JavaJar.Mode.CreateOrUpdate, output, null, files, requirements));
 	}
 }
 

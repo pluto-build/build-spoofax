@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.StringCommands;
 
@@ -19,6 +20,8 @@ import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
+import build.pluto.stamp.FileHashStamper;
+import build.pluto.stamp.LastModifiedStamper;
 
 public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.Input, None> {
 
@@ -29,6 +32,7 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 
 		public final File inputPath;
 		public final File outputPath;
+		public final File depPath;
 		public final String packageName;
 		public final boolean library;
 		public final boolean clean;
@@ -38,11 +42,12 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 		public final String[] additionalArgs;
 		public final BuildRequest<?, ?, ?, ?>[] requiredUnits;
 
-		public Input(SpoofaxContext context, File inputPath, File outputPath, String packageName, boolean library, boolean clean,
+		public Input(SpoofaxContext context, File inputPath, File outputPath, File depPath, String packageName, boolean library, boolean clean,
 				File[] directoryIncludes, String[] libraryIncludes, File cacheDir, String[] additionalArgs, BuildRequest<?, ?, ?, ?>[] requiredUnits) {
 			super(context);
 			this.inputPath = inputPath;
 			this.outputPath = outputPath;
+			this.depPath = depPath;
 			this.packageName = packageName;
 			this.library = library;
 			this.clean = clean;
@@ -87,7 +92,7 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 				directoryIncludes.append("-I ").append(dir).append(" ");
 		StringBuilder libraryIncludes = new StringBuilder();
 		for (String lib : input.libraryIncludes)
-			if (lib != null && lib.isEmpty())
+			if (lib != null && !lib.isEmpty())
 				directoryIncludes.append("-la ").append(lib).append(" ");
 
 		ExecutionResult er = StrategoExecutor.runStrategoCLI(
@@ -100,7 +105,13 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 				libraryIncludes, input.cacheDir != null ? "--cache-dir " + input.cacheDir : "", StringCommands.printListSeparated(input.additionalArgs, " "));
 		FileCommands.delete(rtree);
 
-		provide(input.outputPath);
+        if(input.depPath.isDirectory()) {
+            for(Path sourceFile : FileCommands.listFilesRecursive(input.depPath.toPath())) {
+                provide(sourceFile.toFile());
+            }
+        } else {
+            provide(input.depPath);
+        }
 		provide(rtree);
 		provide(strdep);
 

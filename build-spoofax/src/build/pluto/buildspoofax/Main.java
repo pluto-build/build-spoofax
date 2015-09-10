@@ -41,7 +41,6 @@ public class Main extends SpoofaxBuilder<Main.Input, None> {
 	@Override
 	public None build(Input input) throws IOException {
 	    requireBuild(SpoofaxGenerator.factory, input);
-	    Log.log.setLoggingLevel(Log.ALWAYS);
 	    
 	    // TODO: this is not generic, get rid of this build step
 		File ppInput = FileUtils.toFile(context.settings.getLibDirectory().resolveFile("EditorService-pretty.pp"));

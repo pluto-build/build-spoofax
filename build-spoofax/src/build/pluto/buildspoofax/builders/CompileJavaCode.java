@@ -64,18 +64,9 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
 			sourcePath.add(p);
 
-			// TODO soundly select non-Eclipse files
 			for (Path sourceFile : FileCommands.listFilesRecursive(p.toPath(), new SuffixFileFilter("java"))) {
-
-				if (sourceFile.toString().contains("ParseController") || sourceFile.toString().contains("Validator"))
-					continue;
-
-
-				String content = FileCommands.readFileAsString(sourceFile.toFile());
-				if (!content.contains("org.eclipse")) {
-					sourceFiles.add(sourceFile.toFile());
-					require(sourceFile.toFile());
-				}
+				sourceFiles.add(sourceFile.toFile());
+				require(sourceFile.toFile());
 			}
 		}
 
