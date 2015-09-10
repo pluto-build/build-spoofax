@@ -15,6 +15,7 @@ import build.pluto.BuildUnit.State;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
@@ -29,7 +30,7 @@ import com.google.common.base.Joiner;
 
 public class PPGen extends SpoofaxBuilder<PPGen.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, PPGen> factory = SpoofaxBuilderFactory.of(PPGen.class, PPGen.Input.class);
+	public static SpoofaxBuilderFactory<Input, None, PPGen> factory = SpoofaxBuilderFactoryFactory.of(PPGen.class, PPGen.Input.class);
 	
 	public static class Input extends SpoofaxInput {
         private static final long serialVersionUID = -6752720592940603183L;
@@ -60,6 +61,8 @@ public class PPGen extends SpoofaxBuilder<PPGen.Input, None> {
 	public None build(Input input) throws IOException {
 		if (!context.isBuildStrategoEnabled(this))
 			return None.val;
+		
+		
 		
 		BuildRequest<PackSdf.Input,None,PackSdf,?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context, input.sdfModule, Joiner.on(' ').join(context.settings.sdfArgs())));
 		requireBuild(packSdf);

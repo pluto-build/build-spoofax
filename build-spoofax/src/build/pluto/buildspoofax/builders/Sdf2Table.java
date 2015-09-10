@@ -8,6 +8,7 @@ import org.metaborg.util.file.FileUtils;
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
@@ -17,7 +18,7 @@ import build.pluto.output.OutputPersisted;
 public class Sdf2Table extends SpoofaxBuilder<Sdf2Table.Input, OutputPersisted<File>> {
 
 
-	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, Sdf2Table> factory = SpoofaxBuilderFactory.of(Sdf2Table.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, Sdf2Table> factory = SpoofaxBuilderFactoryFactory.of(Sdf2Table.class, Input.class);
 	
 
 	public static class Input extends SpoofaxInput {

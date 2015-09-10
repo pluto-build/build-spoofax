@@ -13,6 +13,7 @@ import org.sugarj.common.FileCommands;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
@@ -27,7 +28,7 @@ import com.google.common.base.Joiner;
 
 public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Sdf2Parenthesize> factory = SpoofaxBuilderFactory.of(Sdf2Parenthesize.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, None, Sdf2Parenthesize> factory = SpoofaxBuilderFactoryFactory.of(Sdf2Parenthesize.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6177130857266733408L;
@@ -56,7 +57,6 @@ public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, Non
 
 	@Override
 	public None build(Input input) throws IOException {
-		requireBuild(CopySdf.factory, new CopySdf.Input(context, input.sdfModule));
 		BuildRequest<PackSdf.Input, None, PackSdf, ?> packSdf = new BuildRequest<>(PackSdf.factory, new PackSdf.Input(context, input.sdfModule, Joiner.on(' ').join(context.settings.sdfArgs())));
 		requireBuild(packSdf);
 		

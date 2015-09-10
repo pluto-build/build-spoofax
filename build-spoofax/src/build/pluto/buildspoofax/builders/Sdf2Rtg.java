@@ -12,6 +12,7 @@ import build.pluto.BuildUnit.State;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
@@ -26,7 +27,7 @@ import com.google.common.base.Joiner;
 
 public class Sdf2Rtg extends SpoofaxBuilder<Sdf2Rtg.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Sdf2Rtg> factory = SpoofaxBuilderFactory.of(Sdf2Rtg.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, None, Sdf2Rtg> factory = SpoofaxBuilderFactoryFactory.of(Sdf2Rtg.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -4487049822305558202L;

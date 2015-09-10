@@ -10,13 +10,14 @@ import org.metaborg.util.file.FileAccess;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
 
 import com.google.inject.Injector;
 
 public class SpoofaxGenerator extends SpoofaxBuilder<SpoofaxInput, None> {
-    public static SpoofaxBuilderFactory<SpoofaxInput, None, SpoofaxGenerator> factory = SpoofaxBuilderFactory.of(
+    public static SpoofaxBuilderFactory<SpoofaxInput, None, SpoofaxGenerator> factory = SpoofaxBuilderFactoryFactory.of(
         SpoofaxGenerator.class, SpoofaxInput.class);
 
     public SpoofaxGenerator(SpoofaxInput input) {

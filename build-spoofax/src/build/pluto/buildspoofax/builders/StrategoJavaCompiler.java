@@ -12,6 +12,7 @@ import build.pluto.BuildUnit.State;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
@@ -21,7 +22,7 @@ import build.pluto.output.None;
 
 public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, StrategoJavaCompiler> factory = SpoofaxBuilderFactory.of(StrategoJavaCompiler.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, None, StrategoJavaCompiler> factory = SpoofaxBuilderFactoryFactory.of(StrategoJavaCompiler.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -5234502421638344690L;
@@ -118,6 +119,7 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 													// the generated ctree file
 			String line = lines[i];
 			File p = new File(line);
+			// TODO: there can be dependencies outside of the project, then this does not work any more?
 			Path prel = FileCommands.getRelativePath(context.baseDir, p);
 			require(prel != null ? prel.toFile() : p);
 		}

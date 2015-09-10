@@ -10,6 +10,7 @@ import org.sugarj.common.FileCommands;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
@@ -21,7 +22,7 @@ import build.pluto.stamp.Stamper;
 
 public class ParseSdfDefinition extends SpoofaxBuilder<ParseSdfDefinition.Input, OutputPersisted<IStrategoTerm>> {
 	
-	public final static SpoofaxBuilderFactory<Input, OutputPersisted<IStrategoTerm>, ParseSdfDefinition> factory = SpoofaxBuilderFactory.of(ParseSdfDefinition.class,
+	public final static SpoofaxBuilderFactory<Input, OutputPersisted<IStrategoTerm>, ParseSdfDefinition> factory = SpoofaxBuilderFactoryFactory.of(ParseSdfDefinition.class,
 			Input.class);
 	
 	public static class Input extends SpoofaxInput {

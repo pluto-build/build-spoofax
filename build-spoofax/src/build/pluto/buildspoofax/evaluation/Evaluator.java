@@ -22,8 +22,10 @@ public class Evaluator {
 	}
 
 	private double calculateTime(List<Long> times) {
-		double average = times.stream().mapToLong((Long l) -> l).skip(EvaluationConfiguration.NUM_DROP_FIRST).average().getAsDouble();
-		return average;
+		long sum = 0l;
+		for(int i = EvaluationConfiguration.NUM_DROP_FIRST + 1; i < times.size(); i++)
+		    sum += times.get(i);
+		return ((double) sum) / (times.size() - EvaluationConfiguration.NUM_DROP_FIRST);
 	}
 
 	public static void main(String[] args) throws IOException {

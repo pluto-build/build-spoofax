@@ -15,6 +15,7 @@ import build.pluto.builder.BuildRequest;
 import build.pluto.buildjava.JavaJar;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
 
@@ -22,7 +23,7 @@ import com.google.common.base.Joiner;
 
 public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, SpoofaxDefaultCtree> factory = SpoofaxBuilderFactory.of(SpoofaxDefaultCtree.class,
+	public static SpoofaxBuilderFactory<SpoofaxInput, None, SpoofaxDefaultCtree> factory = SpoofaxBuilderFactoryFactory.of(SpoofaxDefaultCtree.class,
 			SpoofaxInput.class);
 	
 
@@ -42,6 +43,8 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 	
 	@Override
 	public None build(SpoofaxInput input) throws IOException {
+	    requireBuild(CompileSpoofaxPrograms.factory, input);
+	    
 	    final SpoofaxProjectSettings settings = context.settings;
 	    
 		String sdfModule = settings.sdfName();
@@ -59,7 +62,7 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		File ppPackInputPath = FileUtils.toFile(settings.getPpFile(sdfModule));
 		File ppPackOutputPath = FileUtils.toFile(settings.getPpAfCompiledFile(sdfModule));
 		requireBuild(PPPack.factory, new PPPack.Input(context, ppPackInputPath, ppPackOutputPath, true));
-
+		
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang-parenthesize.str'.
 		BuildRequest<Sdf2Parenthesize.Input,None,Sdf2Parenthesize,?> sdf2Parenthesize = new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfModule));
 

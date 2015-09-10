@@ -15,12 +15,13 @@ import build.pluto.buildjava.JavaBuilder;
 import build.pluto.buildjava.JavaInput;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
 
 public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileJavaCode> factory = SpoofaxBuilderFactory.of(CompileJavaCode.class, SpoofaxInput.class);
+	public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileJavaCode> factory = SpoofaxBuilderFactoryFactory.of(CompileJavaCode.class, SpoofaxInput.class);
 
 	public CompileJavaCode(SpoofaxInput input) {
 		super(input);

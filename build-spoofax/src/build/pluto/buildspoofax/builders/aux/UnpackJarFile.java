@@ -7,6 +7,7 @@ import org.sugarj.common.FileCommands;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.OutputPersisted;
@@ -14,7 +15,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class UnpackJarFile extends SpoofaxBuilder<UnpackJarFile.Input, OutputPersisted<File>> {
 
-	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, UnpackJarFile> factory = SpoofaxBuilderFactory.of(UnpackJarFile.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, UnpackJarFile> factory = SpoofaxBuilderFactoryFactory.of(UnpackJarFile.class, Input.class);
 	
 
 	public static class Input extends SpoofaxInput {

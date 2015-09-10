@@ -3,6 +3,9 @@ package build.pluto.buildspoofax;
 import java.io.File;
 import java.io.Serializable;
 
+import org.metaborg.core.build.paths.ILanguagePathService;
+import org.metaborg.core.project.IProject;
+import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.core.project.settings.SpoofaxProjectSettings;
 import org.metaborg.util.file.FileUtils;
@@ -19,21 +22,30 @@ public class SpoofaxContext implements Serializable {
 
     public final static boolean BETTER_STAMPERS = true;
 
-    public transient final SpoofaxProjectSettings settings;
+    // TODO: settings should not be transient, need custom hash/equals/externalizeable
     public final File baseDir;
     public final File depDir;
 
     public transient final Injector injector;
     public transient final IResourceService resourceService;
+    public transient final ILanguagePathService languagePathService;
+    public transient final IProjectService projectService;
+    
+    public transient final SpoofaxProjectSettings settings;
+    public transient final IProject project;
 
 
     public SpoofaxContext(Injector injector, SpoofaxProjectSettings settings) {
-        this.settings = settings;
         this.baseDir = FileUtils.toFile(settings.location());
         this.depDir = FileUtils.toFile(settings.getBuildDirectory());
 
         this.injector = injector;
         this.resourceService = injector.getInstance(IResourceService.class);
+        this.languagePathService = injector.getInstance(ILanguagePathService.class);
+        this.projectService = injector.getInstance(IProjectService.class);
+        
+        this.settings = settings;
+        this.project = projectService.get(settings.location());
     }
 
 

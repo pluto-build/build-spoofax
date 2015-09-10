@@ -10,6 +10,7 @@ import org.sugarj.common.FileCommands;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
@@ -20,7 +21,7 @@ import com.google.common.base.Joiner;
 
 public class MetaSdf2Table extends SpoofaxBuilder<MetaSdf2Table.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, MetaSdf2Table> factory = SpoofaxBuilderFactory.of(MetaSdf2Table.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, None, MetaSdf2Table> factory = SpoofaxBuilderFactoryFactory.of(MetaSdf2Table.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -3179663405417276186L;

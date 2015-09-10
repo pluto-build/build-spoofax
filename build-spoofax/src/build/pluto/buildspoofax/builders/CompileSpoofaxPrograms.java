@@ -23,6 +23,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
 
@@ -31,7 +32,7 @@ import com.google.inject.Injector;
 public class CompileSpoofaxPrograms extends SpoofaxBuilder<SpoofaxInput, None> {
     private static final ILogger logger = LoggerUtils.logger(CompileSpoofaxPrograms.class);
 
-    public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileSpoofaxPrograms> factory = SpoofaxBuilderFactory.of(
+    public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileSpoofaxPrograms> factory = SpoofaxBuilderFactoryFactory.of(
         CompileSpoofaxPrograms.class, SpoofaxInput.class);
 
     public CompileSpoofaxPrograms(SpoofaxInput input) {

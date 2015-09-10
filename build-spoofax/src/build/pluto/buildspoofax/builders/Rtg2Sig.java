@@ -9,6 +9,7 @@ import org.strategoxt.tools.main_rtg2sig_0_0;
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
@@ -18,7 +19,7 @@ import build.pluto.output.None;
 
 public class Rtg2Sig extends SpoofaxBuilder<Rtg2Sig.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, Rtg2Sig> factory = SpoofaxBuilderFactory.of(Rtg2Sig.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, None, Rtg2Sig> factory = SpoofaxBuilderFactoryFactory.of(Rtg2Sig.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -8305692591357842018L;
@@ -53,7 +54,7 @@ public class Rtg2Sig extends SpoofaxBuilder<Rtg2Sig.Input, None> {
 			requireBuild(Sdf2Rtg.factory, new Sdf2Rtg.Input(context, input.sdfModule));
 
 			File inputPath = FileUtils.toFile(context.settings.getRtgFile(input.sdfModule));
-			File outputPath = FileUtils.toFile(context.settings.getSdfCompiledSigFile(input.sdfModule));
+			File outputPath = FileUtils.toFile(context.settings.getStrCompiledSigFile(input.sdfModule));
 			
 			require(inputPath);
 			ExecutionResult er = StrategoExecutor.runStrategoCLI(StrategoExecutor.toolsContext(), 

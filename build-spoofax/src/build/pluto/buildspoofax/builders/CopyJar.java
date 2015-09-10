@@ -10,6 +10,7 @@ import org.sugarj.common.FileCommands;
 
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
@@ -17,7 +18,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class CopyJar extends SpoofaxBuilder<CopyJar.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, CopyJar> factory = SpoofaxBuilderFactory.of(CopyJar.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, None, CopyJar> factory = SpoofaxBuilderFactoryFactory.of(CopyJar.class, Input.class);
 	
 
 	public static class Input extends SpoofaxInput {

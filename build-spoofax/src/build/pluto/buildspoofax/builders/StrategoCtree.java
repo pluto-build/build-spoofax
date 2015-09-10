@@ -2,13 +2,18 @@ package build.pluto.buildspoofax.builders;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 
+import org.apache.commons.vfs2.FileObject;
+import org.metaborg.spoofax.core.SpoofaxProjectConstants;
 import org.metaborg.util.file.FileUtils;
 import org.sugarj.common.util.ArrayUtils;
 
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
@@ -16,9 +21,12 @@ import build.pluto.output.OutputPersisted;
 import build.pluto.stamp.LastModifiedStamper;
 import build.pluto.stamp.Stamper;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
 public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, OutputPersisted<File>> {
 
-	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, StrategoCtree> factory = SpoofaxBuilderFactory.of(StrategoCtree.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, OutputPersisted<File>, StrategoCtree> factory = SpoofaxBuilderFactoryFactory.of(StrategoCtree.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 6323245405121428720L;
@@ -79,16 +87,25 @@ public class StrategoCtree extends SpoofaxBuilder<StrategoCtree.Input, OutputPer
 		File outputPath = FileUtils.toFile(context.settings.getStrCompiledCtreeFile());
 		File cacheDir = FileUtils.toFile(context.settings.getCacheDirectory());
 
+		final Collection<String> extraArgs = Lists.newLinkedList();
+		extraArgs.add("-F");
+		if(input.externaljarflags != null) {
+		    Collections.addAll(extraArgs, input.externaljarflags.split("[\\s]+"));
+		}
+		
+		final Iterable<FileObject> paths = context.languagePathService.sourceAndIncludePaths(context.project, SpoofaxProjectConstants.LANG_STRATEGO_NAME);
+		final Collection<File> includeDirs = Lists.newLinkedList();
+        for(FileObject path : paths) {
+            File file = context.resourceService.localFile(path);
+            includeDirs.add(file);
+        }
+		
 		// TODO: get libraries from stratego arguments
-		// TODO: get source paths from source path service
-		File[] directoryIncludes = new File[] { context.baseDir, FileUtils.toFile(context.settings.getTransDirectory()), 
-		    FileUtils.toFile(context.settings.getLibDirectory()), FileUtils.toFile(context.settings.getIconsDirectory()), 
-		    input.externalDef };
 		requireBuild(
 				StrategoJavaCompiler.factory,
-				new StrategoJavaCompiler.Input(context, inputPath, outputPath, "trans", true, true, directoryIncludes, new String[] {
+				new StrategoJavaCompiler.Input(context, inputPath, outputPath, "trans", true, true, Iterables.toArray(includeDirs, File.class), new String[] {
 				"stratego-lib", "stratego-sglr", "stratego-gpp", "stratego-xtc", "stratego-aterm", "stratego-sdf", "strc" }, cacheDir,
-				ArrayUtils.arrayAdd("-F", input.externaljarflags.split("[\\s]+")), ArrayUtils.arrayAdd(rtg2Sig, input.requiredUnits)));
+				extraArgs.toArray(new String[0]), ArrayUtils.arrayAdd(rtg2Sig, input.requiredUnits)));
 
 		return OutputPersisted.of(outputPath);
 	}

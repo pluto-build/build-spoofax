@@ -16,6 +16,7 @@ import org.sugarj.common.FileCommands;
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
@@ -26,7 +27,7 @@ import build.pluto.stamp.LastModifiedStamper;
 
 public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	
-	public static SpoofaxBuilderFactory<Input, None, PackSdf> factory = SpoofaxBuilderFactory.of(PackSdf.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, None, PackSdf> factory = SpoofaxBuilderFactoryFactory.of(PackSdf.class, Input.class);
 
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 2058684747897720328L;
@@ -57,6 +58,16 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	
 	@Override
 	public None build(Input input) throws IOException {
+	    final String externalDef = context.settings.externalDef(); 
+	    if(externalDef != null) {
+            final File externalDefFile = new File(externalDef);
+            File target = FileUtils.toFile(context.settings.getOutputDirectory().resolveFile(input.sdfModule + ".def"));
+            require(externalDefFile, LastModifiedStamper.instance);
+            FileCommands.copyFile(externalDefFile, target, StandardCopyOption.COPY_ATTRIBUTES);
+            provide(target);
+            return None.val;
+	    }
+
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/src-gen/syntax/TemplateLang.sdf'.
 		requireBuild(CompileSpoofaxPrograms.factory, input);
 		

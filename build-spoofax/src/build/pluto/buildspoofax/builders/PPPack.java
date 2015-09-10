@@ -11,6 +11,7 @@ import org.sugarj.common.FileCommands;
 import build.pluto.BuildUnit.State;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
+import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.buildspoofax.StrategoExecutor;
@@ -22,7 +23,7 @@ import com.google.common.base.Joiner;
 
 public class PPPack extends SpoofaxBuilder<PPPack.Input, None> {
 
-	public static SpoofaxBuilderFactory<Input, None, PPPack> factory = SpoofaxBuilderFactory.of(PPPack.class, Input.class);
+	public static SpoofaxBuilderFactory<Input, None, PPPack> factory = SpoofaxBuilderFactoryFactory.of(PPPack.class, Input.class);
 	
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = -5786344696509159033L;
