@@ -1,6 +1,8 @@
 package build.pluto.buildspoofax;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 import org.metaborg.core.build.paths.ILanguagePathService;
@@ -22,28 +24,38 @@ public class SpoofaxContext implements Serializable {
 
     public final static boolean BETTER_STAMPERS = true;
 
-    // TODO: settings should not be transient, need custom hash/equals/externalizeable
     public final File baseDir;
     public final File depDir;
 
-    public transient final Injector injector;
-    public transient final IResourceService resourceService;
-    public transient final ILanguagePathService languagePathService;
-    public transient final IProjectService projectService;
-    
-    public transient final SpoofaxProjectSettings settings;
+    public final SpoofaxProjectSettings settings;
     public transient final IProject project;
+    
+    public static Injector injector;
+    public static IResourceService resourceService;
+    public static ILanguagePathService languagePathService;
+    public static IProjectService projectService;
+    
 
-
-    public SpoofaxContext(Injector injector, SpoofaxProjectSettings settings) {
+    public static void init(Injector injector) {
+        if(SpoofaxContext.injector != null) {
+            throw new RuntimeException("Setting injector while it has already been set");
+        }
+        
+        SpoofaxContext.injector = injector;
+        resourceService = injector.getInstance(IResourceService.class);
+        languagePathService = injector.getInstance(ILanguagePathService.class);
+        projectService = injector.getInstance(IProjectService.class);
+    }
+    
+    
+    public SpoofaxContext(SpoofaxProjectSettings settings) {
+        if(SpoofaxContext.injector == null) {
+            throw new RuntimeException("Creating context while injector has not been set");
+        }
+        
         this.baseDir = FileUtils.toFile(settings.location());
         this.depDir = FileUtils.toFile(settings.getBuildDirectory());
 
-        this.injector = injector;
-        this.resourceService = injector.getInstance(IResourceService.class);
-        this.languagePathService = injector.getInstance(ILanguagePathService.class);
-        this.projectService = injector.getInstance(IProjectService.class);
-        
         this.settings = settings;
         this.project = projectService.get(settings.location());
     }
@@ -71,5 +83,11 @@ public class SpoofaxContext implements Serializable {
         result.require(mainFile, SpoofaxContext.BETTER_STAMPERS ? FileExistsStamper.instance
             : LastModifiedStamper.instance);
         return FileCommands.exists(mainFile);
+    }
+    
+    
+    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+        in.defaultReadObject();
+        settings.initAfterDeserialization(resourceService);
     }
 }

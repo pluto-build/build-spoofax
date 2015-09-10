@@ -12,8 +12,6 @@ import build.pluto.buildspoofax.builders.SpoofaxDefaultCtree;
 import build.pluto.buildspoofax.builders.SpoofaxGenerator;
 import build.pluto.output.None;
 
-import com.google.inject.Injector;
-
 public class Main extends SpoofaxBuilder<Main.Input, None> {
 
 	public static SpoofaxBuilderFactory<Input, None, Main> factory = SpoofaxBuilderFactoryFactory.of(Main.class, Input.class);
@@ -21,8 +19,8 @@ public class Main extends SpoofaxBuilder<Main.Input, None> {
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 8115987062955840937L;
 		
-		public Input(Injector injector, SpoofaxProjectSettings settings) {
-		    super(new SpoofaxContext(injector, settings));
+		public Input(SpoofaxProjectSettings settings) {
+		    super(new SpoofaxContext(settings));
 		}
 	}
 	
