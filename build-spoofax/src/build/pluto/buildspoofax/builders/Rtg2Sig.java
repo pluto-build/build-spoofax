@@ -42,7 +42,7 @@ public class Rtg2Sig extends SpoofaxBuilder<Rtg2Sig.Input, None> {
 	}
 	
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		return context.depPath("rtg2Sig." + input.sdfModule + ".dep");
 	}
 

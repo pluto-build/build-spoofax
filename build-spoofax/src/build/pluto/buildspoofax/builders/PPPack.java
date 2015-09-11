@@ -55,7 +55,7 @@ public class PPPack extends SpoofaxBuilder<PPPack.Input, None> {
 	}
 	
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		Path rel = FileCommands.getRelativePath(context.baseDir, input.ppTermOutput);
 		String relname = rel.toString().replace(File.separatorChar, '_');
 		return context.depPath("ppPack." + relname + ".dep");

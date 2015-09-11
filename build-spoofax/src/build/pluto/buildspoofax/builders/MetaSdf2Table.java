@@ -44,7 +44,7 @@ public class MetaSdf2Table extends SpoofaxBuilder<MetaSdf2Table.Input, None> {
 	}
 	
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		return context.depPath("metaSdf2Table." + input.metaModule + ".dep");
 	}
 

@@ -57,7 +57,8 @@ public class CompileSpoofaxPrograms extends SpoofaxBuilder<CompileSpoofaxProgram
         return "Compiling Spoofax programs";
     }
 
-    @Override protected File persistentPath(Input input) {
+    @Override
+    public File persistentPath(Input input) {
         return context.depPath("compile.spoofax.programs.dep");
     }
 

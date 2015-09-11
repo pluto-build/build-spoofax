@@ -51,7 +51,7 @@ public class Sdf2Parenthesize extends SpoofaxBuilder<Sdf2Parenthesize.Input, Non
 	}
 	
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		return context.depPath("sdf2Parenthesize." + input.sdfModule + ".dep");
 	}
 

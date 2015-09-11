@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import org.metaborg.spoofax.core.project.settings.SpoofaxProjectSettings;
 import org.metaborg.util.file.FileUtils;
-import org.sugarj.common.Log;
 
 import build.pluto.buildspoofax.builders.PPPack;
 import build.pluto.buildspoofax.builders.SpoofaxDefaultCtree;
@@ -19,8 +18,8 @@ public class Main extends SpoofaxBuilder<Main.Input, None> {
 	public static class Input extends SpoofaxInput {
 		private static final long serialVersionUID = 8115987062955840937L;
 		
-		public Input(SpoofaxProjectSettings settings) {
-		    super(new SpoofaxContext(settings));
+		public Input(SpoofaxProjectSettings settings, Iterable<String> javaClasspath) {
+		    super(new SpoofaxContext(settings, javaClasspath));
 		}
 	}
 	
@@ -34,7 +33,7 @@ public class Main extends SpoofaxBuilder<Main.Input, None> {
 	}
 	
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		return context.depPath("all.dep");
 	}
 	

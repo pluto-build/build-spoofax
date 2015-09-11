@@ -19,6 +19,7 @@ import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
+import build.pluto.output.OutputPersisted;
 
 import com.google.common.base.Joiner;
 
@@ -38,7 +39,7 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 	}
 
 	@Override
-	protected File persistentPath(SpoofaxInput input) {
+    public File persistentPath(SpoofaxInput input) {
 		return context.depPath("spoofaxDefault.dep");
 	}
 	
@@ -65,22 +66,19 @@ public class SpoofaxDefaultCtree extends SpoofaxBuilder<SpoofaxInput, None> {
 		requireBuild(PPPack.factory, new PPPack.Input(context, ppPackInputPath, ppPackOutputPath, true));
 		
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/include/TemplateLang-parenthesize.str'.
-		BuildRequest<Sdf2Parenthesize.Input,None,Sdf2Parenthesize,?> sdf2Parenthesize = new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfModule));
+        BuildRequest<Sdf2Parenthesize.Input, None, Sdf2Parenthesize, ?> sdf2Parenthesize =
+            new BuildRequest<>(Sdf2Parenthesize.factory, new Sdf2Parenthesize.Input(context, sdfModule));
 
-		requireBuild(StrategoCtree.factory,
-				new StrategoCtree.Input(
-						context,
-						sdfModule, 
-						sdfArgs, 
-						strModule, 
-						externalJar, 
-						externalJarFlags, 
-						externalDef,
-						new BuildRequest<?,?,?,?>[] {sdf2Parenthesize}));
+        BuildRequest<StrategoCtree.Input, OutputPersisted<File>, StrategoCtree, ?> strategoCtree =
+            new BuildRequest<>(StrategoCtree.factory, new StrategoCtree.Input(context, sdfModule, sdfArgs, strModule,
+                externalJar, externalJarFlags, externalDef, new BuildRequest<?, ?, ?, ?>[] { sdf2Parenthesize }));
+        requireBuild(strategoCtree);
 		
 		// This dependency was discovered by cleardep, due to an implicit dependency on 'org.strategoxt.imp.editors.template/editor/java/org/strategoxt/imp/editors/template/strategies/InteropRegisterer.class'.
-		BuildRequest<SpoofaxInput,None,CompileJavaCode,?> compileJavaCode = new BuildRequest<>(CompileJavaCode.factory, input);
-		requireBuild(compileJavaCode);
+        BuildRequest<CompileJavaCode.Input, None, CompileJavaCode, ?> compileJavaCode =
+            new BuildRequest<>(CompileJavaCode.factory, new CompileJavaCode.Input(context,
+                new BuildRequest<?, ?, ?, ?>[] { strategoCtree }));
+        requireBuild(compileJavaCode);
 		
         if(context.isJavaJarEnabled(this)) {
             final File buildDir = FileUtils.toFile(context.settings.getClassesDirectory());

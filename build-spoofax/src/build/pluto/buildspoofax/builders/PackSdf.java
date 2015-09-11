@@ -52,7 +52,7 @@ public class PackSdf extends SpoofaxBuilder<PackSdf.Input, None> {
 	}
 	
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		return context.depPath("packSdf." + input.sdfModule + ".dep");
 	}
 	

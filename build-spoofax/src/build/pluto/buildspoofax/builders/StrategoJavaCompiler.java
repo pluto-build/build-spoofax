@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.StringCommands;
 
@@ -20,8 +19,6 @@ import build.pluto.buildspoofax.StrategoExecutor;
 import build.pluto.buildspoofax.StrategoExecutor.ExecutionResult;
 import build.pluto.buildspoofax.util.LoggingFilteringIOAgent;
 import build.pluto.output.None;
-import build.pluto.stamp.FileHashStamper;
-import build.pluto.stamp.LastModifiedStamper;
 
 public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.Input, None> {
 
@@ -115,8 +112,9 @@ public class StrategoJavaCompiler extends SpoofaxBuilder<StrategoJavaCompiler.In
 		provide(rtree);
 		provide(strdep);
 
-		if (FileCommands.exists(strdep))
+		if (FileCommands.exists(strdep)) {
 			registerUsedPaths(strdep);
+		}
 
 		setState(State.finished(er.success));
 

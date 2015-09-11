@@ -53,7 +53,8 @@ public class Sdf2TablePrepareExecutable extends SpoofaxBuilder<SpoofaxInput, Sdf
         return "Prepare sdf2table exeuctable";
     }
 
-    @Override protected File persistentPath(SpoofaxInput input) {
+    @Override
+    public File persistentPath(SpoofaxInput input) {
         return context.depPath("sdf2Table.executable.dep");
     }
 

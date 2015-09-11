@@ -28,7 +28,8 @@ public class SpoofaxGenerator extends SpoofaxBuilder<SpoofaxInput, None> {
         return "Generating Spoofax project files";
     }
 
-    @Override protected File persistentPath(SpoofaxInput input) {
+    @Override
+    public File persistentPath(SpoofaxInput input) {
         return context.depPath("generator.dep");
     }
 

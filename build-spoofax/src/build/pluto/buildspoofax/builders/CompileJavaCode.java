@@ -11,34 +11,50 @@ import org.metaborg.util.file.FileUtils;
 import org.strategoxt.strj.strj;
 import org.sugarj.common.FileCommands;
 
-import build.pluto.buildjava.JavaBuilder;
+import build.pluto.builder.BuildRequest;
+import build.pluto.buildjava.JavaBulkBuilder;
 import build.pluto.buildjava.JavaInput;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
+import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
 
-public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
+import com.google.common.collect.Lists;
 
-	public static SpoofaxBuilderFactory<SpoofaxInput, None, CompileJavaCode> factory = SpoofaxBuilderFactoryFactory.of(CompileJavaCode.class, SpoofaxInput.class);
+public class CompileJavaCode extends SpoofaxBuilder<CompileJavaCode.Input, None> {
 
-	public CompileJavaCode(SpoofaxInput input) {
+	public static SpoofaxBuilderFactory<Input, None, CompileJavaCode> factory = SpoofaxBuilderFactoryFactory.of(CompileJavaCode.class, Input.class);
+
+	public static class Input extends SpoofaxInput {
+	    private static final long serialVersionUID = 2844209784723078635L;
+	    
+	    public final BuildRequest<?, ?, ?, ?>[] dependencies;
+	    
+        public Input(SpoofaxContext context, BuildRequest<?, ?, ?, ?>[] dependencies) {
+            super(context);
+            
+            this.dependencies = dependencies;
+        }        
+	}
+	
+	public CompileJavaCode(Input input) {
 		super(input);
 	}
 
 	@Override
-	protected String description(SpoofaxInput input) {
+	protected String description(Input input) {
 		return "Compile Java code for Spoofax";
 	}
 
 	@Override
-	public File persistentPath(SpoofaxInput input) {
+	public File persistentPath(Input input) {
 		return context.depPath("compileJavaCode.dep");
 	}
 
 	@Override
-	public None build(SpoofaxInput input) throws IOException {
+	public None build(Input input) throws IOException {
 		File targetDir = FileUtils.toFile(context.settings.getClassesDirectory());
 		boolean debug = true;
 		String sourceVersion = "1.7";
@@ -71,6 +87,9 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		}
 
 		List<File> classPath = new ArrayList<>();
+		for(String classpathItem : context.javaClasspath) {
+		    classPath.add(new File(classpathItem));
+		}
 		classPath.add(FileCommands.getRessourcePath(strj.class).toFile());
 
 		if (context.settings.externalJar() != null) {
@@ -79,11 +98,9 @@ public class CompileJavaCode extends SpoofaxBuilder<SpoofaxInput, None> {
 		if (context.isJavaJarEnabled(this)) {
 			classPath.add(FileUtils.toFile(context.settings.getStrCompiledJavaJarFile()));
 		}
-
-		for (File sourceFile : sourceFiles) {
-			requireBuild(JavaBuilder.request(new JavaInput(sourceFile, targetDir, sourcePath, classPath, additionalArgs.toArray(new String[additionalArgs
-					.size()]), null)));
-		}
+		
+        requireBuild(JavaBulkBuilder.factory, new JavaInput(sourceFiles, targetDir, sourcePath, classPath,
+            additionalArgs.toArray(new String[additionalArgs.size()]), Lists.newArrayList(input.dependencies)));
 
 		return None.val;
 	}

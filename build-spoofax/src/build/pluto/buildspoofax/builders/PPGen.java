@@ -53,7 +53,7 @@ public class PPGen extends SpoofaxBuilder<PPGen.Input, None> {
 	}
 	
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		return input.context.depPath("ppGen." + input.sdfModule + ".dep");
 	}
 

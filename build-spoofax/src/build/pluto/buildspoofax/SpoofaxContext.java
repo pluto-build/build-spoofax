@@ -32,6 +32,7 @@ public class SpoofaxContext implements Serializable {
     public final SpoofaxProjectSettings settings;
     public final File baseDir;
     public final File depDir;
+    public final Iterable<String> javaClasspath;
     
     public transient IProject project;
     
@@ -48,20 +49,17 @@ public class SpoofaxContext implements Serializable {
     }
     
     
-    public SpoofaxContext(SpoofaxProjectSettings settings) {
+    public SpoofaxContext(SpoofaxProjectSettings settings, Iterable<String> javaClasspath) {
         if(SpoofaxContext.injector == null) {
             throw new RuntimeException("Creating context while injector has not been set");
         }
         
+        this.settings = settings;
         this.baseDir = FileUtils.toFile(settings.location());
         this.depDir = FileUtils.toFile(settings.getBuildDirectory());
-
-        this.settings = settings;
-        this.project = projectService.get(settings.location());
-    }
-    
-    public void init(SpoofaxProjectSettings settings) {
+        this.javaClasspath = javaClasspath;
         
+        this.project = projectService.get(settings.location());
     }
 
 

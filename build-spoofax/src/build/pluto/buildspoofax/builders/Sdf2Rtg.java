@@ -50,7 +50,7 @@ public class Sdf2Rtg extends SpoofaxBuilder<Sdf2Rtg.Input, None> {
 	}
 	
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		return context.depPath("sdf2Rtg." + input.sdfModule + ".dep");
 	}
 

@@ -53,7 +53,7 @@ public class ParseSdfDefinition extends SpoofaxBuilder<ParseSdfDefinition.Input,
 	}
 
 	@Override
-	protected File persistentPath(Input input) {
+    public File persistentPath(Input input) {
 		String rel = input.defPath.getPath();
 		String relname = rel.replace(File.separatorChar, '_');
 		return new File(new File(FileCommands.TMP_DIR), "parse.sdf." + relname + ".dep");
