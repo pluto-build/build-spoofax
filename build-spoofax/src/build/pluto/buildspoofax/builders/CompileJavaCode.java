@@ -14,12 +14,15 @@ import org.sugarj.common.FileCommands;
 import build.pluto.builder.BuildRequest;
 import build.pluto.buildjava.JavaBulkBuilder;
 import build.pluto.buildjava.JavaInput;
+import build.pluto.buildjava.compiler.JavacCompiler;
 import build.pluto.buildspoofax.SpoofaxBuilder;
 import build.pluto.buildspoofax.SpoofaxBuilderFactory;
 import build.pluto.buildspoofax.SpoofaxBuilderFactoryFactory;
 import build.pluto.buildspoofax.SpoofaxContext;
 import build.pluto.buildspoofax.SpoofaxInput;
 import build.pluto.output.None;
+import build.pluto.stamp.FileExistsStamper;
+import build.pluto.stamp.LastModifiedStamper;
 
 import com.google.common.collect.Lists;
 
@@ -67,6 +70,8 @@ public class CompileJavaCode extends SpoofaxBuilder<CompileJavaCode.Input, None>
 		additionalArgs.add("-target");
 		additionalArgs.add(targetVersion);
 
+		requireBuild(input.dependencies);
+		
 		// TODO: this used to get src-dirs property before
 		String srcDirs = FileUtils.toPath(context.settings.getStrJavaDirectory());
 		List<File> sourcePath = new ArrayList<>();
@@ -82,7 +87,7 @@ public class CompileJavaCode extends SpoofaxBuilder<CompileJavaCode.Input, None>
 
 			for (Path sourceFile : FileCommands.listFilesRecursive(p.toPath(), new SuffixFileFilter("java"))) {
 				sourceFiles.add(sourceFile.toFile());
-				require(sourceFile.toFile());
+				require(sourceFile.toFile(), FileExistsStamper.instance);
 			}
 		}
 
@@ -100,7 +105,7 @@ public class CompileJavaCode extends SpoofaxBuilder<CompileJavaCode.Input, None>
 		}
 		
         requireBuild(JavaBulkBuilder.factory, new JavaInput(sourceFiles, targetDir, sourcePath, classPath,
-            additionalArgs.toArray(new String[additionalArgs.size()]), Lists.newArrayList(input.dependencies)));
+            additionalArgs, Lists.newArrayList(input.dependencies), JavacCompiler.instance));
 
 		return None.val;
 	}
